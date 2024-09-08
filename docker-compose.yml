@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  gateway:
+    image: gateway:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - cart
+      - checkout
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  cart:
+    image: cart:latest
+    expose:
+      - "8081"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  checkout:
+    image: checkout:latest
+    expose:
+      - "8082"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
