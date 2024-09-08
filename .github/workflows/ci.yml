@@ -65,9 +65,20 @@ jobs:
       - name: Check cart health endpoint
         run: |
           sleep 30
-          curl --fail http://localhost:8081/actuator/health
+          sleep 30
+                    if curl --fail http://localhost:8081/actuator/health; then
+            echo "App must only be available thru gateway"
+            exit 1
+          else
+            echo "Connection refused as expected"
+          fi
 
       - name: Check checkout health endpoint
         run: |
           sleep 30
-          curl --fail http://localhost:8082/actuator/health
+                    if curl --fail http://localhost:8082/actuator/health; then
+            echo "App must only be available thru gateway"
+            exit 1
+          else
+            echo "Connection refused as expected"
+          fi
