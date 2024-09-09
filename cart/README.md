@@ -104,8 +104,43 @@ A aplicação visa melhorar a experiência do usuário e a eficiência no gerenc
        "error": "Invalid itemId"
       }
       ```
+### 4. Buscar carrinho do consumidor
+- **Endpoint:** `GET /`
+- **Descrição:** Deve retorna o carrinho de um consumidor.
+- **Corpo da Requisição (JSON):**
+  ```json
+    {
+    "consumerId": "153e23c8-322e-4fec-b9c4-72b8f74ad002"
+    }
+  ````
+- **Respostas**
+    - 200 OK
+  ```
+  {
+    "items": [
+      {
+        "itemId": 1,
+        "qnt": 4
+      }
+    ]
+  }
+  ```
+    - 400 Bad request
+        - Quando o consumerId possui um carrinho vazio
+      ```
+      {
+       "error": "Empty cart"
+      }
+      ```
+    - 400 Bad request
+        - Quando o consumerId não for um UUID
+      ```
+      {
+       "error": "Invalid consumerId format"
+      }
+      ```
       
-### 4. Limpar o Carrinho
+### 5. Limpar o Carrinho
 - **Endpoint:** `DELETE /`
 - **Descrição:** Remove todo o carrinho de um consumidor.
 - **Corpo da Requisição (JSON):**
