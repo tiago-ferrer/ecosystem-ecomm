@@ -10,6 +10,22 @@ on:
   workflow_dispatch:
 
 jobs:
+  check-recent-commits:
+    name: Check for commits after 23:55 on 21/09
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for recent commits
+        run: |
+          if git log --after="2024-09-21T23:55:00" --oneline | grep -q .; then
+            echo "Commits found after 23:55 on 21/09"
+            exit 1
+          else
+            echo "No commits found after 23:55 on 21/09"
+          fi
   generic-build:
     name: Check building step
     runs-on: ubuntu-latest
@@ -340,7 +356,7 @@ jobs:
           --url https://payment-api-latest.onrender.com/create-payment \
           --header 'Content-Type: application/json' \
           --header 'User-Agent: insomnia/9.3.3' \
-          --header 'apiKey: {{ secrets.API_KEY_PAYMENT }}' \
+          --header 'apiKey: ${{ secrets.API_KEY_PAYMENT }}' \
           --data '{
           "orderId": "98b251ab-e4f1-487e-a26b-fa8fdbe356ac",
                        "amount": 1050,
