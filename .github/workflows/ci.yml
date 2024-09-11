@@ -332,3 +332,60 @@ jobs:
                   "consumerId": "invalid-uuid"
                 }' \
             --fail
+
+      - name: Test PAYMENT External API
+        continue-on-error: true
+        run: |
+          curl --request POST \
+          --url https://payment-api-latest.onrender.com/create-payment \
+          --header 'Content-Type: application/json' \
+          --header 'User-Agent: insomnia/9.3.3' \
+          --header 'apiKey: {{ secrets.API_KEY_PAYMENT }}' \
+          --data '{
+          "orderId": "98b251ab-e4f1-487e-a26b-fa8fdbe356ac",
+                       "amount": 1050,
+                       "currency": "BRL",
+                       "payment_method": {
+                         "type": "br_credit_card",
+                         "fields": {
+                           "number": "4111111111111111",
+                           "expiration_month": "12",
+                           "expiration_year": "25",
+                           "cvv": "789",
+                           "name": "John Doe"
+                         }
+                       }
+          }'
+      - name: Test POST /checkout endpoint
+        continue-on-error: true
+        run: |
+          curl -X POST http://localhost:8080/checkout \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "consumerId": "153e23c8-322e-4fec-b9c4-72b8f74ad002",
+                  "amount": 1050,
+                  "currency": "BRL",
+                  "payment_method": {
+                      "type": "br_credit_card",
+                      "fields": {
+                          "number": "4111111111111111",
+                          "expiration_month": "12",
+                          "expiration_year": "25",
+                          "cvv": "789",
+                          "name": "John Doe"
+                      }
+                  }
+                }' \
+            --fail
+      - name: Test GET /by-order-id/{orderId} endpoint
+        continue-on-error: true
+        run: |
+          curl -X POST http://localhost:8080/by-order-id/98b251ab-e4f1-487e-a26b-fa8fdbe356ac \
+            -H "Content-Type: application/json" \
+            --fail
+      - name: Test GET /{consumerID} endpoint
+        continue-on-error: true
+        run: |
+          curl -X POST http://localhost:8080/checkout/153e23c8-322e-4fec-b9c4-72b8f74ad002 \
+            -H "Content-Type: application/json" \
+            --fail
