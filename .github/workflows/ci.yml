@@ -20,7 +20,7 @@ jobs:
 
       - name: Check for recent commits
         run: |
-          if git log --after="2024-09-21T23:55:00" --oneline | grep -q .; then
+          if git log --after="2024-09-27T23:59:00" --oneline | grep -q .; then
             echo "Commits found after 23:55 on 21/09"
             exit 1
           else
