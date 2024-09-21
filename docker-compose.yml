@@ -18,7 +18,7 @@ services:
   cart:
     image: cart:latest
     expose:
-      - "8081"
+      - "8081:8081"
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
@@ -29,7 +29,7 @@ services:
   checkout:
     image: checkout:latest
     expose:
-      - "8082"
+      - "8082:8082"
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
       interval: 30s
