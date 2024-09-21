@@ -36,3 +36,14 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  database:
+    image: 'postgres:latest'
+    ports:
+      - '15432:5432'
+    environment:
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_DB=checkout'
+      - 'POSTGRES_PASSWORD=admin'
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
