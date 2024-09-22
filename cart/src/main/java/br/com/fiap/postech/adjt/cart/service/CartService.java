@@ -17,20 +17,22 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
 
-    public String addItem(String consumerId, String itemId, int quantity) {
-
-        if (!isValidItemId(itemId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId");
-        }
+    public String addItem(UUID consumerId, String itemId, int quantity) {
 
         if (!isValidUUID(consumerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
         }
+
+        if (!isValidItemId(itemId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId does not exist");
+        }
+
         if (quantity <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId quantity");
         }
 
         Cart cart = cartRepository.findByConsumerId(consumerId);
+
         if (cart == null) {
             cart = new Cart(consumerId, new ArrayList<>());
         }
@@ -40,21 +42,18 @@ public class CartService {
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            // Incrementar a quantidade se o item já existir
             existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
         } else {
-            // Criar um novo item e adicionar ao carrinho
-            Item newItem = new Item(); // Criação do novo item
-            newItem.setProductId(itemId); // Definindo o productId
-            newItem.setQuantity(quantity); // Definindo a quantidade
-            cart.getItems().add(newItem); // Adiciona o item ao carrinho
+            Item newItem = new Item(itemId, quantity);
+            cart.getItems().add(newItem);
         }
 
-        cartRepository.save(cart); // Salva o carrinho atualizado
+        cartRepository.save(cart);
         return "Item added to cart successfully";
     }
 
-    public String removeItem(String consumerId, String itemId) {
+    public String removeItem(UUID consumerId, String itemId) {
+
         if (!isValidUUID(consumerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
         }
@@ -76,11 +75,12 @@ public class CartService {
             cartRepository.save(cart);
             return "Item removed from cart successfully";
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId does not exist");
         }
     }
 
-    public String incrementItem(String consumerId, String itemId) {
+    public String incrementItem(UUID consumerId, String itemId) {
+
         if (!isValidUUID(consumerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
         }
@@ -103,7 +103,8 @@ public class CartService {
         }
     }
 
-    public Cart getCart(String consumerId) {
+    public Cart getCart(UUID consumerId) {
+
         if (!isValidUUID(consumerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
         }
@@ -116,7 +117,8 @@ public class CartService {
         return cart;
     }
 
-    public String clearCart(String consumerId) {
+    public String clearCart(UUID consumerId) {
+
         if (!isValidUUID(consumerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
         }
@@ -129,9 +131,9 @@ public class CartService {
         return "Items removed from cart successfully";
     }
 
-    private boolean isValidUUID(String uuid) {
+    private boolean isValidUUID(UUID uuid) {
         try {
-            UUID.fromString(uuid);
+            UUID.fromString(uuid.toString());
             return true;
         } catch (IllegalArgumentException e) {
             return false;
@@ -141,5 +143,4 @@ public class CartService {
     private boolean isValidItemId(String itemId) {
         return itemId != null && !itemId.trim().isEmpty();
     }
-
 }
