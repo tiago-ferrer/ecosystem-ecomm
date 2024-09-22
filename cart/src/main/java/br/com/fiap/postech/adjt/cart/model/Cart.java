@@ -14,7 +14,7 @@ public class Cart {
 
     private UUID orderId;
     private UUID consumerId;
-    private List<Item> Item;
+    private List<Item> items;
     private int quantity;
 
 }
