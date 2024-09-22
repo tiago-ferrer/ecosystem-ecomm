@@ -1,6 +1,6 @@
-package repository;
+package br.com.fiap.postech.adjt.cart.repository;
 
-import domain.Cart;
+import br.com.fiap.postech.adjt.cart.domain.Cart;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

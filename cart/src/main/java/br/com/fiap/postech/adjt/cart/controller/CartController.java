@@ -1,11 +1,11 @@
-package controller;
+package br.com.fiap.postech.adjt.cart.controller;
 
-import domain.Cart;
-import domain.Item;
+import br.com.fiap.postech.adjt.cart.domain.Cart;
+import br.com.fiap.postech.adjt.cart.domain.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import service.CartService;
+import br.com.fiap.postech.adjt.cart.service.CartService;
 
 import java.util.UUID;
 

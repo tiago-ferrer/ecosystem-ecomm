@@ -1,4 +1,4 @@
-package domain;
+package br.com.fiap.postech.adjt.cart.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package exception;
+package br.com.fiap.postech.adjt.cart.exception;
 
 import java.util.UUID;
 

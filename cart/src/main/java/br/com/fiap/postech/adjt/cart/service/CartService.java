@@ -1,13 +1,12 @@
-package service;
+package br.com.fiap.postech.adjt.cart.service;
 
-import domain.Cart;
-import domain.Item;
-import exception.CartNotFoundException;
+import br.com.fiap.postech.adjt.cart.domain.Cart;
+import br.com.fiap.postech.adjt.cart.domain.Item;
+import br.com.fiap.postech.adjt.cart.exception.CartNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import repository.CartRepository;
+import br.com.fiap.postech.adjt.cart.repository.CartRepository;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -16,14 +15,16 @@ public class CartService {
     private CartRepository cartRepository;
 
     public Cart addItem(UUID consumerId, Item item) {
-        // Verifica se o item é nulo
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
 
-        // Busca o carrinho pelo consumerId ou cria um novo se não existir
+        // Cria um novo carrinho se não existir
         Cart cart = cartRepository.findByConsumerId(consumerId)
-                .orElseGet(() -> new Cart(consumerId)); // Apenas o consumerId
+                .orElseGet(() -> {
+                    Cart newCart = new Cart(consumerId);
+                    return cartRepository.save(newCart); // Salva o novo carrinho
+                });
 
         // Verifica se o item já está no carrinho
         boolean itemExists = cart.getItems().stream()
