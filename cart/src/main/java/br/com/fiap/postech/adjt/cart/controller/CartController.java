@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/cart")
 public class CartController {
@@ -35,7 +37,7 @@ public class CartController {
 
     @GetMapping("/")
     public ResponseEntity<?> getCart(@RequestBody CartConsumerRequest request) {
-        Cart cart = cartService.getCart(request.getConsumerId());
+        Cart cart = cartService.getCart(UUID.fromString(request.getConsumerId()));
         return ResponseEntity.ok(cart);
     }
 
