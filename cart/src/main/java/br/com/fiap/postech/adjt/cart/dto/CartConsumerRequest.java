@@ -5,5 +5,5 @@ import java.util.UUID;
 
 @Data
 public class CartConsumerRequest {
-    private UUID consumerId;
+    private String consumerId;
 }

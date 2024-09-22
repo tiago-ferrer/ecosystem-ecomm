@@ -1,5 +1,7 @@
-package br.com.fiap.postech.adjt.cart.exceptions;
+package br.com.fiap.postech.adjt.cart.ecxeptions;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -17,9 +19,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("An unexpected error occurred"));
+                .body(new ErrorResponse("An unexpected error occurred: " + ex.getMessage()));
     }
 
+    @Setter
+    @Getter
     static class ErrorResponse {
         private String error;
 
@@ -27,12 +31,6 @@ public class GlobalExceptionHandler {
             this.error = error;
         }
 
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
     }
 }
+
