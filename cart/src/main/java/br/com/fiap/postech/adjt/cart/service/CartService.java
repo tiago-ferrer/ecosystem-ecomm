@@ -18,6 +18,11 @@ public class CartService {
     private CartRepository cartRepository;
 
     public String addItem(String consumerId, String itemId, int quantity) {
+
+        if (!isValidItemId(itemId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId");
+        }
+
         if (!isValidUUID(consumerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
         }
@@ -35,12 +40,17 @@ public class CartService {
                 .findFirst();
 
         if (existingItem.isPresent()) {
+            // Incrementar a quantidade se o item já existir
             existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
         } else {
-            cart.getItems().add(new Item(null, itemId, quantity));
+            // Criar um novo item e adicionar ao carrinho
+            Item newItem = new Item(); // Criação do novo item
+            newItem.setProductId(itemId); // Definindo o productId
+            newItem.setQuantity(quantity); // Definindo a quantidade
+            cart.getItems().add(newItem); // Adiciona o item ao carrinho
         }
 
-        cartRepository.save(cart);
+        cartRepository.save(cart); // Salva o carrinho atualizado
         return "Item added to cart successfully";
     }
 
@@ -127,4 +137,9 @@ public class CartService {
             return false;
         }
     }
+
+    private boolean isValidItemId(String itemId) {
+        return itemId != null && !itemId.trim().isEmpty();
+    }
+
 }

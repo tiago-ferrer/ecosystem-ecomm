@@ -9,8 +9,6 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
-    @Id
-    private String id; // ID do item no MongoDB
     private String productId;
     private int quantity;
 }
