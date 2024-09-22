@@ -22,16 +22,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class CreateOrderUseCase {
-
-    private final OrderRepository orderRepository;
-
     private final OrderGateway orderGateway;
     private final CartGateway cartGateway;
     private final PaymentGateway paymentGateway;
 
-    public CreateOrderUseCase(OrderRepository orderRepository, OrderGateway orderGateway, CartGateway cartGateway,
-                              PaymentGateway paymentGateway) {
-        this.orderRepository = orderRepository;
+    public CreateOrderUseCase(OrderGateway orderGateway, CartGateway cartGateway, PaymentGateway paymentGateway) {
         this.orderGateway = orderGateway;
         this.cartGateway = cartGateway;
         this.paymentGateway = paymentGateway;
@@ -52,25 +47,25 @@ public class CreateOrderUseCase {
                 .build();
 
         orderModel = orderGateway.createNewOrder(orderModel);
-        paymentGateway.sendPayment(orderModel);
+        paymentGateway.sendPayment(orderModel);//TODO integracao async com a api externa(tem que implementar)
         return orderModel;
     }
 
-    public List<OrderEntity> getOrderByConsumerId(String consumerId) throws AppException {
+    public List<OrderModel> getOrderByConsumerId(String consumerId) throws AppException {
 
         if (Objects.isNull(consumerId) || consumerId.isEmpty() || isValidUUID(consumerId)) {
             throw new AppException(ErrorConstants.USER_ID_FORMAT_INVALID);
         }
 
-        return orderRepository.findByConsumerId(consumerId);
+        return orderGateway.findByConsumerId(consumerId);
     }
 
-    public OrderEntity getOrderById(String orderId) throws AppException {
+    public OrderModel getOrderById(String orderId) throws AppException {
 
         if (Objects.isNull(orderId) || orderId.isEmpty() || isValidUUID(orderId)) {
             throw new AppException(ErrorConstants.ORDER_ID_FORMAT_INVALID);
         }
-        Optional<OrderEntity> optionalOrder = orderRepository.findById(UUID.fromString(orderId));
+        Optional<OrderModel> optionalOrder = orderGateway.findById(UUID.fromString(orderId));
         if (optionalOrder.isEmpty()) {
             throw new AppException(ErrorConstants.ORDER_ID_NOT_FOUND);
         }
