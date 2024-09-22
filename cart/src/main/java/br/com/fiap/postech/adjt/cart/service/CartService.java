@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,15 +19,26 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
 
-    // Adds an item to the cart after validating input
     public String addItem(String consumerId, String itemId, int quantity) {
-        Cart cart = validateAndGetCart(consumerId); // Get the cart for the consumer
-        validateItemId(itemId); // Validate the item ID
-        validateQuantity(quantity); // Validate the quantity
+        Cart cart;
+        try {
+            cart = validateAndGetCart(consumerId); // Tenta obter o carrinho existente
+        } catch (ResponseStatusException e) {
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST && e.getReason().equals(ErrorMessages.EMPTY_CART)) {
+                cart = new Cart(); // Cria um carrinho vazio
+                cart.setConsumerId(UUID.fromString(consumerId)); // Define o consumerId
+                cart.setItems(new ArrayList<>()); // Inicializa a lista de itens
+            } else {
+                throw e; // Re-lança outras exceções
+            }
+        }
 
-        updateCartWithItem(cart, itemId, quantity); // Update the cart with the new item
-        cartRepository.save(cart); // Save the updated cart
-        return ErrorMessages.ITEM_ADDED_SUCCESSFULLY; // Return success message
+        validateItemId(itemId); // Valida o ID do item
+        validateQuantity(quantity); // Valida a quantidade
+
+        updateCartWithItem(cart, itemId, quantity); // Atualiza o carrinho com o novo item
+        cartRepository.save(cart); // Salva o carrinho atualizado
+        return ErrorMessages.ITEM_ADDED_SUCCESSFULLY; // Retorna mensagem de sucesso
     }
 
     // Removes an item from the cart
