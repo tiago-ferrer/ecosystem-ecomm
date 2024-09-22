@@ -12,7 +12,6 @@ import javax.validation.constraints.Min;
 public class Item {
     @NotNull
     private String productId;
-
     @Min(1)
     private int quantity;
 }

@@ -7,36 +7,110 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
-
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class CartService {
+
+    private static final String INVALID_CONSUMER_ID_FORMAT = "Invalid consumerId format";
+    private static final String EMPTY_CART = "Empty cart";
+    private static final String INVALID_ITEM_ID = "Invalid itemId does not exist";
+    private static final String INVALID_ITEM_QUANTITY = "Invalid itemId quantity";
+
     @Autowired
     private CartRepository cartRepository;
 
-    public String addItem(UUID consumerId, String itemId, int quantity) {
+    public String addItem(String consumerId, String itemId, int quantity) {
+        validateConsumerIdFormat(consumerId);
+        UUID consumerUUID = UUID.fromString(consumerId);
+        validateItemId(itemId);
+        validateQuantity(quantity);
 
-        if (!isValidUUID(consumerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
+        Cart cart = getOrCreateCart(consumerUUID);
+        updateCartWithItem(cart, itemId, quantity);
+        cartRepository.save(cart);
+        return "Item added to cart successfully";
+    }
+
+    public String removeItem(String consumerId, String itemId) {
+        validateConsumerIdFormat(consumerId);
+        UUID consumerUUID = UUID.fromString(consumerId); // Converte para UUID
+        Cart cart = getCart(consumerUUID);
+
+        Item existingItem = findItemInCart(cart, itemId);
+        existingItem.setQuantity(existingItem.getQuantity() - 1);
+        if (existingItem.getQuantity() <= 0) {
+            cart.getItems().remove(existingItem);
         }
+        cartRepository.save(cart);
+        return "Item removed from cart successfully";
+    }
 
+    public String incrementItem(String consumerId, String itemId) {
+        validateConsumerIdFormat(consumerId);
+        UUID consumerUUID = UUID.fromString(consumerId);
+
+        Cart cart = getCart(consumerUUID); // Agora usando UUID
+        Item existingItem = findItemInCart(cart, itemId);
+        existingItem.setQuantity(existingItem.getQuantity() + 1);
+        cartRepository.save(cart);
+        return "Item incremented successfully";
+    }
+    public Cart getCart(UUID consumerId) {
+        validateConsumerId(consumerId);
+        return cartRepository.findByConsumerId(consumerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, EMPTY_CART));
+    }
+
+    public String clearCart(UUID consumerId) {
+        validateConsumerId(consumerId);
+        Cart cart = getCart(consumerId);
+        cart.getItems().clear();
+        cartRepository.save(cart);
+        return "Items removed from cart successfully";
+    }
+
+    private void validateConsumerId(UUID consumerId) {
+        if (consumerId == null || !isValidUUID(consumerId.toString())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_CONSUMER_ID_FORMAT);
+        }
+    }
+
+    private void validateConsumerIdFormat(String consumerId) {
+        if (consumerId == null || !isValidUUID(consumerId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_CONSUMER_ID_FORMAT);
+        }
+    }
+
+    private boolean isValidUUID(String uuid) {
+        try {
+            UUID.fromString(uuid);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private void validateItemId(String itemId) {
         if (!isValidItemId(itemId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId does not exist");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_ITEM_ID);
         }
+    }
 
+    private void validateQuantity(int quantity) {
         if (quantity <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId quantity");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_ITEM_QUANTITY);
         }
+    }
 
-        Cart cart = cartRepository.findByConsumerId(consumerId);
+    private Cart getOrCreateCart(UUID consumerId) {
+        return cartRepository.findByConsumerId(consumerId)
+                .orElseGet(() -> new Cart(consumerId, new ArrayList<>()));
+    }
 
-        if (cart == null) {
-            cart = new Cart(consumerId, new ArrayList<>());
-        }
-
+    private void updateCartWithItem(Cart cart, String itemId, int quantity) {
         Optional<Item> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(itemId))
                 .findFirst();
@@ -47,97 +121,13 @@ public class CartService {
             Item newItem = new Item(itemId, quantity);
             cart.getItems().add(newItem);
         }
-
-        cartRepository.save(cart);
-        return "Item added to cart successfully";
     }
 
-    public String removeItem(UUID consumerId, String itemId) {
-
-        if (!isValidUUID(consumerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
-        }
-
-        Cart cart = cartRepository.findByConsumerId(consumerId);
-        if (cart == null || cart.getItems().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Empty cart");
-        }
-
-        Optional<Item> existingItem = cart.getItems().stream()
+    private Item findItemInCart(Cart cart, String itemId) {
+        return cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(itemId))
-                .findFirst();
-
-        if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() - 1);
-            if (existingItem.get().getQuantity() <= 0) {
-                cart.getItems().remove(existingItem.get());
-            }
-            cartRepository.save(cart);
-            return "Item removed from cart successfully";
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId does not exist");
-        }
-    }
-
-    public String incrementItem(UUID consumerId, String itemId) {
-
-        if (!isValidUUID(consumerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
-        }
-
-        Cart cart = cartRepository.findByConsumerId(consumerId);
-        if (cart == null || cart.getItems().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Empty cart");
-        }
-
-        Optional<Item> existingItem = cart.getItems().stream()
-                .filter(item -> item.getProductId().equals(itemId))
-                .findFirst();
-
-        if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() + 1);
-            cartRepository.save(cart);
-            return "Item incremented successfully";
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid itemId");
-        }
-    }
-
-    public Cart getCart(UUID consumerId) {
-
-        if (!isValidUUID(consumerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
-        }
-
-        Cart cart = cartRepository.findByConsumerId(consumerId);
-        if (cart == null || cart.getItems().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Empty cart");
-        }
-
-        return cart;
-    }
-
-    public String clearCart(UUID consumerId) {
-
-        if (!isValidUUID(consumerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid consumerId format");
-        }
-
-        Cart cart = cartRepository.findByConsumerId(consumerId);
-        if (cart != null) {
-            cart.getItems().clear();
-            cartRepository.save(cart);
-        }
-        return "Items removed from cart successfully";
-    }
-
-    private boolean isValidUUID(UUID uuid) {
-        try {
-            UUID.fromString(uuid.toString());
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_ITEM_ID));
     }
 
     private boolean isValidItemId(String itemId) {
