@@ -17,8 +17,14 @@ services:
 
   cart:
     image: cart:latest
-    expose:
-      - "8081"
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydatabase
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: r00t
+    depends_on:
+      - mysql
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
@@ -36,3 +42,5 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+
