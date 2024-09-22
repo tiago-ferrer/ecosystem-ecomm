@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - grupo-6
   pull_request:
     branches:
-      - master
+      - grupo-6
   workflow_dispatch:
 
 jobs:
