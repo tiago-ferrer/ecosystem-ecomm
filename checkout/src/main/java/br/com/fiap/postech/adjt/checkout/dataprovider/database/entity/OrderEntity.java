@@ -1,6 +1,6 @@
-package br.com.fiap.postech.adjt.checkout.domain.entity;
+package br.com.fiap.postech.adjt.checkout.dataprovider.database.entity;
 
-import br.com.fiap.postech.adjt.checkout.domain.enums.PaymentStatus;
+import br.com.fiap.postech.adjt.checkout.domain.model.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class Order {
+public class OrderEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,8 +23,8 @@ public class Order {
     @Column(name = "paymentStatus", nullable = false)
     private PaymentStatus paymentStatus;
 
-    @Column(name = "customer_id", nullable = false)
-    private String customerId;
+    @Column(name = "consumer_id", nullable = false)
+    private String consumerId;
 
     @Column(name = "payment_type", nullable = false)
     private String paymentType;
@@ -33,5 +33,5 @@ public class Order {
     private Double value;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<OrderItem> items;
+    private List<OrderItemEntity> items;
 }

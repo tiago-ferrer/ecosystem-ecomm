@@ -1,6 +1,6 @@
 package br.com.fiap.postech.adjt.checkout.application.dto;
 
-import br.com.fiap.postech.adjt.checkout.domain.enums.PaymentStatus;
+import br.com.fiap.postech.adjt.checkout.domain.model.enums.PaymentStatus;
 
 import java.util.List;
 

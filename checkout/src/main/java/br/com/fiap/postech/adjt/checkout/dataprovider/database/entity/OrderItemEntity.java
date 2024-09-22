@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout.domain.entity;
+package br.com.fiap.postech.adjt.checkout.dataprovider.database.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity(name = "order_items")
 @AllArgsConstructor
-public class OrderItem {
+public class OrderItemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,11 +24,12 @@ public class OrderItem {
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price")
     private Double price;
 
     @ManyToOne
-    private Order order;
+    @JoinColumn(name="order_id")
+    private OrderEntity order;
 
 }
 

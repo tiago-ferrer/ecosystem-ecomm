@@ -5,13 +5,14 @@ import br.com.fiap.postech.adjt.checkout.application.dto.CheckoutDTO;
 import br.com.fiap.postech.adjt.checkout.application.dto.CheckoutResponseDTO;
 import br.com.fiap.postech.adjt.checkout.application.dto.OrderDTO;
 import br.com.fiap.postech.adjt.checkout.domain.exception.AppException;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/checkout")
-public class OrderController extends AbstractRestController {
+public class OrderController {
 
     private final OrderFacade orderFacade;
 
@@ -20,7 +21,7 @@ public class OrderController extends AbstractRestController {
     }
 
     @PostMapping
-    public CheckoutResponseDTO createOrder(@RequestBody CheckoutDTO checkoutDTO) throws AppException {
+    public CheckoutResponseDTO createOrder(@Valid @RequestBody CheckoutDTO checkoutDTO) throws AppException {
         return orderFacade.createOrder(checkoutDTO);
     }
 

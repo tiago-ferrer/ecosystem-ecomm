@@ -2,14 +2,14 @@ package br.com.fiap.postech.adjt.checkout.application.mappers;
 
 import br.com.fiap.postech.adjt.checkout.application.dto.OrderDTO;
 import br.com.fiap.postech.adjt.checkout.application.dto.OrderItemDTO;
-import br.com.fiap.postech.adjt.checkout.domain.entity.Order;
-import br.com.fiap.postech.adjt.checkout.domain.entity.OrderItem;
+import br.com.fiap.postech.adjt.checkout.dataprovider.database.entity.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.dataprovider.database.entity.OrderItemEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OrderMapper {
 
-    public OrderDTO toOrderDTO(Order order) {
+    public OrderDTO toOrderDTO(OrderEntity order) {
         return new OrderDTO(
                 order.getOrderId().toString(),
                 order.getPaymentType(),
@@ -18,7 +18,7 @@ public class OrderMapper {
                 order.getItems().stream().map(this::toOrderItemDTO).toList());
     }
 
-    private OrderItemDTO toOrderItemDTO(OrderItem orderItem) {
+    private OrderItemDTO toOrderItemDTO(OrderItemEntity orderItem) {
         return new OrderItemDTO(orderItem.getCodItem(), orderItem.getQuantity());
     }
 }
