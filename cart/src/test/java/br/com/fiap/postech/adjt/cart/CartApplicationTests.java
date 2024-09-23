@@ -8,6 +8,7 @@ class CartApplicationTests {
 
     @Test
     void contextLoads() {
+        CartApplication.main(new String[]{});
     }
 
 }
