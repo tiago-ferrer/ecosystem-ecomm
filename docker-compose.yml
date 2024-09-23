@@ -1,8 +1,10 @@
 version: '3.8'
 
+
 services:
   gateway:
-    image: gateway:latest
+    build:
+      context: ./gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -16,7 +18,8 @@ services:
       start_period: 30s
 
   cart:
-    image: cart:latest
+    build:
+      context: ./cart
     expose:
       - "8081"
     healthcheck:
@@ -27,7 +30,8 @@ services:
       start_period: 30s
 
   checkout:
-    image: checkout:latest
+    build:
+      context: ./checkout
     expose:
       - "8082"
     healthcheck:
@@ -47,3 +51,17 @@ services:
       - 'POSTGRES_PASSWORD=admin'
     volumes:
       - ./init:/docker-entrypoint-initdb.d
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
