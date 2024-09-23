@@ -4,7 +4,7 @@ version: '3.8'
 services:
   gateway:
     build:
-      context: ./gateway  
+      context: ./gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -19,7 +19,7 @@ services:
 
   cart:
     build:
-      context: ./cart  
+      context: ./cart
     expose:
       - "8081"
     healthcheck:
@@ -31,7 +31,7 @@ services:
 
   checkout:
     build:
-      context: ./checkout  
+      context: ./checkout
     expose:
       - "8082"
     healthcheck:
@@ -40,6 +40,17 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  database:
+    image: 'postgres:latest'
+    ports:
+      - '15432:5432'
+    environment:
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_DB=checkout'
+      - 'POSTGRES_PASSWORD=admin'
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
 
   mongo:
     image: mongo:latest
