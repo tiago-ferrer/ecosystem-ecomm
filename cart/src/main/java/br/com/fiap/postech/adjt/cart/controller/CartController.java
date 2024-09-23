@@ -35,13 +35,13 @@ public class CartController {
         return ResponseEntity.ok(new ResponseMessage(message));
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<?> getCart(@RequestBody CartConsumerRequest request) {
         Cart cart = cartService.getCart(UUID.fromString(request.getConsumerId()));
         return ResponseEntity.ok(cart);
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping
     public ResponseEntity<?> clearCart(@RequestBody CartConsumerRequest request) {
         String message = cartService.clearCart(request.getConsumerId());
         return ResponseEntity.ok(new ResponseMessage(message));
