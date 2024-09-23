@@ -15,7 +15,7 @@ public class ErrorHandling {
 		if(ex.getMessage().equals("Item não encontrado")) {
 			return new ErrorHandlingResponseDTO(
 					1,
-					"Item não encontrado"
+					"Item nao encontrado"
 			);
 
 		}
@@ -28,7 +28,7 @@ public class ErrorHandling {
 		}
 		return new ErrorHandlingResponseDTO(
 				0,
-				"ERRO NÃO MAPEADO, ENTRAR EM CONTATO COM O SUPORTE"
+				"ERRO NAO MAPEADO, ENTRAR EM CONTATO COM O SUPORTE"
 		);
 	}
 

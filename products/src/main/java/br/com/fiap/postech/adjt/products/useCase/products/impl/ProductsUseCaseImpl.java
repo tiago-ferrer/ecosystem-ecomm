@@ -36,6 +36,10 @@ public class ProductsUseCaseImpl implements ProductsUseCase {
             log.error("Item não encontrado");
             throw new IllegalArgumentException("Item não encontrado");
         }
-        return null;
+        return new ItemResponseDTO(
+                item.id(),
+                item.title(),
+                item.price()
+        );
     }
 }
