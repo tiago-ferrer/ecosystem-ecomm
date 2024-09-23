@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.cart.ecxeptions;
+package br.com.fiap.postech.adjt.cart.exceptions;
 
 import lombok.Getter;
 import lombok.Setter;

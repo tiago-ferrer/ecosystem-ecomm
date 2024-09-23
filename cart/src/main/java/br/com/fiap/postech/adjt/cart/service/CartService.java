@@ -1,6 +1,6 @@
 package br.com.fiap.postech.adjt.cart.service;
 
-import br.com.fiap.postech.adjt.cart.ecxeptions.ErrorMessages;
+import br.com.fiap.postech.adjt.cart.exceptions.ErrorMessages;
 import br.com.fiap.postech.adjt.cart.model.Cart;
 import br.com.fiap.postech.adjt.cart.model.Item;
 import br.com.fiap.postech.adjt.cart.repository.CartRepository;
@@ -75,8 +75,12 @@ public class CartService {
 
     // Retrieves the cart from the repository, throws an exception if empty
     public Cart getCart(UUID consumerUUID) {
-        return cartRepository.findByConsumerId(consumerUUID)
+        Cart cart = cartRepository.findByConsumerId(consumerUUID)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.EMPTY_CART));
+        if (cart.getItems().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.EMPTY_CART);
+        }
+        return cart;
     }
 
     // Validates consumer ID format and converts it to UUID
