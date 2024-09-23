@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      routes:
+      - id: cart
+        uri: http://localhost:8081
+        predicates:
+        - Path=/cart/**
+        - Method=GET,POST,PUT
+        filters:
+        - RewritePath=/cart/(?<segment>.*), /${segment}
