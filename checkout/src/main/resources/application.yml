@@ -27,3 +27,5 @@ server:
 logging:
   level:
     org.springframework.security: trace
+app:
+  cart-base-url: localhost:8081
