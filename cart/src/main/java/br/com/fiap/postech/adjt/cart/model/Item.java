@@ -30,4 +30,5 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
+
 }
