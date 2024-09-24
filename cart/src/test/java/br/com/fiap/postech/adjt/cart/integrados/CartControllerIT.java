@@ -1,9 +1,7 @@
 package br.com.fiap.postech.adjt.cart.integrados;
 
 import br.com.fiap.postech.adjt.cart.domain.cart.StatusEnum;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.AdicionaItemRequestDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ErrorHandlingResponseDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ItemResponseDTO;
+import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.*;
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.model.CarrinhoEntity;
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.model.ItensNoCarrinhoEntity;
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.model.ItensNoCarrinhoId;
@@ -32,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import static br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.CartController.URL_ITEM;
 import static br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.CartController.URL_ITEMS;
 
 
@@ -414,6 +413,518 @@ public class CartControllerIT {
         Assertions.assertEquals(2, itensDoCarrinho.size());
     }
 
+    @Test
+    public void deleta_deveRetornar500_carrinhoVazio_naoDeletaNaBaseDeDados() throws Exception {
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isInternalServerError()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Cart not found", responseApp.error());
+
+        Assertions.assertEquals(0, this.repositoryCarrinho.findAll().size());
+        Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
+    }
+
+    @Test
+    public void deleta_deveRetornar500_itemNaoEstaNoCarrinho_naoDeletaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(10L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(5L)
+                        .build()
+        );
+
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isInternalServerError()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Item not found in cart", responseApp.error());
+
+        var carrinho = this.repositoryCarrinho.findAll().get(0);
+        var itensDoCarrinho = this.repositoryItensNoCarrinho.findAll();
+
+        Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
+        Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
+        Assertions.assertEquals(new BigDecimal("500.00"), carrinho.getValorTotal());
+        Assertions.assertNotNull(carrinho.getDataDeCriacao());
+
+        Assertions.assertEquals(1, itensDoCarrinho.size());
+        Assertions.assertEquals(new BigDecimal("500.00"), itensDoCarrinho.get(0).getPrecoUnitario());
+        Assertions.assertEquals(5, itensDoCarrinho.get(0).getQuantidade());
+        Assertions.assertEquals(10L, itensDoCarrinho.get(0).getId().getEan());
+        Assertions.assertEquals(carrinho.getId(), itensDoCarrinho.get(0).getId().getIdCarrinho());
+    }
+
+    @Test
+    public void deleta_deveRetornar200_ultimaUnidadeDoItemEEhUltimoItem_deletaOItemDoCarrinhoEDeletaCarrinho_deletaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(1L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(1L)
+                        .build()
+        );
+
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ItemResponseDTO>() {});
+
+        Assertions.assertEquals("Item removed from cart successfully", responseApp.message());
+
+        Assertions.assertEquals(0, this.repositoryCarrinho.findAll().size());
+        Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
+    }
+
+    @Test
+    public void deleta_deveRetornar200_ultimaUnidadeDoItem_deletaOItemDoCarrinhoMasCarrinhoAindaTemItens_deletaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(10L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(1L)
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(1L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(1L)
+                        .build()
+        );
+
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ItemResponseDTO>() {});
+
+        Assertions.assertEquals("Item removed from cart successfully", responseApp.message());
+
+        var carrinho = this.repositoryCarrinho.findAll().get(0);
+        var itensDoCarrinho = this.repositoryItensNoCarrinho.findAll();
+
+        Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
+        Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
+        Assertions.assertEquals(new BigDecimal("500.00"), carrinho.getValorTotal());
+        Assertions.assertNotNull(carrinho.getDataDeCriacao());
+
+        Assertions.assertEquals(1, itensDoCarrinho.size());
+        Assertions.assertEquals(new BigDecimal("500.00"), itensDoCarrinho.get(0).getPrecoUnitario());
+        Assertions.assertEquals(1, itensDoCarrinho.get(0).getQuantidade());
+        Assertions.assertEquals(10L, itensDoCarrinho.get(0).getId().getEan());
+        Assertions.assertEquals(carrinho.getId(), itensDoCarrinho.get(0).getId().getIdCarrinho());
+    }
+
+    @Test
+    public void deleta_deveRetornar200_umaUnidadeDoItem_deletaOItemDoCarrinhoMasCarrinhoAindaTemItens_deletaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(10L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(1L)
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(1L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(2L)
+                        .build()
+        );
+
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ItemResponseDTO>() {});
+
+        Assertions.assertEquals("Item removed from cart successfully", responseApp.message());
+
+        var carrinho = this.repositoryCarrinho.findAll().get(0);
+        var itensDoCarrinho = this.repositoryItensNoCarrinho.findAll();
+
+        Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
+        Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
+        Assertions.assertEquals(new BigDecimal("1000.00"), carrinho.getValorTotal());
+        Assertions.assertNotNull(carrinho.getDataDeCriacao());
+
+        Assertions.assertEquals(2, itensDoCarrinho.size());
+    }
+
+    @Test
+    public void atualiza_deveRetornar500_carrinhoVazio_naoAtualizaNaBaseDeDados() throws Exception {
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.put(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isInternalServerError()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Cart not found", responseApp.error());
+
+        Assertions.assertEquals(0, this.repositoryCarrinho.findAll().size());
+        Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
+    }
+
+    @Test
+    public void atualiza_deveRetornar400_itemNaoEstaNoCarrinho_naoAtualizaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(10L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(5L)
+                        .build()
+        );
+
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.put(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Invalid itemId", responseApp.error());
+
+        var carrinho = this.repositoryCarrinho.findAll().get(0);
+        var itensDoCarrinho = this.repositoryItensNoCarrinho.findAll();
+
+        Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
+        Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
+        Assertions.assertEquals(new BigDecimal("500.00"), carrinho.getValorTotal());
+        Assertions.assertNotNull(carrinho.getDataDeCriacao());
+
+        Assertions.assertEquals(1, itensDoCarrinho.size());
+        Assertions.assertEquals(new BigDecimal("500.00"), itensDoCarrinho.get(0).getPrecoUnitario());
+        Assertions.assertEquals(5, itensDoCarrinho.get(0).getQuantidade());
+        Assertions.assertEquals(10L, itensDoCarrinho.get(0).getId().getEan());
+        Assertions.assertEquals(carrinho.getId(), itensDoCarrinho.get(0).getId().getIdCarrinho());
+    }
+
+    @Test
+    public void atualiza_deveRetornar200_atualizaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(1L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(1L)
+                        .build()
+        );
+
+        final var request = new ItemAndConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                1L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.put(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ItemResponseDTO>() {});
+
+        Assertions.assertEquals("Item updated from cart successfully", responseApp.message());
+
+        var carrinho = this.repositoryCarrinho.findAll().get(0);
+        var itensDoCarrinho = this.repositoryItensNoCarrinho.findAll();
+
+        Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
+        Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
+        Assertions.assertEquals(new BigDecimal("1000.00"), carrinho.getValorTotal());
+        Assertions.assertNotNull(carrinho.getDataDeCriacao());
+
+        Assertions.assertEquals(1, itensDoCarrinho.size());
+        Assertions.assertEquals(new BigDecimal("500.00"), itensDoCarrinho.get(0).getPrecoUnitario());
+        Assertions.assertEquals(2, itensDoCarrinho.get(0).getQuantidade());
+        Assertions.assertEquals(1L, itensDoCarrinho.get(0).getId().getEan());
+        Assertions.assertEquals(carrinho.getId(), itensDoCarrinho.get(0).getId().getIdCarrinho());
+    }
+
+    @Test
+    public void deletaOCarrinho_deveRetornar500_carrinhoVazio_naoDeletaNaBaseDeDados() throws Exception {
+        final var request = new ConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc"
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete("/")
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isInternalServerError()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Cart not found", responseApp.error());
+
+        Assertions.assertEquals(0, this.repositoryCarrinho.findAll().size());
+        Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
+    }
+
+    @Test
+    public void deletaOCarrinho_deveRetornar200_deletaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("500.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(1L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(1L)
+                        .build()
+        );
+
+        final var request = new ConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc"
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete("/")
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ItemResponseDTO>() {});
+
+        Assertions.assertEquals("Items removed from cart successfully", responseApp.message());
+
+        Assertions.assertEquals(0, this.repositoryCarrinho.findAll().size());
+        Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "-1",
@@ -484,7 +995,76 @@ public class CartControllerIT {
                 .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
 
         Assertions.assertEquals("Invalid consumerId format", responseApp.error());
+    }
 
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-1",
+            "teste",
+            " ",
+            "",
+            "e7c5c208-c4c3-42fc-9370-3141309cb7OI"
+    })
+    public void atualiza_consumerIdInvalido(final String consumerId) throws Exception {
+        final var request = new ItemAndConsumerIdRequestDTO(
+                consumerId.equals("-1") ? null : consumerId,
+                123456L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.put(URL_ITEM)
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Invalid consumerId format", responseApp.error());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-1",
+            "teste",
+            " ",
+            "",
+            "e7c5c208-c4c3-42fc-9370-3141309cb7OI"
+    })
+    public void deletaOCarrinho_consumerIdInvalido(final String consumerId) throws Exception {
+        final var request = new ItemAndConsumerIdRequestDTO(
+                consumerId.equals("-1") ? null : consumerId,
+                123456L
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.delete("/")
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Invalid consumerId format", responseApp.error());
     }
 
 }
