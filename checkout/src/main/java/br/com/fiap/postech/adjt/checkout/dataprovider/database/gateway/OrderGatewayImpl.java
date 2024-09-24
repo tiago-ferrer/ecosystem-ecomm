@@ -33,7 +33,8 @@ public class OrderGatewayImpl implements OrderGateway {
 
     @Override
     public Optional<OrderModel> findById(UUID uuid) {
-        return Optional.empty();
+        return orderRepository.findById(uuid)
+                .map(orderMapper::toOrderModel);
     }
 
 }
