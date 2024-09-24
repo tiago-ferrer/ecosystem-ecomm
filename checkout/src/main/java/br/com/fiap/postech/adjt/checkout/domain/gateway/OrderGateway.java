@@ -1,6 +1,5 @@
 package br.com.fiap.postech.adjt.checkout.domain.gateway;
 
-import br.com.fiap.postech.adjt.checkout.dataprovider.database.entity.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.domain.model.order.OrderModel;
 
 import java.util.List;
@@ -12,5 +11,5 @@ public interface OrderGateway {
 
     List<OrderModel> findByConsumerId(String consumerId);
 
-    Optional<OrderModel> findById(UUID uuid);
+    Optional<OrderModel> findOrderModelById(UUID uuid);
 }

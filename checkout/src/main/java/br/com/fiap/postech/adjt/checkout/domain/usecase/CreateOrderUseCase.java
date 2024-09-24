@@ -66,7 +66,7 @@ public class CreateOrderUseCase {
         if (Objects.isNull(orderId) || orderId.isEmpty() || isValidUUID(orderId)) {
             throw new AppException(ErrorConstants.ORDER_ID_FORMAT_INVALID);
         }
-        Optional<OrderModel> optionalOrder = orderGateway.findById(UUID.fromString(orderId));
+        Optional<OrderModel> optionalOrder = orderGateway.findOrderModelById(UUID.fromString(orderId));
         if (optionalOrder.isEmpty()) {
             throw new AppException(ErrorConstants.ORDER_ID_NOT_FOUND);
         }
