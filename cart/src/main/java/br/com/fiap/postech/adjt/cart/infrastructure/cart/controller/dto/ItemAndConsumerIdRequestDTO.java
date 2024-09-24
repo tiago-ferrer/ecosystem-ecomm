@@ -2,7 +2,7 @@ package br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-public record DeletaItemRequestDTO(
+public record ItemAndConsumerIdRequestDTO(
 
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		String consumerId,

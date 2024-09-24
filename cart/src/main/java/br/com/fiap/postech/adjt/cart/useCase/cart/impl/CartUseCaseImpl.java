@@ -3,10 +3,9 @@ package br.com.fiap.postech.adjt.cart.useCase.cart.impl;
 import br.com.fiap.postech.adjt.cart.domain.cart.Consumer;
 import br.com.fiap.postech.adjt.cart.domain.cart.StatusEnum;
 import br.com.fiap.postech.adjt.cart.domain.exception.ApiProductsException;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.AdicionaItemRequestDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.DeletaItemRequestDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ItemResponseDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ProductsResponseErrorDTO;
+import br.com.fiap.postech.adjt.cart.domain.exception.ErrorInternalException;
+import br.com.fiap.postech.adjt.cart.domain.exception.ErrorTreatedException;
+import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.*;
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.model.CarrinhoEntity;
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.model.ItensNoCarrinhoEntity;
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.model.ItensNoCarrinhoId;
@@ -107,7 +106,8 @@ public class CartUseCaseImpl implements CartUseCase {
                             .ean(product.id())
                             .build()
                     )
-                    .precoTotal(valorTotal)
+                    .quantidade(dadosItem.quantity())
+                    .precoUnitario(product.price())
                     .build();
             this.repositoryItensNoCarrinho.save(itemEntity);
 
@@ -126,13 +126,14 @@ public class CartUseCaseImpl implements CartUseCase {
                         .ean(product.id())
                         .build()
                 )
-                .precoTotal(valorTotalItem)
+                .quantidade(dadosItem.quantity())
+                .precoUnitario(product.price())
                 .build();
         this.repositoryItensNoCarrinho.save(itemEntity);
 
         final var valorTotal = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoExistente.getId())
                 .stream()
-                .map(ItensNoCarrinhoEntity::getPrecoTotal)
+                .map(itemNaBase -> itemNaBase.getPrecoUnitario().multiply(new BigDecimal(itemNaBase.getQuantidade())))
                 .reduce(BigDecimal::add)
                 .get();
 
@@ -145,12 +146,170 @@ public class CartUseCaseImpl implements CartUseCase {
     }
 
     @Override
-    public ItemResponseDTO deleta(final DeletaItemRequestDTO dadosItem) {
-        final var consumerId = new Consumer(dadosItem.consumerId());
+    @Transactional
+    public ItemResponseDTO deleta(final ItemAndConsumerIdRequestDTO dadosItem) {
+        final var consumer = new Consumer(dadosItem.consumerId());
 
+        final var carrinho = this.repositoryCarrinho
+                .findByUsuarioAndStatus(consumer.consumerId(), StatusEnum.ABERTO);
+        if(carrinho.isEmpty()) {
+            log.error("Carrinho não encontrado");
+            throw new ErrorInternalException("Cart not found");
+        }
+
+        final var carrinhoExistente = carrinho.get();
+        final var itensDoCarrinho = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoExistente.getId());
+        final var itemNoCarrinho = itensDoCarrinho
+                .stream()
+                .filter(itemDoCarrinho -> itemDoCarrinho.getId().getEan().equals(dadosItem.itemId()))
+                .findFirst()
+                .orElseGet(() -> null);
+        if(Objects.isNull(itemNoCarrinho)) {
+            throw new ErrorInternalException("Item not found in cart");
+        }
+
+        final var novaQuantidade = itemNoCarrinho.getQuantidade() - 1;
+        if(novaQuantidade == 0) {
+            final var itemEntity = ItensNoCarrinhoEntity.builder()
+                    .id(ItensNoCarrinhoId
+                            .builder()
+                            .idCarrinho(carrinhoExistente.getId())
+                            .ean(itemNoCarrinho.getId().getEan())
+                            .build()
+                    )
+                    .build();
+            this.repositoryItensNoCarrinho.delete(itemEntity);
+        } else {
+            final var itemEntity = ItensNoCarrinhoEntity.builder()
+                    .id(ItensNoCarrinhoId
+                            .builder()
+                            .idCarrinho(carrinhoExistente.getId())
+                            .ean(itemNoCarrinho.getId().getEan())
+                            .build()
+                    )
+                    .quantidade(novaQuantidade)
+                    .precoUnitario(itemNoCarrinho.getPrecoUnitario())
+                    .build();
+            this.repositoryItensNoCarrinho.save(itemEntity);
+        }
+
+        final var valorTotal = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoExistente.getId())
+                .stream()
+                .map(itemNaBase -> itemNaBase.getPrecoUnitario().multiply(new BigDecimal(itemNaBase.getQuantidade())))
+                .reduce(BigDecimal::add);
+        if(valorTotal.isPresent()) {
+            carrinhoExistente.setValorTotal(valorTotal.get());
+            this.repositoryCarrinho.save(carrinhoExistente);
+            return new ItemResponseDTO(
+                    "Item removed from cart successfully"
+            );
+        }
+        log.info("Carrinho zerado");
+        this.repositoryCarrinho.delete(carrinhoExistente);
         return new ItemResponseDTO(
                 "Item removed from cart successfully"
         );
     }
+
+    @Override
+    @Transactional
+    public ItemResponseDTO atualiza(final ItemAndConsumerIdRequestDTO dadosItem) {
+        final var consumer = new Consumer(dadosItem.consumerId());
+
+        final var carrinho = this.repositoryCarrinho
+                .findByUsuarioAndStatus(consumer.consumerId(), StatusEnum.ABERTO);
+        if(carrinho.isEmpty()) {
+            log.error("Carrinho não encontrado");
+            throw new ErrorInternalException("Cart not found");
+        }
+
+        final var carrinhoExistente = carrinho.get();
+        final var itensDoCarrinho = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoExistente.getId());
+        final var itemNoCarrinho = itensDoCarrinho
+                .stream()
+                .filter(itemDoCarrinho -> itemDoCarrinho.getId().getEan().equals(dadosItem.itemId()))
+                .findFirst()
+                .orElseGet(() -> null);
+        if(Objects.isNull(itemNoCarrinho)) {
+            throw new ErrorTreatedException("Invalid itemId");
+        }
+
+        final var novaQuantidade = itemNoCarrinho.getQuantidade() + 1;
+        final var itemEntity = ItensNoCarrinhoEntity.builder()
+                .id(ItensNoCarrinhoId
+                        .builder()
+                        .idCarrinho(carrinhoExistente.getId())
+                        .ean(itemNoCarrinho.getId().getEan())
+                        .build()
+                )
+                .quantidade(novaQuantidade)
+                .precoUnitario(itemNoCarrinho.getPrecoUnitario())
+                .build();
+        this.repositoryItensNoCarrinho.save(itemEntity);
+
+        final var valorTotal = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoExistente.getId())
+                .stream()
+                .map(itemNaBase -> itemNaBase.getPrecoUnitario().multiply(new BigDecimal(itemNaBase.getQuantidade())))
+                .reduce(BigDecimal::add)
+                .get();
+
+        carrinhoExistente.setValorTotal(valorTotal);
+        this.repositoryCarrinho.save(carrinhoExistente);
+        return new ItemResponseDTO(
+                "Item updated from cart successfully"
+        );
+
+    }
+
+    @Override
+    public InfoItensResponseDTO busca(final ConsumerIdRequestDTO consumer) {
+        final var consumerObject = new Consumer(consumer.consumerId());
+
+        final var carrinho = this.repositoryCarrinho
+                .findByUsuarioAndStatus(consumerObject.consumerId(), StatusEnum.ABERTO);
+        if(carrinho.isEmpty()) {
+            log.error("Carrinho não encontrado");
+            throw new ErrorTreatedException("Empty cart");
+        }
+
+        final var carrinhoSelecionado = carrinho.get();
+        final var itensDoCarrinho = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoSelecionado.getId())
+                .stream()
+                .map(item -> new ItensDetailsResponseDTO(
+                                item.getId().getEan(),
+                                item.getQuantidade()
+                        )
+                )
+                .toList();
+
+        return new InfoItensResponseDTO(
+                itensDoCarrinho
+        );
+
+    }
+
+    @Override
+    public ItemResponseDTO deletaOCarrinho(final ConsumerIdRequestDTO consumer) {
+        final var consumerObject = new Consumer(consumer.consumerId());
+
+        final var carrinho = this.repositoryCarrinho
+                .findByUsuarioAndStatus(consumerObject.consumerId(), StatusEnum.ABERTO);
+        if(carrinho.isEmpty()) {
+            log.error("Carrinho não encontrado");
+            throw new ErrorInternalException("Cart not found");
+        }
+
+        final var carrinhoExistente = carrinho.get();
+
+        final var itensDoCarrinho = this.repositoryItensNoCarrinho.findByIdIdCarrinho(carrinhoExistente.getId());
+        this.repositoryItensNoCarrinho.deleteAll(itensDoCarrinho);
+        this.repositoryCarrinho.delete(carrinhoExistente);
+        log.info("Carrinho zerado");
+
+        return new ItemResponseDTO(
+                "Items removed from cart successfully"
+        );
+    }
+
 
 }

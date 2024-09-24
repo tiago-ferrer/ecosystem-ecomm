@@ -70,6 +70,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -133,6 +134,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -219,6 +221,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -307,6 +310,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -395,6 +399,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -483,6 +488,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -554,6 +560,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );
@@ -563,6 +570,7 @@ public class CartUseCaseTest {
                         List.of(
                                 new ItensNoCarrinhoEntity(
                                         new ItensNoCarrinhoId(1L, 123456L),
+                                        1L,
                                         new BigDecimal("100.00")
                                 )
                         )
@@ -634,6 +642,7 @@ public class CartUseCaseTest {
                 .thenReturn(
                         new ItensNoCarrinhoEntity(
                                 new ItensNoCarrinhoId(1L, 123456L),
+                                1L,
                                 new BigDecimal("100.00")
                         )
                 );

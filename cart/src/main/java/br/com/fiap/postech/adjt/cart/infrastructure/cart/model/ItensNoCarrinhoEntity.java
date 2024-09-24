@@ -20,6 +20,7 @@ public class ItensNoCarrinhoEntity {
 
     @EmbeddedId
     private ItensNoCarrinhoId id;
-    private BigDecimal precoTotal;
+    private Long quantidade;
+    private BigDecimal precoUnitario;
 
 }

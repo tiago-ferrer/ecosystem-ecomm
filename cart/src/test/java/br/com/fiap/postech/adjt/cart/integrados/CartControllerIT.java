@@ -114,7 +114,8 @@ public class CartControllerIT {
         Assertions.assertNotNull(carrinho.getDataDeCriacao());
 
         Assertions.assertEquals(1, itensDoCarrinho.size());
-        Assertions.assertEquals(new BigDecimal("200.00"), itensDoCarrinho.get(0).getPrecoTotal());
+        Assertions.assertEquals(new BigDecimal("100.00"), itensDoCarrinho.get(0).getPrecoUnitario());
+        Assertions.assertEquals(2, itensDoCarrinho.get(0).getQuantidade());
         Assertions.assertEquals(1L, itensDoCarrinho.get(0).getId().getEan());
         Assertions.assertEquals(carrinho.getId(), itensDoCarrinho.get(0).getId().getIdCarrinho());
     }
@@ -360,7 +361,8 @@ public class CartControllerIT {
                                 .idCarrinho(carrinhoSalvo.getId())
                                 .ean(7894900011517L)
                                 .build())
-                        .precoTotal(new BigDecimal("500.00"))
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(5L)
                         .build()
         );
 
@@ -406,7 +408,7 @@ public class CartControllerIT {
 
         Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
         Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
-        Assertions.assertEquals(new BigDecimal("700.00"), carrinho.getValorTotal());
+        Assertions.assertEquals(new BigDecimal("2700.00"), carrinho.getValorTotal());
         Assertions.assertNotNull(carrinho.getDataDeCriacao());
 
         Assertions.assertEquals(2, itensDoCarrinho.size());
