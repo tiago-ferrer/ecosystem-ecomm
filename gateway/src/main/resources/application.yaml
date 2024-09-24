@@ -12,3 +12,10 @@ spring:
         - Method=GET,POST,PUT
         filters:
         - RewritePath=/cart/(?<segment>.*), /${segment}
+      - id: products
+        uri: http://localhost:8083
+        predicates:
+          - Path=/products/**
+          - Method=GET
+        filters:
+          - RewritePath=/products/(?<segment>.*), /${segment}
