@@ -1,31 +1,31 @@
 package br.com.fiap.postech.adjt.cart.controller;
 
-import br.com.fiap.postech.adjt.cart.model.dto.request.CartItemAddRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.ClearCartRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.FindCartByCustomerIdRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import org.springframework.http.ResponseEntity;
 
-import java.util.UUID;
-
 public interface CartController {
-    ResponseEntity add(
-            UUID consumerId,
-            CartItemAddRequest request
+    ResponseEntity<Cart> add(
+            AddCartItemRequest request
     );
 
-    ResponseEntity remove(
-            UUID consumerId,
-            Long itemId
+    ResponseEntity<Cart> remove(
+            RemoveCartItemRequest request
     );
 
-    ResponseEntity increment(
-            UUID consumerId,
-            Long itemId
+    ResponseEntity<Cart> increment(
+            IncrementCartItemRequest request
     );
 
-    ResponseEntity findByCustomerId(
-            UUID consumerId
+    ResponseEntity<Cart> findByCustomerId(
+            FindCartByCustomerIdRequest request
     );
 
-    ResponseEntity clear(
-            UUID consumerId
+    ResponseEntity<Cart> clear(
+            ClearCartRequest request
     );
 }

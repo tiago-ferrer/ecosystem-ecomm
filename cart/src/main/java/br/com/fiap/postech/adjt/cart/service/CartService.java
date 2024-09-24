@@ -1,19 +1,20 @@
 package br.com.fiap.postech.adjt.cart.service;
 
-import br.com.fiap.postech.adjt.cart.model.dto.request.CartItemAddRequest;
-import org.springframework.stereotype.Service;
+import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 
 import java.util.UUID;
 
-@Service
 public interface CartService {
-    void add(UUID consumerId, CartItemAddRequest request);
+    Cart add(AddCartItemRequest request);
 
-    void remove(UUID consumerId, Long itemId);
+    Cart remove(RemoveCartItemRequest request);
 
-    void increment(UUID consumerId, Long itemId);
+    Cart increment(IncrementCartItemRequest request);
 
-    void findByCustomerId(UUID consumerId);
+    Cart findByCustomerId(UUID consumerId);
 
-    void clear(UUID consumerId);
+    Cart clear(UUID consumerId);
 }
