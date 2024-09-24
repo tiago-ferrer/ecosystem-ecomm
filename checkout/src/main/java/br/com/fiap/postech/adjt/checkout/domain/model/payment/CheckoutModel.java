@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CheckoutModel {
+    private String orderId;
     private String consumerId;
     private Double amount;
     private String currency;

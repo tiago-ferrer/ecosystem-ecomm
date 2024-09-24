@@ -9,8 +9,10 @@ import br.com.fiap.postech.adjt.checkout.domain.model.cart.CartModel;
 import br.com.fiap.postech.adjt.checkout.domain.model.enums.PaymentStatus;
 import br.com.fiap.postech.adjt.checkout.domain.model.order.OrderItemModel;
 import br.com.fiap.postech.adjt.checkout.domain.model.order.OrderModel;
+import br.com.fiap.postech.adjt.checkout.domain.model.order.OrderStatusModel;
 import br.com.fiap.postech.adjt.checkout.domain.model.payment.CheckoutModel;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +47,8 @@ public class CreateOrderUseCase {
                 .build();
 
         orderModel = orderGateway.createNewOrder(orderModel);
-        //paymentGateway.getPayment(orderModel);//TODO integracao async com a api externa(tem que implementar)
+        Mono<OrderStatusModel> orderStatus = paymentGateway.processPayment(checkoutModel, orderModel.getOrderId());//TODO integracao async com a api externa(tem que implementar)
+        OrderStatusModel orderStatusProcessed = orderStatus.block();//subscrive TODO esta bloquando para testar, mudar quando funcionar
         return orderModel;
     }
 
