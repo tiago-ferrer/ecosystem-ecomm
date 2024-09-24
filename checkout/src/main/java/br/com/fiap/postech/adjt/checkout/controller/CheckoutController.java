@@ -4,6 +4,7 @@ import br.com.fiap.postech.adjt.checkout.dto.CheckoutRequestDTO;
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutResponseDTO;
 import br.com.fiap.postech.adjt.checkout.dto.OrderResponseDTO;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class CheckoutController {
     }
 
     @PostMapping
-    public CheckoutResponseDTO processPayment(@RequestBody CheckoutRequestDTO checkoutRequestDTO) {
+    public CheckoutResponseDTO processPayment(@RequestBody @Valid CheckoutRequestDTO checkoutRequestDTO) {
         return checkoutService.processPayment(checkoutRequestDTO);
 
     }
