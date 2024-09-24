@@ -1,7 +1,5 @@
 package br.com.fiap.postech.adjt.checkout.domain.usecase;
 
-import br.com.fiap.postech.adjt.checkout.dataprovider.database.entity.OrderEntity;
-import br.com.fiap.postech.adjt.checkout.dataprovider.database.repository.OrderRepository;
 import br.com.fiap.postech.adjt.checkout.domain.exception.AppException;
 import br.com.fiap.postech.adjt.checkout.domain.exception.constants.ErrorConstants;
 import br.com.fiap.postech.adjt.checkout.domain.gateway.CartGateway;
@@ -47,7 +45,7 @@ public class CreateOrderUseCase {
                 .build();
 
         orderModel = orderGateway.createNewOrder(orderModel);
-        paymentGateway.sendPayment(orderModel);//TODO integracao async com a api externa(tem que implementar)
+        //paymentGateway.getPayment(orderModel);//TODO integracao async com a api externa(tem que implementar)
         return orderModel;
     }
 

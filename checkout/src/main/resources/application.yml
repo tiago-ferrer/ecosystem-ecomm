@@ -28,4 +28,6 @@ logging:
   level:
     org.springframework.security: trace
 app:
-  cart-base-url: localhost:8081
+  cart-base-url: http://localhost:8081
+  payment-base-url: https://payment-api-latest.onrender.com
+  payment-key: ${API_KEY}
