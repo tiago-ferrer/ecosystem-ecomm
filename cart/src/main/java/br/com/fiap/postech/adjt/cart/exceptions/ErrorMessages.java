@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.cart.ecxeptions;
+package br.com.fiap.postech.adjt.cart.exceptions;
 
 public class ErrorMessages {
     public static final String INVALID_CONSUMER_ID_FORMAT = "Invalid consumerId format";
