@@ -1,7 +1,6 @@
 package br.com.fiap.postech.adjt.checkout.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,14 +8,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Embeddable
 public class PaymentMethodFields {
 
-    @Id
-    private Long id;
-    private int number;
-    private int expiration_month;
-    private int expiration_year;
-    private int cvv;
+    private String number;
+
+    private String expiration_month;
+
+    private String expiration_year;
+
+    private String cvv;
+
     private String name;
+
 }

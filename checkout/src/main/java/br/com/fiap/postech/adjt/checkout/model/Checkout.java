@@ -1,6 +1,8 @@
 package br.com.fiap.postech.adjt.checkout.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,13 +15,18 @@ import java.util.UUID;
 @Entity
 public class Checkout {
 
-    private UUID orderId;
     @Id
     private UUID consumerId;
+
+    private UUID orderId;
+
     private Double amount;
+
     private Currency currency;
-    @OneToOne
+
+    @Embedded
     private PaymentMethod paymentMethod;
+
     private PaymentStatus status;
 
 }

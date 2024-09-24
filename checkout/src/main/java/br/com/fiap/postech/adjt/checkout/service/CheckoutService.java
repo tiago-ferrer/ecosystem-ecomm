@@ -3,29 +3,35 @@ package br.com.fiap.postech.adjt.checkout.service;
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutRequestDTO;
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutResponseDTO;
 import br.com.fiap.postech.adjt.checkout.dto.OrderResponseDTO;
-import br.com.fiap.postech.adjt.checkout.model.*;
+import br.com.fiap.postech.adjt.checkout.mapper.PaymentMethodMapper;
+import br.com.fiap.postech.adjt.checkout.model.Cart;
+import br.com.fiap.postech.adjt.checkout.model.Checkout;
+import br.com.fiap.postech.adjt.checkout.model.Currency;
+import br.com.fiap.postech.adjt.checkout.model.Item;
+import br.com.fiap.postech.adjt.checkout.model.Order;
+import br.com.fiap.postech.adjt.checkout.model.PaymentStatus;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CheckoutService {
     private final OrderService orderService;
+
     private final CheckoutRepository checkoutRepository;
-    private final OrderService OrderService;
+
     private final CartService cartService;
 
-    public CheckoutService(br.com.fiap.postech.adjt.checkout.service.OrderService orderService, CheckoutRepository checkoutRepository, br.com.fiap.postech.adjt.checkout.service.OrderService orderService1, CartService cartService) {
+    public CheckoutService(OrderService orderService, CheckoutRepository checkoutRepository, CartService cartService) {
         this.orderService = orderService;
         this.checkoutRepository = checkoutRepository;
-        OrderService = orderService1;
         this.cartService = cartService;
     }
+
     @Transactional
     public CheckoutResponseDTO processPayment(CheckoutRequestDTO checkoutRequestDTO) {
 //        Cart cart = cartService.getCartDetails(checkoutRequestDTO.consumerId());
@@ -51,9 +57,11 @@ public class CheckoutService {
             item3.setQuantity(45);
             itemList.add(item3);
             cart.setItemList(itemList);
-//        PaymentMethod paymentMethod = new PaymentMethod(PaymentMethodType.valueOf(checkoutRequestDTO.paymentMethod().type()),checkoutRequestDTO.paymentMethod().fields());
-            checkout = new Checkout(null, UUID.fromString(checkoutRequestDTO.consumerId()), checkoutRequestDTO.amount(), Currency.valueOf(checkoutRequestDTO.currency()), null, PaymentStatus.PENDING);
-            checkoutRepository.save(checkout);
+
+            checkout = new Checkout(UUID.fromString(checkoutRequestDTO.consumerId()), null, checkoutRequestDTO.amount(),
+                    Currency.valueOf(checkoutRequestDTO.currency()),
+                    PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod()), PaymentStatus.PENDING);
+            checkoutRepository.saveAndFlush(checkout);
             order = orderService.saveOrder(cart, checkout);
             checkout.setOrderId(order.getOrderId());
         } catch (IllegalArgumentException e) {

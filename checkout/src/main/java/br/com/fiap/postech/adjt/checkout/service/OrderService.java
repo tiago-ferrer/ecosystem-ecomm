@@ -39,11 +39,8 @@ public class OrderService {
         Order order = new Order();
         order.setConsumerId(cart.getConsumerId());
         order.setItemList(cart.getItemList());
-        double total = cart.getItemList().stream()
-                .mapToDouble(item -> item.getQuantity() * item.getPrice())
-                .sum();
-        order.setTotalValue(total);
-//        order.setPaymentMethodType(checkout.getPaymentMethod().getType());
+        order.setTotalValue(checkout.getAmount());
+        order.setPaymentMethodType(checkout.getPaymentMethod().getType());
         order.setPaymentStatus(checkout.getStatus());
         orderRepository.save(order);
         return order;

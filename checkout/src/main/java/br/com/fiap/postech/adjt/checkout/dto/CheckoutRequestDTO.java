@@ -1,11 +1,11 @@
 package br.com.fiap.postech.adjt.checkout.dto;
 
-import br.com.fiap.postech.adjt.checkout.model.PaymentMethod;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record CheckoutRequestDTO(
         String consumerId,
-        Double amount,
-        String currency,
-        PaymentMethod paymentMethod
+        @JsonProperty("amount") Double amount,
+        @JsonProperty("currency") String currency,
+        @JsonProperty("payment_method") PaymentMethodRequestDTO paymentMethod
 ) {
 }
