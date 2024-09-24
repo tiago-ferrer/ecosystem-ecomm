@@ -1,5 +1,8 @@
 package br.com.fiap.postech.adjt.cart.model;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Cart {
 
-    private UUID orderId;
     private UUID consumerId;
     private List<Item> items;
     private int quantity;
