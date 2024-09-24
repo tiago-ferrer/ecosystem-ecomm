@@ -1,6 +1,7 @@
 package br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto;
 
-public record ItemResponseDTO(
+public record ProductsResponseErrorDTO(
 
-		String message
+		int codeError,
+		String description
 ) {}
