@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface PaymentGateway {
-    Mono<OrderStatusModel> processPayment(CheckoutModel checkoutModel, UUID orderId);
+    void processPayment(CheckoutModel checkoutModel, UUID orderId);
 }

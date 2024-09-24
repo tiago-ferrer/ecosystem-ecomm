@@ -41,14 +41,14 @@ public class CreateOrderUseCase {
                         cartItem -> OrderItemModel.builder()
                                 .quantity(cartItem.getQuantity())
                                 .codItem(cartItem.getItemId())
-                                .build()).collect(Collectors.toList()))
+                                .build()).toList())
                 .paymentType(checkoutModel.getPaymentMethod().getType())
-                .paymentStatus(PaymentStatus.PENDING)
+                .paymentStatus(PaymentStatus.pending)
                 .build();
 
         orderModel = orderGateway.createNewOrder(orderModel);
-        Mono<OrderStatusModel> orderStatus = paymentGateway.processPayment(checkoutModel, orderModel.getOrderId());//TODO integracao async com a api externa(tem que implementar)
-        OrderStatusModel orderStatusProcessed = orderStatus.block();//subscrive TODO esta bloquando para testar, mudar quando funcionar
+        cartGateway.emptyCartByConsumerId(checkoutModel.getConsumerId());
+        paymentGateway.processPayment(checkoutModel, orderModel.getOrderId());
         return orderModel;
     }
 

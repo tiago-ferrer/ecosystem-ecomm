@@ -13,6 +13,6 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class OrderStatusModel {
-    private String orderId;
+    private String paymentId;
     private PaymentStatus status;
 }

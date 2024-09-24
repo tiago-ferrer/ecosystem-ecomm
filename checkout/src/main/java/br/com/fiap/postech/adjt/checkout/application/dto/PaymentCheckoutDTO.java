@@ -6,7 +6,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public record PaymentCheckoutDTO(
         String orderId,
-        Double amount,
+        Integer amount,
         String currency,
         PaymentDTO payment_method
 ) {
