@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   gateway:
     image: gateway:latest
     ports:
@@ -18,21 +19,62 @@ services:
   cart:
     image: cart:latest
     expose:
-      - "8081"
+      - '8081'
+    depends_on:
+      - 'cart_db'
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      spring_datasource_url: 'jdbc:postgresql://cart_db:5432/cart_db'
+      spring_datasource_username: 'root'
+      spring_datasource_password: 'secret'
+      spring_datasource_driver-class-name: 'org.postgresql.Driver'
+      spring_jpa_properties_hibernate_dialect: 'org.hibernate.dialect.PostgreSQLDialect'
+      spring_jpa_hibernate_ddl-auto: 'create-drop'
+      spring_jpa_defer-datasource-initialization: 'true'
+      spring_sql_init_mode: 'always'
+
+  cart_db:
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_DB: 'cart_db'
+      POSTGRES_USER: 'root'
+      POSTGRES_PASSWORD: 'secret'
+    ports:
+      - '5431:5432'
 
   checkout:
     image: checkout:latest
     expose:
-      - "8082"
+      - '8082'
+    depends_on:
+      - 'checkout_db'
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      spring_datasource_url: 'jdbc:postgresql://checkout_db:5432/checkout_db'
+      spring_datasource_username: 'root'
+      spring_datasource_password: 'secret'
+      spring_datasource_driver-class-name: 'org.postgresql.Driver'
+      spring_jpa_properties_hibernate_dialect: 'org.hibernate.dialect.PostgreSQLDialect'
+      spring_jpa_hibernate_ddl-auto: 'create-drop'
+      spring_jpa_defer-datasource-initialization: 'true'
+      spring_sql_init_mode: 'always'
+      cart-uri: 'http://cart:8081'
+
+  checkout_db:
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_DB: 'checkout_db'
+      POSTGRES_USER: 'root'
+      POSTGRES_PASSWORD: 'secret'
+    ports:
+      - '5432:5432'
