@@ -1,13 +1,18 @@
 package br.com.fiap.postech.adjt.cart.service;
 
-import br.com.fiap.postech.adjt.cart.dto.*;
-import br.com.fiap.postech.adjt.cart.exception.*;
+import br.com.fiap.postech.adjt.cart.dto.AddOrRemoveItemRequest;
+import br.com.fiap.postech.adjt.cart.dto.CartResponse;
+import br.com.fiap.postech.adjt.cart.dto.ItemRequest;
+import br.com.fiap.postech.adjt.cart.dto.ProductDto;
+import br.com.fiap.postech.adjt.cart.exception.EmptyCartException;
+import br.com.fiap.postech.adjt.cart.exception.InvalidConsumerIdException;
+import br.com.fiap.postech.adjt.cart.exception.InvalidItemIdException;
+import br.com.fiap.postech.adjt.cart.exception.InvalidItemQuantityException;
 import br.com.fiap.postech.adjt.cart.feign.ProductClient;
 import br.com.fiap.postech.adjt.cart.model.Cart;
 import br.com.fiap.postech.adjt.cart.model.Item;
 import br.com.fiap.postech.adjt.cart.repository.CartItemRepository;
 import br.com.fiap.postech.adjt.cart.repository.CartRepository;
-import br.com.fiap.postech.adjt.cart.service.CartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +25,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 class CartServiceImplTest {
@@ -35,7 +41,7 @@ class CartServiceImplTest {
     private ProductClient productClient;
 
     @InjectMocks
-    private CartServiceImpl cartService;
+    public CartServiceImpl cartService;
 
     private UUID consumerId;
     private Long itemId;
@@ -63,7 +69,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void createCartItem_InvalidConsumerIdFormat() {
+    void createCartItemInvalidConsumerIdFormat() {
 
         ItemRequest request = new ItemRequest("invalid-uuid", itemId, 2);
 
@@ -75,7 +81,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void createCartItem_InvalidItemId() {
+    void createCartItemInvalidItemId() {
 
         ItemRequest request = new ItemRequest(consumerId.toString(), 999L, 2);
 
@@ -87,11 +93,15 @@ class CartServiceImplTest {
         assertEquals("Invalid itemId does not exist", exception.getMessage());
     }
 
-    //-------------VER-----------------//
     @Test
-    void createCartItem_InvalidItemQuantity() {
+    void createCartItemInvalidItemQuantity() {
 
-        ItemRequest request = new ItemRequest(consumerId.toString(), 1L, -1);
+        ProductDto mockProduct = new ProductDto(2L, "Sample Product", new BigDecimal("20.00"),
+                "Sample Description", "Category A", "image-url");
+
+        when(productClient.getProductById(2L)).thenReturn(mockProduct);
+
+        ItemRequest request = new ItemRequest(consumerId.toString(), 2L, -1);
 
         Exception exception = assertThrows(InvalidItemQuantityException.class, () -> {
             cartService.createCartItem(request);
@@ -100,6 +110,22 @@ class CartServiceImplTest {
         assertEquals("Invalid item quantity", exception.getMessage());
     }
 
+    @Test
+    void createCartItemInvalidItemNull() {
+
+        ProductDto mockProduct = new ProductDto(null, "Sample Product", new BigDecimal("20.00"),
+                "Sample Description", "Category A", "image-url");
+
+        when(productClient.getProductById(null)).thenReturn(mockProduct);
+
+        ItemRequest request = new ItemRequest(consumerId.toString(), null, 1);
+
+        Exception exception = assertThrows(InvalidItemIdException.class, () -> {
+            cartService.createCartItem(request);
+        });
+
+        assertEquals("Invalid itemId does not exist", exception.getMessage());
+    }
 
     @Test
     void removeItemFromCart() {
@@ -121,7 +147,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void removeItemFromCart_invalidConsumerIdFormat() {
+    void removeItemFromCartinvalidConsumerIdFormat() {
 
         String invalidConsumerId = "invalid-uuid-format";
         Long itemId = 1L;
@@ -156,7 +182,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void addItemToCart_invalidConsumerIdFormat() {
+    void addItemToCartinvalidConsumerIdFormat() {
 
         String invalidConsumerId = "invalid-uuid-format";
         Long itemId = 1L;
@@ -170,7 +196,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void addItemToCart_invalidItemId() {
+    void addItemToCartinvalidItemId() {
 
         UUID consumerId = UUID.fromString("153e23c8-302e-4fec-b9c4-72b8f74ad102");
         Long invalidItemId = -1L;
@@ -208,7 +234,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void getCart_emptyCart() {
+    void getCartemptyCart() {
 
         UUID consumerId = UUID.fromString("153e23c8-302e-4fec-b9c4-72b8f74ad102");
 
@@ -222,7 +248,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void getCart_invalidConsumerIdFormat() {
+    void getCartinvalidConsumerIdFormat() {
 
         String invalidConsumerId = "invalid-uuid-format";
 
@@ -259,7 +285,7 @@ class CartServiceImplTest {
     }
 
     @Test
-    void deleteAllItens_invalidConsumerIdFormat() {
+    void deleteAllItensinvalidConsumerIdFormat() {
 
         String invalidConsumerId = "invalid-uuid-format";
 

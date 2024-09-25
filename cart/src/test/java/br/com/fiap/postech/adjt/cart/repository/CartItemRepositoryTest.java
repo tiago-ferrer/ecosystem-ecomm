@@ -1,10 +1,13 @@
 package br.com.fiap.postech.adjt.cart.repository;
 
+import br.com.fiap.postech.adjt.cart.model.Cart;
 import br.com.fiap.postech.adjt.cart.model.Item;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,15 +28,27 @@ class CartItemRepositoryTest {
         UUID consumerId = UUID.randomUUID();
         Long itemId = 1L;
 
+        Cart cart = new Cart();
+        cart.setConsumerId(consumerId);
+        cart.setItems(new ArrayList<>());
+        cartRepository.save(cart);
+
         Item item = new Item();
-        item.setConsumerId(consumerId);
         item.setItemId(itemId);
+        item.setConsumerId(consumerId);
+        item.setQuantity(1);
+        item.setPrice(new BigDecimal("10.00"));
+        item.setCart(cart);
         itemRepository.save(item);
+
+        cart.getItems().add(item);
+        cartRepository.save(cart);
 
         Optional<Item> foundItem = itemRepository.findByConsumerIdAndItemId(consumerId, itemId);
         assertTrue(foundItem.isPresent());
         assertEquals(itemId, foundItem.get().getItemId());
     }
+
 
     @Test
     void testFindByConsumerIdAndItemIdNotExists() {
@@ -46,13 +61,27 @@ class CartItemRepositoryTest {
 
     @Test
     void testFindByCart_CartIdExists() {
-        Long cartId = 2L;
+
+        UUID consumerId = UUID.randomUUID();
+        Long itemId = 1L;
+
+        Cart cart = new Cart();
+        cart.setConsumerId(consumerId);
+        cart.setItems(new ArrayList<>());
+        cartRepository.save(cart);
 
         Item item = new Item();
-        item.setCart(cartRepository.findById(cartId).orElse(null));
+        item.setItemId(itemId);
+        item.setConsumerId(consumerId);
+        item.setQuantity(1);
+        item.setPrice(new BigDecimal("10.00"));
+        item.setCart(cart);
         itemRepository.save(item);
 
-        List<Item> items = itemRepository.findByCart_CartId(cartId);
+        cart.getItems().add(item);
+        cartRepository.save(cart);
+
+        List<Item> items = itemRepository.findByCart_CartId(cart.getCartId());
         assertFalse(items.isEmpty());
     }
 

@@ -1,4 +1,5 @@
 package br.com.fiap.postech.adjt.cart.controller;
+
 import br.com.fiap.postech.adjt.cart.dto.*;
 import br.com.fiap.postech.adjt.cart.exception.EmptyCartException;
 import br.com.fiap.postech.adjt.cart.exception.InvalidConsumerIdException;
@@ -12,16 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.mockito.Mockito.*;
-
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 class CartControllerTest {
 
@@ -58,24 +58,7 @@ class CartControllerTest {
     }
 
     @Test
-    void createCartItem_InvalidConsumerIdFormat() {
-
-        String invalidConsumerId = "invalid-consumer-id";
-        Long itemId = 1L;
-        int quantity = 2;
-        ItemRequest itemRequest = new ItemRequest(invalidConsumerId, itemId, quantity);
-
-        Exception exception = assertThrows(InvalidConsumerIdException.class, () -> {
-            cartController.createCartItem(itemRequest);
-        });
-
-        assertEquals("Invalid consumerId format", exception.getMessage());
-
-        verify(cartService, never()).createCartItem(any());
-    }
-
-    @Test
-    void createCartItem_InvalidItemIdDoesNotExist() {
+    void createCartItemInvalidItemIdDoesNotExist() {
         String validConsumerId = "153e23c8-302e-4fec-b9c4-72b8f74ad102";
         Long invalidItemId = -1L;
         int quantity = 2;
@@ -93,7 +76,7 @@ class CartControllerTest {
     }
 
     @Test
-    void createCartItem_InvalidItemQuantity() {
+    void createCartItemInvalidItemQuantity() {
         String validConsumerId = "153e23c8-302e-4fec-b9c4-72b8f74ad102";
         Long validItemId = 1L;
         int invalidQuantity = 0;
@@ -121,7 +104,7 @@ class CartControllerTest {
     }
 
     @Test
-    void removeItemFromCart_InvalidConsumerIdFormat() {
+    void removeItemFromCartInvalidConsumerIdFormat() {
         String invalidConsumerId = "invalid-consumer-id";
         Long validItemId = 1L;
         AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(invalidConsumerId, validItemId);
@@ -142,39 +125,13 @@ class CartControllerTest {
     @Test
     void addItemFromCart() {
         UUID consumerId = UUID.fromString("153e23c8-302e-4fec-b9c4-72b8f74ad102");
-        Long invalidItemId = -1L;
-        AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(consumerId.toString(), invalidItemId);
+        Long validItemId = 1L;
+        AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(consumerId.toString(), validItemId);
 
         ResponseEntity<String> response = cartController.addItemFromCart(request);
 
         assertEquals(ResponseEntity.ok("Item added from cart successfully"), response);
         verify(cartService).addItemToCart(request);
-    }
-
-    @Test
-    void addItemFromCart_InvalidConsumerIdFormat() {
-
-        String invalidConsumerId = "invalid-consumer-id";
-        Long validItemId = 1L;
-        AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(invalidConsumerId, validItemId);
-
-        ResponseEntity<String> response = cartController.addItemFromCart(request);
-
-        assertEquals(ResponseEntity.badRequest().body("Invalid consumerId format"), response);
-
-        verify(cartService, never()).addItemToCart(any());
-    }
-
-    @Test
-    void addItemFromCart_InvalidItemId() {
-        String validConsumerId = "153e23c8-a02e-4fec-b9c4-72b8f74ad102";
-        Long invalidItemId = -0L;
-        AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(validConsumerId, invalidItemId);
-
-        ResponseEntity<String> response = cartController.addItemFromCart(request);
-
-        assertEquals(ResponseEntity.badRequest().body("Invalid itemId"), response);
-        verify(cartService, never()).addItemToCart(any());
     }
 
     @Test
@@ -208,7 +165,7 @@ class CartControllerTest {
     }
 
     @Test
-    void getCart_EmptyCart() {
+    void getCartEmptyCart() {
 
         UUID consumerId = UUID.fromString("153e23c8-a02e-4fec-b9c4-72b8f74ad102");
 
@@ -226,7 +183,7 @@ class CartControllerTest {
     }
 
     @Test
-    void getCart_InvalidConsumerIdFormat() {
+    void getCartInvalidConsumerIdFormat() {
 
         String invalidConsumerId = "invalid-consumer-id";
 
@@ -258,22 +215,5 @@ class CartControllerTest {
 
         verify(cartService).deleteAllItens(consumerId);
     }
-
-
-    @Test
-    void deleteAllItens_InvalidConsumerIdFormat() {
-
-        String invalidConsumerId = "invalid-consumer-id";
-        ConsumerIdRequest request = new ConsumerIdRequest(invalidConsumerId);
-
-        Exception exception = assertThrows(InvalidConsumerIdException.class, () -> {
-            cartController.deleteAllItens(request);
-        });
-
-        assertEquals("Invalid consumerId format", exception.getMessage());
-
-        verify(cartService, never()).deleteAllItens(any());
-    }
-
 
 }

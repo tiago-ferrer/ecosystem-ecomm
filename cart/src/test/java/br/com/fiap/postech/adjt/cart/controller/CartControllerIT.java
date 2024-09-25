@@ -56,37 +56,20 @@ public class CartControllerIT {
     }
 
     @Test
-    void shouldReturnErrorForInvalidConsumerId() throws Exception {
-        String consumerId = "invalid-consumer-id";
-        Long itemId = 1L;
-        int quantity = 2;
+    void shouldAddItemFromCart() throws Exception {
 
-        ItemRequest itemRequest = new ItemRequest(consumerId, itemId, quantity);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/cart/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json("{\"error\":\"Invalid consumerId format\"}"));
-
-        verify(cartService, times(0)).createCartItem(any(ItemRequest.class));
-    }
-
-    @Test
-    void shouldReturnErrorForInvalidItemId() throws Exception {
         String consumerId = "153e23c8-302e-4fec-b9c4-72b8f74ad102";
-        Long invalidItemId = 9999L;
-        int quantity = 2;
+        Long itemId = 1L;
 
-        ItemRequest itemRequest = new ItemRequest(consumerId, invalidItemId, quantity);
+        AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(consumerId, itemId);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/cart/items")
+        mockMvc.perform(MockMvcRequestBuilders.put("/cart/item")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json("{\"error\":\"Invalid itemId does not exist\"}"));
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Item added from cart successfully"));
 
-        verify(cartService, times(0)).createCartItem(any(ItemRequest.class));
+        verify(cartService, times(1)).addItemToCart(any(AddOrRemoveItemRequest.class));
     }
 
     @Test
