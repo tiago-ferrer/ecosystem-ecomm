@@ -19,3 +19,9 @@ spring:
           - Method=GET
         filters:
           - RewritePath=/products/(?<segment>.*), /${segment}
+      - id: checkout
+        uri: http://localhost:8082
+        predicates:
+          - Path=/checkout/**
+        filters:
+          - RewritePath=/checkout/(?<segment>.*), /${segment}

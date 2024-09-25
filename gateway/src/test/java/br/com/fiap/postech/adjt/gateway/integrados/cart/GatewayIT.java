@@ -201,4 +201,49 @@ public class GatewayIT {
         clientAndServer.stop();
     }
 
+    @Test
+    public void busca() throws Exception {
+        final var clientAndServer = ClientAndServer.startClientAndServer(8081);
+        clientAndServer.when(
+                        HttpRequest.request()
+                                .withMethod("GET")
+                                .withPath("/")
+                )
+                .respond(
+                        HttpResponse.response()
+                                .withContentType(APPLICATION_JSON)
+                                .withStatusCode(200)
+                                .withBody("""
+                                        {
+                                           "items": [
+                                             {
+                                               "itemId": 1,
+                                               "qnt": 1
+                                             }
+                                           ]
+                                         }
+                                        
+                                        """)
+                );
+
+        final var request = """
+                {
+                    "consumerId": "e7c5c208-c4c3-42fc-9370-3141309cb7d1"
+                }
+                """;
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        this.client.method(HttpMethod.GET)
+                .uri("/cart/")
+                .bodyValue(jsonRequest)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        clientAndServer.stop();
+    }
+
 }
