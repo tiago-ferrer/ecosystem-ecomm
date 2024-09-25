@@ -9,9 +9,9 @@ spring:
       ddl-auto: create-drop
       show-sql: true
   datasource:
-    username: admin
-    password: admin
-    url: jdbc:postgresql://localhost:15432/checkout
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+    url: ${DB_URL:jdbc:postgresql://localhost:15432/checkout}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -28,6 +28,6 @@ logging:
   level:
     org.springframework.security: trace
 app:
-  cart-base-url: http://localhost:8081
-  payment-base-url: https://payment-api-latest.onrender.com
+  cart-base-url: ${CART_BASE_URL:http://localhost:8081}
+  payment-base-url: ${PAYMENT_BASE_URL:https://payment-api-latest.onrender.com}
   payment-key: ${API_KEY}

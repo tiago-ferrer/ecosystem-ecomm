@@ -37,12 +37,12 @@ public class OrderFacadeImp implements OrderFacade {
 
     @Override
     public OrderDTO getOrderById(String orderId) throws AppException {
-        return orderMapper.toOrderDTO(orderUseCase.getOrderById(orderId));//TODO sugestao, usar Mapper
+        return orderMapper.toOrderDTO(orderUseCase.getOrderById(orderId));
     }
 
     @Override
     public List<OrderDTO> getOrderByCustomerId(String customerId) throws AppException {
         return orderUseCase.getOrderByConsumerId(customerId).stream().map(orderMapper::toOrderDTO).toList();
-        //TODO sugestao, usar Mapper
+
     }
 }
