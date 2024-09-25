@@ -5,11 +5,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class FeignClientDefaultConfig {
+public class FeignClientFastConfig {
 
     @Bean
-    public Request.Options optionsAsync() {
-        return new Request.Options(10000, 10000);
+    public Request.Options options() {
+        return new Request.Options(300, 300);
     }
 
 }

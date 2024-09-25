@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  db-checkout:
+    image: postgres:16.2
+    container_name: "containerBancoDeDadosCheckout"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./../scriptBancoDeDados:/docker-entrypoint-initdb.d
+    ports:
+      - "5434:5432"
+    restart: always
+  db-cart:
+    image: postgres:16.2
+    container_name: "containerBancoDeDadosCart"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./../../cart/scriptBancoDeDados:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    restart: always
