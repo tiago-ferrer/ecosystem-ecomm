@@ -32,6 +32,17 @@ public class OrderEntity {
     @Column(name = "value", nullable = false)
     private Double value;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items;
+
+    // Add methods to add and remove children
+    public void addItems(OrderItemEntity child) {
+        items.add(child);
+        child.setOrder(this);
+    }
+
+    public void removeItems(OrderItemEntity child) {
+        items.remove(child);
+        child.setOrder(null);
+    }
 }

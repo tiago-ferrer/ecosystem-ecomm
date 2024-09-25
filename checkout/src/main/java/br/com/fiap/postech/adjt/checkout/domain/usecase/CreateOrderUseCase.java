@@ -54,7 +54,7 @@ public class CreateOrderUseCase {
 
     public List<OrderModel> getOrderByConsumerId(String consumerId) throws AppException {
 
-        if (Objects.isNull(consumerId) || consumerId.isEmpty() || isValidUUID(consumerId)) {
+        if (Objects.isNull(consumerId) || consumerId.isEmpty() || !isValidUUID(consumerId)) {
             throw new AppException(ErrorConstants.USER_ID_FORMAT_INVALID);
         }
 
@@ -63,7 +63,7 @@ public class CreateOrderUseCase {
 
     public OrderModel getOrderById(String orderId) throws AppException {
 
-        if (Objects.isNull(orderId) || orderId.isEmpty() || isValidUUID(orderId)) {
+        if (Objects.isNull(orderId) || orderId.isEmpty() || !isValidUUID(orderId)) {
             throw new AppException(ErrorConstants.ORDER_ID_FORMAT_INVALID);
         }
         Optional<OrderModel> optionalOrder = orderGateway.findOrderModelById(UUID.fromString(orderId));

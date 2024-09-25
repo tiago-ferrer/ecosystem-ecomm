@@ -23,4 +23,18 @@ public class OrderMapper {
     private OrderItemDTO toOrderItemDTO(OrderItemModel orderItem) {
         return new OrderItemDTO(orderItem.getCodItem(), orderItem.getQuantity());
     }
+
+    public OrderModel toOrderModel(OrderEntity order) {
+        return new OrderModel(
+                order.getOrderId(),
+                order.getPaymentStatus(),
+                order.getConsumerId(),
+                order.getPaymentType(),
+                order.getValue(),
+                order.getItems().stream().map(this::toOrderItemModel).toList());
+    }
+
+    private OrderItemModel toOrderItemModel(OrderItemEntity orderItem) {
+        return new OrderItemModel(orderItem.getId(),orderItem.getQuantity(), orderItem.getCodItem() );
+    }
 }
