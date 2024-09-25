@@ -197,7 +197,7 @@ public class CartUseCaseTest {
                 );
 
         Mockito.doThrow(
-                        new IllegalArgumentException("ERRO NO PARSE")
+                        new IOException("ERRO NO PARSE")
                 )
                 .when(mapper)
                 .readValue(
@@ -233,7 +233,7 @@ public class CartUseCaseTest {
         final var service = new CartUseCaseImpl(productsClient, repositoryCarrinho, repositoryItensNoCarrinho, mapper);
 
         // execução e avaliação
-        var excecao = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
             final var adiciona = service.adiciona(
                     new AdicionaItemRequestDTO(
                             "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
@@ -249,7 +249,7 @@ public class CartUseCaseTest {
         verifyNoInteractions(repositoryCarrinho);
         verifyNoInteractions(repositoryItensNoCarrinho);
 
-        Assertions.assertEquals("ERRO NO PARSE", excecao.getMessage());
+        Assertions.assertEquals("java.io.IOException: ERRO NO PARSE", excecao.getMessage());
     }
 
     @Test

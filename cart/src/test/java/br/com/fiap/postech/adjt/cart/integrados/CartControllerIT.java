@@ -925,6 +925,98 @@ public class CartControllerIT {
         Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
     }
 
+    @Test
+    public void busca_deveRetornar400_carrinhoVazio_naoDeletaNaBaseDeDados() throws Exception {
+        final var request = new ConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc"
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/")
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Empty cart", responseApp.error());
+
+        Assertions.assertEquals(0, this.repositoryCarrinho.findAll().size());
+        Assertions.assertEquals(0, this.repositoryItensNoCarrinho.findAll().size());
+    }
+
+    @Test
+    public void busca_deveRetornar200_buscaNaBaseDeDados() throws Exception {
+        final var carrinhoSalvo = this.repositoryCarrinho.save(
+                CarrinhoEntity.builder()
+                        .usuario("e7c5c208-c4c3-42fc-9370-3141309cb7bc")
+                        .status(StatusEnum.ABERTO)
+                        .dataDeCriacao(LocalDateTime.now())
+                        .valorTotal(new BigDecimal("1000.00"))
+                        .build()
+        );
+        this.repositoryItensNoCarrinho.save(
+                ItensNoCarrinhoEntity.builder()
+                        .id(ItensNoCarrinhoId.builder()
+                                .idCarrinho(carrinhoSalvo.getId())
+                                .ean(1L)
+                                .build())
+                        .precoUnitario(new BigDecimal("500.00"))
+                        .quantidade(2L)
+                        .build()
+        );
+
+        final var request = new ConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7bc"
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/")
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<InfoItensResponseDTO>() {});
+
+        var carrinho = this.repositoryCarrinho.findAll().get(0);
+        var itensDoCarrinho = this.repositoryItensNoCarrinho.findAll();
+
+        Assertions.assertEquals(1, responseApp.items().size());
+        Assertions.assertEquals(1, responseApp.items().get(0).itemId());
+        Assertions.assertEquals(2, responseApp.items().get(0).qnt());
+
+        Assertions.assertEquals(StatusEnum.ABERTO, carrinho.getStatus());
+        Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7bc", carrinho.getUsuario());
+        Assertions.assertEquals(new BigDecimal("1000.00"), carrinho.getValorTotal());
+        Assertions.assertNotNull(carrinho.getDataDeCriacao());
+
+        Assertions.assertEquals(1, itensDoCarrinho.size());
+        Assertions.assertEquals(new BigDecimal("500.00"), itensDoCarrinho.get(0).getPrecoUnitario());
+        Assertions.assertEquals(2, itensDoCarrinho.get(0).getQuantidade());
+        Assertions.assertEquals(1L, itensDoCarrinho.get(0).getId().getEan());
+        Assertions.assertEquals(carrinho.getId(), itensDoCarrinho.get(0).getId().getIdCarrinho());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "-1",
@@ -1041,9 +1133,8 @@ public class CartControllerIT {
             "e7c5c208-c4c3-42fc-9370-3141309cb7OI"
     })
     public void deletaOCarrinho_consumerIdInvalido(final String consumerId) throws Exception {
-        final var request = new ItemAndConsumerIdRequestDTO(
-                consumerId.equals("-1") ? null : consumerId,
-                123456L
+        final var request = new ConsumerIdRequestDTO(
+                consumerId.equals("-1") ? null : consumerId
         );
         final var objectMapper = this.objectMapper
                 .writer()
@@ -1052,6 +1143,40 @@ public class CartControllerIT {
 
         final var response = this.mockMvc
                 .perform(MockMvcRequestBuilders.delete("/")
+                        .content(jsonRequest)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals("Invalid consumerId format", responseApp.error());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-1",
+            "teste",
+            " ",
+            "",
+            "e7c5c208-c4c3-42fc-9370-3141309cb7OI"
+    })
+    public void busca_consumerIdInvalido(final String consumerId) throws Exception {
+        final var request = new ConsumerIdRequestDTO(
+                consumerId.equals("-1") ? null : consumerId
+        );
+        final var objectMapper = this.objectMapper
+                .writer()
+                .withDefaultPrettyPrinter();
+        final var jsonRequest = objectMapper.writeValueAsString(request);
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers

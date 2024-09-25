@@ -1,10 +1,7 @@
 package br.com.fiap.postech.adjt.cart.unitario;
 
 import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.CartController;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.AdicionaItemRequestDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ConsumerIdRequestDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ItemAndConsumerIdRequestDTO;
-import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.ItemResponseDTO;
+import br.com.fiap.postech.adjt.cart.infrastructure.cart.controller.dto.*;
 import br.com.fiap.postech.adjt.cart.useCase.cart.impl.CartUseCaseImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,6 +9,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -114,6 +113,40 @@ public class CardControllerTest {
 
         // execução
         var item = controller.deletaOCarrinho(new ConsumerIdRequestDTO(
+                "e7c5c208-c4c3-42fc-9370-3141309cb7d0"
+        ));
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.OK, item.getStatusCode());
+    }
+
+    @Test
+    public void busca_sucesso() {
+        // preparação
+        var service = Mockito.mock(CartUseCaseImpl.class);
+        Mockito.when(service.busca(
+                                any(ConsumerIdRequestDTO.class)
+                        )
+                )
+                .thenReturn(
+                        new InfoItensResponseDTO(
+                                List.of(
+                                        new ItensDetailsResponseDTO(
+                                                1L,
+                                                1L
+                                        ),
+                                        new ItensDetailsResponseDTO(
+                                                2L,
+                                                1L
+                                        )
+                                )
+                        )
+                );
+
+        var controller = new CartController(service);
+
+        // execução
+        var item = controller.busca(new ConsumerIdRequestDTO(
                 "e7c5c208-c4c3-42fc-9370-3141309cb7d0"
         ));
 
@@ -242,6 +275,37 @@ public class CardControllerTest {
         // execução e avaliação
         var excecao = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             controller.deletaOCarrinho(
+                    new ConsumerIdRequestDTO(
+                            consumerId.equals("-1") ? null : consumerId
+                    )
+            );
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-1",
+            "teste",
+            " ",
+            "",
+            "e7c5c208-c4c3-42fc-9370-3141309cb7OI"
+    })
+    public void busca_consumerIdInvalido(final String consumerId) {
+        // preparação
+        var service = Mockito.mock(CartUseCaseImpl.class);
+        Mockito.doThrow(
+                        new IllegalArgumentException("Campos inválidos!")
+                )
+                .when(service)
+                .busca(
+                        any(ConsumerIdRequestDTO.class)
+                );
+
+        var controller = new CartController(service);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            controller.busca(
                     new ConsumerIdRequestDTO(
                             consumerId.equals("-1") ? null : consumerId
                     )
