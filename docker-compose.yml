@@ -28,6 +28,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      - 'SPRING_DATA_MONGODB_URI=mongodb://root:123@mongo:27017/cart_db?authsource=admin'
 
   checkout:
     build:
