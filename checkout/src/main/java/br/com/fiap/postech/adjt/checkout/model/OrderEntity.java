@@ -26,7 +26,7 @@ public class OrderEntity {
     private UUID orderId;
     private UUID consumerId;
     private String paymentType;
-    private double value;
+    private int value;
     private String paymentStatus;
 
     @OneToMany(cascade = CascadeType.ALL)

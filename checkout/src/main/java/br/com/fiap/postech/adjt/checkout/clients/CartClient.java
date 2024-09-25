@@ -12,6 +12,6 @@ import br.com.fiap.postech.adjt.checkout.model.response.CartResponse;
 
 @FeignClient(name = "cartClient", url = "${cart.service.url}")
 public interface CartClient {
-    @GetMapping (value = "/cart", produces = MediaType.APPLICATION_JSON_VALUE)
-     List<CartResponse> consultCart(@RequestParam("consumerId") UUID consumerId);
+    @GetMapping(value = "/cart", produces = MediaType.APPLICATION_JSON_VALUE)
+    List<CartResponse> consultCart(@RequestParam("consumerId") UUID consumerId);
 }

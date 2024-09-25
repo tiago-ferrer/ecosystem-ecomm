@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.model.request.CheckoutRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.PaymentResponse;
+import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
+import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -29,12 +30,12 @@ public interface CheckoutController {
             }
     )
     @PostMapping("/")
-    ResponseEntity<PaymentResponse> createCheckout(@Valid @RequestBody CheckoutRequest checkoutRequest);
+    ResponseEntity<CheckoutResponse> createCheckout(@Valid @RequestBody CheckoutRequest checkoutRequest);
 
+    @GetMapping("/{consumerId}")
+    ResponseEntity<List<OrderCheckoutsResponse>> getOrdersByConsumerId(@PathVariable UUID consumerId);
+    
     @GetMapping("/by-order-id/{orderId}")
     ResponseEntity<OrderEntity> getOrderById(@PathVariable UUID orderId);
-    
-    @GetMapping("/{consumerId}")
-    ResponseEntity<List<OrderEntity>> getOrdersByConsumerId(@PathVariable UUID consumerId);
 
 }

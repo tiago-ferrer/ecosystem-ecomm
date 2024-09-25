@@ -1,8 +1,10 @@
 package br.com.fiap.postech.adjt.checkout.model.request;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,17 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentRequest {
 	@NotEmpty
-    private String orderId;
-    @NotEmpty
-    private double amount;
-    @NotEmpty
+    private String consumerId;
+    
+	@NotEmpty
+    private int amount;
+    
+    @NotBlank(message = "Currency cannot be blank")
     private String currency;
-    @NotEmpty
-    private PaymentMethod payment_method;
 
-    @Data
-    public static class PaymentMethod {
-        private String type;
-        private Map<String, String> fields;
-    }
+    @NotNull(message = "Payment method cannot be null")
+    @JsonProperty("payment_method")
+    private PaymentMethodRequest paymentMethod;
 }

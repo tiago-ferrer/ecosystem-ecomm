@@ -10,11 +10,14 @@ import br.com.fiap.postech.adjt.checkout.clients.CartClient;
 import br.com.fiap.postech.adjt.checkout.clients.ClearCartClient;
 import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
 import br.com.fiap.postech.adjt.checkout.controller.exception.NotFoundException;
+import br.com.fiap.postech.adjt.checkout.mapper.OrderMapper;
 import br.com.fiap.postech.adjt.checkout.model.CartItemEntity;
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.request.PaymentMethodRequest;
 import br.com.fiap.postech.adjt.checkout.model.request.PaymentRequest;
 import br.com.fiap.postech.adjt.checkout.model.response.CartResponse;
-import br.com.fiap.postech.adjt.checkout.model.response.PaymentResponse;
+import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
+import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
 import jakarta.transaction.Transactional;
@@ -28,39 +31,37 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final PaymentClient paymentClient;
     private final CartClient cartClient;
     private final ClearCartClient clearCartClient;
+    
 
     private final String apiKey = "777396e205b7881490af58e82df453333673428889284694abab7dd9";
 
     @Transactional
-    public PaymentResponse processCheckout(UUID consumerId, double amount, String currency,
-                                           PaymentRequest.PaymentMethod paymentMethod) {
+    public CheckoutResponse processCheckout(UUID consumerId, int amount, String currency, PaymentMethodRequest paymentMethod) {
 
         // Cria um pedido com status "pending"
         OrderEntity order = createPendingOrder(consumerId, amount, paymentMethod);
 
         // Cria a requisição de pagamento
-        PaymentRequest paymentRequest = new PaymentRequest(order.getOrderId().toString(), amount, currency, paymentMethod);
+        PaymentRequest paymentRequest = new PaymentRequest(order.getConsumerId().toString(), amount, currency, paymentMethod);
 
         // Processa o pagamento de forma assíncrona
         CompletableFuture.runAsync(() -> processPaymentAsync(order, paymentRequest));
 
         // Limpa o carrinho do consumidor
-        clearCart(consumerId);
+//        clearCart(consumerId);
 
         // Retorna a resposta de pagamento
-        return new PaymentResponse(order.getOrderId().toString(), order.getPaymentStatus());
+        return new CheckoutResponse(order.getConsumerId().toString(), order.getPaymentStatus());
     }
 
-    private OrderEntity createPendingOrder(UUID consumerId, double amount, PaymentRequest.PaymentMethod paymentMethod) {
+    private OrderEntity createPendingOrder(UUID consumerId, int amount, PaymentMethodRequest paymentMethod) {
         OrderEntity order = new OrderEntity();
         order.setConsumerId(consumerId);
-        order.setValue(amount);
+//      List<CartItemEntity> cartItems = fetchCartItems(consumerId);
+//      order.setItems(cartItems);
         order.setPaymentType(paymentMethod.getType());
+        order.setValue(amount);
         order.setPaymentStatus("pending");
-
-        // Busca os itens do carrinho e associa ao pedido
-        List<CartItemEntity> cartItems = fetchCartItems(consumerId);
-        order.setItems(cartItems);
 
         return orderRepository.save(order);
     }
@@ -68,7 +69,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     private void processPaymentAsync(OrderEntity order, PaymentRequest paymentRequest) {
         try {
             // Processa o pagamento via API externa
-            PaymentResponse paymentResponse = paymentClient.processPayment(apiKey, paymentRequest);
+            CheckoutResponse paymentResponse = paymentClient.processPayment(apiKey, paymentRequest);
             order.setPaymentStatus(paymentResponse.getStatus());
         } catch (Exception e) {
             // Em caso de erro, define o status como "declined"
@@ -97,7 +98,6 @@ public class CheckoutServiceImpl implements CheckoutService {
             return cartResponses.stream()
                     .map(cartResponse -> new CartItemEntity(cartResponse.getItemId(), cartResponse.getQuantity()))
                     .toList();
-//            return null;
 
         } catch (Exception e) {
             // Lança uma exceção se não for possível buscar os itens do carrinho
@@ -106,8 +106,9 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     @Override
-    public List<OrderEntity> getOrdersByConsumerId(UUID consumerId) {
-        return orderRepository.findByConsumerId(consumerId);
+    public List<OrderCheckoutsResponse> getOrdersByConsumerId(UUID consumerId) {
+    	List<OrderEntity> orderEntities2 = orderRepository.findByConsumerId(consumerId);
+    	return  OrderMapper.toResponseList(orderEntities2);
     }
 
     @Override

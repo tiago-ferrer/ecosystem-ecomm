@@ -4,16 +4,17 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
-import br.com.fiap.postech.adjt.checkout.model.request.PaymentRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.PaymentResponse;
+import br.com.fiap.postech.adjt.checkout.model.request.PaymentMethodRequest;
+import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
+import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
 
 public interface CheckoutService {
 
-	PaymentResponse processCheckout(UUID consumerId, double amount, String currency,
-			PaymentRequest.PaymentMethod paymentMethod);
+	CheckoutResponse processCheckout(UUID consumerId, int amount, String currency,
+			PaymentMethodRequest paymentMethod);
+
+	List<OrderCheckoutsResponse> getOrdersByConsumerId(UUID consumerId);
 
 	OrderEntity getOrderById(UUID orderId);
-
-	List<OrderEntity> getOrdersByConsumerId(UUID consumerId);
 
 }

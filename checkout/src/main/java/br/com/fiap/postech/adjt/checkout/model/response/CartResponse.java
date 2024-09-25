@@ -14,4 +14,11 @@ public class CartResponse {
 	private UUID customerId;
 	private Long itemId;
 	private Integer quantity;
+
+	public CartResponse(Long itemId, Integer quantity) {
+		super();
+		this.itemId = itemId;
+		this.quantity = quantity;
+	}
+
 }

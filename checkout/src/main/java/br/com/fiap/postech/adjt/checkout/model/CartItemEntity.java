@@ -1,5 +1,7 @@
 package br.com.fiap.postech.adjt.checkout.model;
 
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +20,7 @@ public class CartItemEntity {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
     private Long itemId;
     private int quantity;
 

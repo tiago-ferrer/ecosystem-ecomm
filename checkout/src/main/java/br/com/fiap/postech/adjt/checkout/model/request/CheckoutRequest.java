@@ -19,24 +19,24 @@ public class CheckoutRequest {
 
     @NotBlank(message = "Consumer ID cannot be blank")
     @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "Invalid consumerId format")
-    private UUID consumerId;
+    private String consumerId;
 
-    @Min(value = 0, message = "Amount must be greater than or equal to 0")
-    private double amount;
+    @Min(value = 1, message = "Amount must be greater than or equal to 0")
+    private int amount;
 
     @NotBlank(message = "Currency cannot be blank")
     private String currency;
 
     @NotNull(message = "Payment method cannot be null")
     @JsonProperty("payment_method")
-    private PaymentRequest.PaymentMethod paymentMethod;
+    private PaymentMethodRequest paymentMethod;
 
     // Custom validation for UUID format
     public void validateConsumerId() {
-//        try {
-//            UUID.fromString(consumerId);
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("Invalid orderId format");
-//        }
+        try {
+            UUID.fromString(consumerId);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid consumerId format");
+        }
     }
 }

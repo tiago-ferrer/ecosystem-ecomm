@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import br.com.fiap.postech.adjt.checkout.model.request.PaymentRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.PaymentResponse;
+import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
 
 @FeignClient(name = "paymentClient", url = "${api.client.payment.url}")
 public interface PaymentClient {
     @PostMapping("/create-payment")
-    PaymentResponse processPayment(
+    CheckoutResponse processPayment(
     		@RequestHeader("apiKey") String apiKey, 
     		@RequestBody PaymentRequest paymentRequest);
 }
