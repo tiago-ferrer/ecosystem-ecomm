@@ -13,11 +13,6 @@ public record Pagamento(
 ) {
 
     public Pagamento {
-        if (Objects.isNull(consumerId)) {
-            log.error("consumerId NAO PODE SER NULO");
-            throw new IllegalArgumentException("consumerId NAO PODE SER NULO");
-        }
-
         if (Objects.isNull(amount) || amount <= 0) {
             log.error("amount NAO PODE SER NULO OU MENOR OU IGUAL A ZERO");
             throw new IllegalArgumentException("amount NAO PODE SER NULO OU MENOR OU IGUAL A ZERO");

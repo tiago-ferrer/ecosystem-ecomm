@@ -8,7 +8,6 @@ import br.com.fiap.postech.adjt.checkout.domain.exception.ApiCartException;
 import br.com.fiap.postech.adjt.checkout.domain.exception.ErrorTreatedException;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.CartClient;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.request.CartRequestDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.request.RequestDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.CartResponseDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.CartResponseErrorDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.CamposMetodoPagamentoRequestDTO;
@@ -31,19 +30,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -105,12 +101,6 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                 dadosPagamento.paymentMethod().fields().name()
         );
 
-        final var pagamentoPendente = this.orderRepository
-                .findByUsuarioAndStatus(pagamento.consumerId(), StatusPagamento.PENDING);
-        if(pagamentoPendente.isPresent()) {
-            throw new ErrorTreatedException("Payment already pending");
-        }
-
         CartResponseDTO cart = null;
         CartResponseErrorDTO errorResponse = null;
         try {
@@ -120,21 +110,18 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                     .retrieve()
                     .bodyToMono(CartResponseDTO.class)
                     .block();
-        } catch (FeignException.FeignClientException errorExpected) {
-            if(errorExpected.status() == HttpStatus.BAD_REQUEST.value()
-                    && errorExpected.responseBody().isPresent()) {
-                final var byteBuffer = errorExpected.responseBody().get();
-                byte[] bytes = new byte[byteBuffer.remaining()];
-                byteBuffer.get(bytes);
+        } catch (WebClientResponseException errorExpected) {
+            if(errorExpected.getStatusCode() == HttpStatus.BAD_REQUEST
+                    && Objects.nonNull(errorExpected.getResponseBodyAsString())) {
                 try {
-                    errorResponse = this.mapper.readValue(bytes, CartResponseErrorDTO.class);
-                } catch (IOException e) {
+                    errorResponse = this.mapper.readValue(errorExpected.getResponseBodyAsString(), CartResponseErrorDTO.class);
+                } catch (Exception e) {
                     log.error("Erro na conversão do JSON de erro", e);
-                    throw new RuntimeException(e);
+                    throw new ApiCartException("Error converting JSON error");
                 }
             } else {
                 log.error("Erro não esperado", errorExpected);
-                throw new RuntimeException(errorExpected);
+                throw new ApiCartException("Error not expected");
             }
         } catch (Exception e) {
             log.error("Problemas com a API de CART ", e);
@@ -154,7 +141,14 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
             }
         }
 
+        final var pagamentoPendente = this.orderRepository
+                .findByUsuarioAndStatus(pagamento.consumerId(), StatusPagamento.PENDING);
+        if(pagamentoPendente.isPresent()) {
+            throw new ErrorTreatedException("Payment already pending");
+        }
+
         PaymentResponseDTO executa = null;
+        var orderId = UUID.randomUUID();
         StatusPagamento statusPagamento = null;
         try {
             executa = this.paymentClient.executa(
@@ -166,7 +160,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                     ),
                     "8a26d8d0f5290c8a159e3ccf3523835abfe525b6d86163d1c87ea58c022c7ffa"
             );
-        } catch (FeignException error) {
+        } catch (Exception error) {
             log.error("Erro ao processar pagamento", error);
             if(error.getCause() instanceof SocketTimeoutException) {
                 statusPagamento = StatusPagamento.PENDING;
@@ -185,16 +179,18 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                         .build();
                 this.orderAsyncRepository.save(orderAsyncEntity);
             } else {
-                throw new RuntimeException(error);
+                log.error("Problemas com a API EXTERNA de pagamento ", error);
+                throw new ErrorTreatedException("Problemas com a API EXTERNA de pagamento");
             }
         }
 
         if(Objects.isNull(statusPagamento)) {
             statusPagamento = StatusPagamento.valueOf(executa.status().toUpperCase());
+            orderId = UUID.fromString(executa.orderId());
         }
 
         final var orderEntity = OrderEntity.builder()
-                .id(UUID.randomUUID())
+                .id(orderId)
                 .usuario(pagamento.consumerId())
                 .paymentType(metodoPagamento.type())
                 .value(new BigDecimal(pagamento.amount()))
@@ -226,7 +222,6 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
         final var pagamentosPendentes = this.orderAsyncRepository.findAll();
         pagamentosPendentes
                 .forEach(pagamento -> {
-
                     PaymentResponseDTO executa = null;
                     try {
                         executa = this.paymentClientAsync.executa(
