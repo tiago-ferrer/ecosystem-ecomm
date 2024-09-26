@@ -61,7 +61,7 @@ public class ItemTests {
     @Test
     public void testItemCreationWithNullProductId() {
         Item item = new Item(null, 2);
-        assertNull(item.getProductId()); // Não podemos validar, mas podemos garantir que a construção não lança exceções
+        assertNull(item.getProductId());
         assertEquals(2, item.getQuantity());
     }
 
@@ -69,6 +69,20 @@ public class ItemTests {
     public void testItemCreationWithZeroQuantity() {
         Item item = new Item("product1", 0);
         assertEquals("product1", item.getProductId());
-        assertEquals(0, item.getQuantity()); // Quantidade 0 deve ser permitida, mas deve ser tratado na lógica do carrinho
+        assertEquals(0, item.getQuantity());
     }
+
+    @Test
+    public void testItemCreationWithNegativeQuantity() {
+        Item item = new Item("product1", -1);
+        assertEquals("product1", item.getProductId());
+        assertEquals(-1, item.getQuantity());
+    }
+
+    @Test
+    public void testItemCreationWithInvalidProductId() {
+        Item item = new Item("", 2);
+        assertEquals("", item.getProductId());
+    }
+
 }

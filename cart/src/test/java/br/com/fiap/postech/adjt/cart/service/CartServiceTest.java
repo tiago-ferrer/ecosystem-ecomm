@@ -124,4 +124,59 @@ public class CartServiceTest {
         assertNotNull(result);
         assertFalse(result.getItems().isEmpty());
     }
+
+    @Test
+    void testAddItem_InvalidConsumerIdFormat() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            cartService.addItem("invalid-id", itemId, 2);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.INVALID_CONSUMER_ID_FORMAT, exception.getReason());
+    }
+
+    @Test
+    void testAddItem_InvalidItemId() {
+        when(cartRepository.findByConsumerId(consumerUUID)).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            cartService.addItem(consumerId, "", 2);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.INVALID_ITEM_ID, exception.getReason());
+    }
+
+    @Test
+    void testAddItem_NegativeQuantity() {
+        when(cartRepository.findByConsumerId(consumerUUID)).thenReturn(Optional.empty());
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            cartService.addItem(consumerId, itemId, -1);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.INVALID_ITEM_QUANTITY, exception.getReason());
+    }
+
+    @Test
+    void testRemoveItem_CartNotFound() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            cartService.removeItem(consumerId, itemId);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.EMPTY_CART, exception.getReason());
+    }
+
+    @Test
+    void testAddItem_ExistingItem_QuantityIncreased() {
+        Cart cart = new Cart();
+        Item item = new Item(itemId, 1);
+        cart.setItems(new ArrayList<>());
+        cart.getItems().add(item);
+
+        when(cartRepository.findByConsumerId(consumerUUID)).thenReturn(Optional.of(cart));
+
+        String result = cartService.addItem(consumerId, itemId, 2);
+
+        assertEquals(ErrorMessages.ITEM_ADDED_SUCCESSFULLY, result);
+        verify(cartRepository, times(1)).save(cart);
+        assertEquals(3, item.getQuantity()); // Quantidade deve ser atualizada
+    }
+
 }

@@ -69,4 +69,33 @@ public class CartItemRequestTest {
         String expected = "CartItemRequest(consumerId=153e23c8-322e-4fec-b9c4-72b8f74ad002, itemId=1, quantity=3)";
         assertEquals(expected, request.toString());
     }
+
+    @Test
+    void testEquals_DifferentObjectType() {
+        CartItemRequest request = new CartItemRequest();
+        assertFalse(request.equals("Some String")); // Testa a comparação com um tipo diferente
+    }
+
+    @Test
+    void testEquals_DifferentAttributes() {
+        CartItemRequest request1 = new CartItemRequest();
+        request1.setConsumerId("153e23c8-322e-4fec-b9c4-72b8f74ad002");
+        request1.setItemId("1");
+        request1.setQuantity(2);
+
+        CartItemRequest request2 = new CartItemRequest();
+        request2.setConsumerId("different-id");
+        request2.setItemId("1");
+        request2.setQuantity(2);
+
+        assertNotEquals(request1, request2); // Testa a desigualdade por `consumerId` diferente
+    }
+
+    @Test
+    void testCanEqual() {
+        CartItemRequest request = new CartItemRequest();
+        assertTrue(request.canEqual(new CartItemRequest())); // Testa com uma instância do mesmo tipo
+        assertFalse(request.canEqual(new Object())); // Testa com um tipo diferente
+    }
+
 }

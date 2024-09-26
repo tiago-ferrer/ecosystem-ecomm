@@ -44,7 +44,7 @@ public class CartTests {
 
     @Test
     public void testRemoveItem() {
-        Item item = new Item(); // Usando o construtor padrão
+        Item item = new Item();
         cart.getItems().add(item);
         cart.getItems().remove(item);
         assertFalse(cart.getItems().contains(item));
@@ -52,7 +52,7 @@ public class CartTests {
 
     @Test
     public void testClearCart() {
-        Item item = new Item(); // Usando o construtor padrão
+        Item item = new Item();
         cart.getItems().add(item);
         cart.getItems().clear();
         assertTrue(cart.getItems().isEmpty());
@@ -60,7 +60,7 @@ public class CartTests {
 
     @Test
     public void testAddItem() {
-        Item item = new Item("product1", 2); // Criar um item válido
+        Item item = new Item("product1", 2);
         cart.getItems().add(item);
         assertTrue(cart.getItems().contains(item));
     }
@@ -71,4 +71,26 @@ public class CartTests {
         boolean result = cart.getItems().remove(nonExistentItem);
         assertFalse(result); // Remover um item que não existe deve retornar false
     }
+
+    @Test
+    public void testSetItemsWithNull() {
+        cart.setItems(null);
+        assertNull(cart.getItems()); // Espera-se que items seja null
+    }
+
+    @Test
+    public void testSetItemsWithEmptyList() {
+        List<Item> emptyItems = new ArrayList<>();
+        cart.setItems(emptyItems);
+        assertEquals(emptyItems, cart.getItems());
+    }
+
+    @Test
+    public void testAddDuplicateItem() {
+        Item item = new Item("product1", 2);
+        cart.getItems().add(item);
+        cart.getItems().add(item); // Adicionando o mesmo item novamente
+        assertEquals(2, cart.getItems().size()); // O tamanho deve ser 2
+    }
+
 }
