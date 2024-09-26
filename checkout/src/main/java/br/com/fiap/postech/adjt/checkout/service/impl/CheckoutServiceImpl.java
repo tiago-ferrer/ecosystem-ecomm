@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.clients.CartClient;
@@ -58,8 +59,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     private OrderEntity createPendingOrder(UUID consumerId, int amount, PaymentMethodRequest paymentMethod) {
         OrderEntity order = new OrderEntity();
         order.setConsumerId(consumerId);
-//        List<CartItemEntity> cartItems = fetchCartItems(consumerId);
-//        order.setItems(cartItems);
+        List<CartItemEntity> cartItems = fetchCartItems(consumerId);
+        order.setItems(cartItems);
         order.setPaymentType(paymentMethod.getType());
         order.setValue(amount);
         order.setPaymentStatus("pending");
@@ -89,10 +90,11 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private List<CartItemEntity> fetchCartItems(UUID consumerId) {
         try {
-            List<CartResponse> cartResponses = cartClient.consultCart(consumerId);
-            return cartResponses.stream()
-                    .map(cartResponse -> new CartItemEntity(cartResponse.getItemId(), cartResponse.getQuantity()))
-                    .toList();
+            ResponseEntity<CartResponse> cartResponses = cartClient.consultCart(consumerId);
+//            return cartResponses.stream()
+//                    .map(cartResponse -> new CartItemEntity(cartResponse.getCu getItemId(), cartResponse.getQuantity()))
+//                    .toList();
+            return null;
 
         } catch (Exception e) {
             throw new NotFoundException("Cart items not found for consumerId: " + consumerId);

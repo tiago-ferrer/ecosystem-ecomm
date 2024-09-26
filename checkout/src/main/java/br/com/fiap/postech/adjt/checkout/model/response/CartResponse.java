@@ -1,6 +1,8 @@
 package br.com.fiap.postech.adjt.checkout.model.response;
 
-import java.util.UUID;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,14 +13,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CartResponse {
 
-	private UUID customerId;
-	private Long itemId;
-	private Integer quantity;
+    @JsonProperty("id") // Certifique-se de que o nome do campo corresponde ao JSON
+    private Long id; // ID do carrinho
 
-	public CartResponse(Long itemId, Integer quantity) {
-		super();
-		this.itemId = itemId;
-		this.quantity = quantity;
-	}
+    @JsonProperty("customerId") // Certifique-se de que o nome do campo corresponde ao JSON
+    private String customerId; // ID do cliente
+
+    @JsonProperty("items") // Certifique-se de que o nome do campo corresponde ao JSON
+    private List<CartItemResponse> items; // Lista de itens do carrinho
 
 }

@@ -35,10 +35,11 @@ public class OrderMapper {
 
     // Método auxiliar para converter CartItemEntity para CartResponse
     private static CartResponse convertCartItemToResponse(CartItemEntity cartItemEntity) {
-        return new CartResponse(
-//            cartItemEntity.getId(), // UUID do CartItemEntity
-            cartItemEntity.getItemId(),
-            cartItemEntity.getQuantity()
-        );
+//        return new CartResponse(
+//            cartItemEntity.getItemId(),
+//            cartItemEntity.getId(),
+//            null
+//        );
+    	return null;
     }
 }
