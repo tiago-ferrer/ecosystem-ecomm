@@ -2,6 +2,7 @@ package br.com.fiap.postech.adjt.cart.controller.impl;
 
 import br.com.fiap.postech.adjt.cart.controller.CartController;
 import br.com.fiap.postech.adjt.cart.model.dto.request.*;
+import br.com.fiap.postech.adjt.cart.model.dto.response.MessageResponse;
 import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,10 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @PostMapping("/items")
-    public ResponseEntity<Cart> add(@RequestBody AddCartItemRequest request) {
-        Cart cart = cartService.add(request);
+    public ResponseEntity<MessageResponse> add(@RequestBody AddCartItemRequest request) {
+        cartService.add(request);
 
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item added to cart successfully"));
     }
 
     @Override
