@@ -42,8 +42,9 @@ public class CheckoutServiceImpl implements CheckoutService {
         OrderEntity order = createPendingOrder(consumerId, amount, paymentMethod);
 
         // Cria a requisição de pagamento
-        PaymentRequest paymentRequest = new PaymentRequest(order.getConsumerId().toString(), amount, currency, paymentMethod);
-
+//        PaymentRequest paymentRequest = new PaymentRequest(order.getConsumerId().toString(), amount, currency, paymentMethod);
+        PaymentRequest paymentRequest = new PaymentRequest(order.getOrderId().toString(), amount, currency, paymentMethod);
+        
         // Processa o pagamento de forma assíncrona
         CompletableFuture.runAsync(() -> processPaymentAsync(order, paymentRequest));
 
