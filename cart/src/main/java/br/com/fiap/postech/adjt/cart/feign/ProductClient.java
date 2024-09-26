@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.cloud.openfeign.FeignClient;
 
-@FeignClient(name = "product-client", url = "https://fakestoreapi.com")
+@FeignClient(name = "product-client",  url = "${product-client.urlProduct}")
 public interface ProductClient {
-    @GetMapping("/products/{itemId}")
+    @GetMapping("/{itemId}")
     ProductDto getProductById(@PathVariable("itemId") Long itemId);
 }
