@@ -26,7 +26,11 @@ public class Order {
     private List<Item> itemList;
 
     @Enumerated(EnumType.STRING)
+    private Currency currency;
+
+    @Enumerated(EnumType.STRING)
     private PaymentMethodType paymentMethodType;
+
     private Double totalValue;
     private PaymentStatus paymentStatus;
 

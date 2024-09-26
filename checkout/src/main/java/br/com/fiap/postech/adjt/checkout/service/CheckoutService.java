@@ -10,13 +10,11 @@ import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
 import jakarta.transaction.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,20 +27,22 @@ public class CheckoutService {
     private final CartService cartService;
 
     private final KafkaTemplate<String, Checkout> checkoutKafkaTemplate;
+    private final PaymentProducer paymentProducer;
 
     public CheckoutService(OrderService orderService,
                            CheckoutRepository checkoutRepository,
                            CartService cartService,
-                           KafkaTemplate<String, Checkout> checkoutKafkaTemplate) {
+                           KafkaTemplate<String, Checkout> checkoutKafkaTemplate, PaymentProducer paymentProducer) {
         this.orderService = orderService;
         this.checkoutRepository = checkoutRepository;
         this.cartService = cartService;
         this.checkoutKafkaTemplate = checkoutKafkaTemplate;
+        this.paymentProducer = paymentProducer;
     }
 
     @Transactional
     public CheckoutResponseDTO processPayment(CheckoutRequestDTO checkoutRequestDTO) {
-//        Cart cart = cartService.getCartDetails(checkoutRequestDTO.consumerId());
+//        Cart cart = cartService.getCart(checkoutRequestDTO.consumerId());
 //        validateCartItemList(cart);
         validatePaymentMethod(checkoutRequestDTO);
         Checkout checkout = null;
@@ -70,18 +70,11 @@ public class CheckoutService {
 
             checkout = new Checkout(UUID.fromString(checkoutRequestDTO.consumerId()), null, checkoutRequestDTO.amount(),
                     Currency.valueOf(checkoutRequestDTO.currency()),
-                    PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod()), PaymentStatus.PENDING);
+                    PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod()), PaymentStatus.pending);
             checkoutRepository.saveAndFlush(checkout);
-            order = orderService.saveOrder(cart, checkout);
+            order = orderService.createAndSaveOrder(cart, checkout);
             checkout.setOrderId(order.getOrderId());
-
-            //Envio da mensagem para o tópico checkout-processing-topic
-            try {
-                checkoutKafkaTemplate.send("checkout-processing-topic", checkout.getOrderId().toString(), checkout);
-                System.out.println("Send Checkout: " + checkout);
-            } catch (Exception e) {
-                throw new RuntimeException("Error while sending message to Kafka", e);
-            }
+            paymentProducer.sendPaymentRequest(order,checkout);
 
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);

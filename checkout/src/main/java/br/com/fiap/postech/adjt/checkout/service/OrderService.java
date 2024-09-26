@@ -3,7 +3,6 @@ package br.com.fiap.postech.adjt.checkout.service;
 import br.com.fiap.postech.adjt.checkout.model.Cart;
 import br.com.fiap.postech.adjt.checkout.model.Checkout;
 import br.com.fiap.postech.adjt.checkout.model.Order;
-import br.com.fiap.postech.adjt.checkout.model.PaymentStatus;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order saveOrder(Cart cart, Checkout checkout) {
+    public Order createAndSaveOrder(Cart cart, Checkout checkout) {
         return createOrderFromCart(cart, checkout);
     }
 
@@ -35,10 +34,20 @@ public class OrderService {
        return orderRepository.findByConsumerId(orderUuid);
     }
 
+    @Transactional
+    public void updateOrder(Order order) {
+        Order existingOrder = orderRepository.findById(order.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        existingOrder.setPaymentStatus(order.getPaymentStatus());
+        orderRepository.save(existingOrder);
+    }
+
     protected Order createOrderFromCart(Cart cart, Checkout checkout) {
         Order order = new Order();
         order.setConsumerId(cart.getConsumerId());
         order.setItemList(cart.getItemList());
+        order.setCurrency(checkout.getCurrency());
         order.setTotalValue(checkout.getAmount());
         order.setPaymentMethodType(checkout.getPaymentMethod().getType());
         order.setPaymentStatus(checkout.getStatus());
