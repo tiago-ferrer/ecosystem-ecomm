@@ -19,7 +19,7 @@ Estamos entusiasmados com as contribuições que você trará para o projeto e c
 ## Requisitos gerais 
 
 1. **Sistema Distribuído:** Nossos sistemas são complemente independentes, porém estão organizados neste monorepo, com o intuito de facilitar o agrupamento das aplicações de cada squad. Você deverá clonar esse repositório e em seguida criar uma Branch com o nome do seu grupo. Após a conclusão, você deverá abrir uma Pull Request para Branch `develop`. Os requisitos funcionais de cada microsserviço está nos seus respectivos readmes:
-   - [**Catalog Service**]()
+   - [**Catalog Service**](catalog/README.md)
    - [**Cart Service**](cart/README.md)
    - [**Checkout Service:**](checkout/README.md)
    - [**API Gateway**](gateway/README.md)

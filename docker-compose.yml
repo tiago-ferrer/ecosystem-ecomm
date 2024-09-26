@@ -1,6 +1,103 @@
 version: '3.8'
-
 services:
+  # Cart database
+  cart-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: cart_user
+      POSTGRES_PASSWORD: cart_password
+      POSTGRES_DB: cart_db
+    volumes:
+      - cart-db-data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  # Checkout database
+  checkout-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: checkout_user
+      POSTGRES_PASSWORD: checkout_password
+      POSTGRES_DB: checkout_db
+    volumes:
+      - checkout-db-data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  # Cart microservice
+  cart:
+    image: cart:latest
+    environment:
+      - DATABASE_URL=jdbc:postgresql://cart-db:5432/cart_db
+      - DATABASE_USER=cart_user
+      - DATABASE_PASSWORD=cart_password
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - cart-db
+      - products
+    expose:
+      - "8081"
+    networks:
+      - my_network
+
+  # Checkout microservice
+  checkout:
+    image: checkout:latest
+    environment:
+      - DATABASE_URL=jdbc:postgresql://checkout-db:5432/checkout_db
+      - DATABASE_USER=checkout_user
+      - DATABASE_PASSWORD=checkout_password
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - PAYMENT_SERVICE_URL=https://payment-api-latest.onrender.com/create-payment
+      - CART_SERVICE_URL=http://cart:8081
+      - PAYMENT_APIKEY_VALUE=0998721033dc0d0c65a5417b9287c5e27c0925895dda7fae3baf0c417d56cc45
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - checkout-db
+      - kafka
+    expose:
+      - "8082"
+    networks:
+      - my_network
+
+
+  # Products microservice
+  products:
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    image: catalog:latest
+    expose:
+      - "8083"
+    networks:
+      - my_network
+
+  # Kafka
+  kafka:
+    image: wurstmeister/kafka:latest
+    expose:
+      - "9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    networks:
+      - my_network
+
+  # Zookeeper
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    expose:
+      - "2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - my_network
+
+  # Gateway service
   gateway:
     image: gateway:latest
     ports:
@@ -8,31 +105,14 @@ services:
     depends_on:
       - cart
       - checkout
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8080/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      - products
+    networks:
+      - my_network
 
-  cart:
-    image: cart:latest
-    expose:
-      - "8081"
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
 
-  checkout:
-    image: checkout:latest
-    expose:
-      - "8082"
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+networks:
+  my_network:
+
+volumes:
+  cart-db-data:
+  checkout-db-data:
