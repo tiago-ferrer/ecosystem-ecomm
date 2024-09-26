@@ -27,10 +27,10 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @DeleteMapping("/item")
-    public ResponseEntity<Cart> remove(@RequestBody RemoveCartItemRequest request) {
-        Cart cart = cartService.remove(request);
+    public ResponseEntity<MessageResponse> remove(@RequestBody RemoveCartItemRequest request) {
+        cartService.remove(request);
 
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item removed from cart successfully"));
     }
 
     @Override

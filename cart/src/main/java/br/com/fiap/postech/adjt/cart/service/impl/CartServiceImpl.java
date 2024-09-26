@@ -29,11 +29,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart add(AddCartItemRequest request) {
+        UUID consumerID = getValidConsumerIdFromRequest(request);
         validateRequest(request);
 
         CartItem cartItem = new CartItem(request.itemId(), request.quantity());
 
-        Cart cart = getCartByCustomerId(request.consumerId());
+        Cart cart = getCartByCustomerId(consumerID);
         cart.addItem(cartItem);
 
         Cart savedCart = cartRepository.save(cart);
@@ -41,9 +42,18 @@ public class CartServiceImpl implements CartService {
         return savedCart;
     }
 
+    private UUID getValidConsumerIdFromRequest(AddCartItemRequest request) {
+        try {
+            return UUID.fromString(request.consumerId());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid consumerId format");
+        }
+    }
+
     @Override
     public Cart remove(RemoveCartItemRequest request) {
         Cart cart = getCartByCustomerIdIfExist(request.consumerId());
+
         cart.removeItem(request.itemId());
 
         Cart savedCart = cartRepository.save(cart);
@@ -81,13 +91,13 @@ public class CartServiceImpl implements CartService {
 
     private void validateRequest(AddCartItemRequest request) {
         if (request.quantity() == null || request.quantity().isEmpty()
-                || request.quantity().isBlank() || Integer.parseInt(request.quantity()) <= 0){
+                || request.quantity().isBlank() || Integer.parseInt(request.quantity()) <= 0) {
             throw new IllegalArgumentException("Invalid itemId quantity");
         }
 
         ResponseEntity<ItemResponse> itemResponse = itemsClient.findById(request.itemId());
         if (itemResponse.getStatusCode() != HttpStatus.OK || itemResponse.getBody() == null) {
-            throw new NotFoundException("Invalid itemId does not exist");
+            throw new NotFoundException ("Invalid itemId does not exist");
         }
     }
 
@@ -97,6 +107,6 @@ public class CartServiceImpl implements CartService {
     }
 
     private Cart getCartByCustomerIdIfExist(UUID uuid) {
-        return cartRepository.findByCustomerId(uuid).orElseThrow(() -> new NotFoundException("Cart not found"));
+        return cartRepository.findByCustomerId(uuid).orElseThrow(() -> new NotFoundException("Invalid consumerId format"));
     }
 }

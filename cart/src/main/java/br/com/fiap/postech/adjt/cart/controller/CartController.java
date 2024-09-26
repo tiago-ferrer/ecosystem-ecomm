@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 public interface CartController {
     ResponseEntity<MessageResponse> add(AddCartItemRequest request);
 
-    ResponseEntity<Cart> remove(RemoveCartItemRequest request);
+    ResponseEntity<MessageResponse> remove(RemoveCartItemRequest request);
 
     ResponseEntity<Cart> increment(IncrementCartItemRequest request);
 
