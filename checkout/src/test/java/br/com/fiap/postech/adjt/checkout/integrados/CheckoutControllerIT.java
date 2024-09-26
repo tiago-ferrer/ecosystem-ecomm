@@ -506,7 +506,7 @@ public class CheckoutControllerIT {
         Assertions.assertEquals(orderId, orderEntity.getId());
         Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7d0", orderEntity.getUsuario());
         Assertions.assertEquals("cartao de credito", orderEntity.getPaymentType());
-        Assertions.assertEquals(new BigDecimal("100.00"), orderEntity.getValue());
+        Assertions.assertEquals(new BigDecimal("100.00"), orderEntity.getOrderValue());
         Assertions.assertEquals(StatusPagamento.PENDING, orderEntity.getStatus());
         Assertions.assertNotNull(orderEntity.getDataDeCriacao());
     }
@@ -665,7 +665,7 @@ public class CheckoutControllerIT {
 
         Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7d0", orderEntity.getUsuario());
         Assertions.assertEquals("br_credit_card", orderEntity.getPaymentType());
-        Assertions.assertEquals(new BigDecimal("10.00"), orderEntity.getValue());
+        Assertions.assertEquals(new BigDecimal("10.00"), orderEntity.getOrderValue());
         Assertions.assertEquals(StatusPagamento.PENDING, orderEntity.getStatus());
         Assertions.assertNotNull(orderEntity.getDataDeCriacao());
 
@@ -769,7 +769,7 @@ public class CheckoutControllerIT {
         Assertions.assertEquals(orderId, orderEntity.getId());
         Assertions.assertEquals("e7c5c208-c4c3-42fc-9370-3141309cb7d0", orderEntity.getUsuario());
         Assertions.assertEquals("br_credit_card", orderEntity.getPaymentType());
-        Assertions.assertEquals(new BigDecimal("10.00"), orderEntity.getValue());
+        Assertions.assertEquals(new BigDecimal("10.00"), orderEntity.getOrderValue());
         Assertions.assertEquals(StatusPagamento.APPROVED, orderEntity.getStatus());
         Assertions.assertNotNull(orderEntity.getDataDeCriacao());
 

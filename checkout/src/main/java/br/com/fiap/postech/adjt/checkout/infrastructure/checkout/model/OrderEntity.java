@@ -23,7 +23,7 @@ public class OrderEntity {
     private UUID id;
     private String usuario;
     private String paymentType;
-    private BigDecimal value;
+    private BigDecimal orderValue;
     @Enumerated(EnumType.STRING)
     private StatusPagamento status;
     private LocalDateTime dataDeCriacao;

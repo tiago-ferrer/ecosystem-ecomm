@@ -51,6 +51,7 @@ services:
       start_period: 30s
     environment:
       POSTGRES_HOST: db-checkout:5432
+      API_KEY: ${API_KEY}
   db-checkout:
     image: postgres:16.2
     container_name: "containerBancoDeDadosCheckout"

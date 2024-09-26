@@ -26,6 +26,7 @@ import br.com.fiap.postech.adjt.checkout.useCase.checkout.CheckoutUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
     private final ItemsOrderRepository itemsOrderRepository;
     private final OrderAsyncRepository orderAsyncRepository;
     private final ObjectMapper mapper;
+    private final String apiKey;
 
     public CheckoutUseCaseImpl(final CartClient cartClient,
                                final WebClient webClient,
@@ -59,7 +61,8 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                                final OrderRepository orderRepository,
                                final ItemsOrderRepository itemsOrderRepository,
                                final OrderAsyncRepository orderAsyncRepository,
-                               final ObjectMapper mapper) {
+                               final ObjectMapper mapper,
+                               final @Value("${config-api-key}") String apiKey) {
         this.cartClient = cartClient;
         this.webClient = webClient;
         this.paymentClient = paymentClient;
@@ -68,6 +71,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
         this.itemsOrderRepository = itemsOrderRepository;
         this.orderAsyncRepository = orderAsyncRepository;
         this.mapper = mapper;
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -154,7 +158,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                             pagamento.currency(),
                             dadosPagamento.paymentMethod()
                     ),
-                    "8a26d8d0f5290c8a159e3ccf3523835abfe525b6d86163d1c87ea58c022c7ffa"
+                    this.apiKey
             );
         } catch (Exception error) {
             log.error("Erro ao processar pagamento", error);
@@ -190,7 +194,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                 .id(orderId)
                 .usuario(pagamento.consumerId())
                 .paymentType(metodoPagamento.type())
-                .value(new BigDecimal(pagamento.amount()))
+                .orderValue(new BigDecimal(pagamento.amount()))
                 .status(statusPagamento)
                 .dataDeCriacao(LocalDateTime.now())
                 .build();
@@ -237,7 +241,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                                                 )
                                         )
                                 ),
-                                "8a26d8d0f5290c8a159e3ccf3523835abfe525b6d86163d1c87ea58c022c7ffa"
+                                this.apiKey
                         );
                     } catch (Exception error) {
                         log.error("Erro ao processar pagamento", error);
@@ -249,7 +253,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                             .id(pagamento.getOrderId())
                             .usuario(pagamento.getConsumerId())
                             .paymentType(pagamento.getPaymentMethodType())
-                            .value(new BigDecimal(pagamento.getAmount()))
+                            .orderValue(new BigDecimal(pagamento.getAmount()))
                             .status(statusPagamento)
                             .dataDeCriacao(LocalDateTime.now())
                             .build();
@@ -271,7 +275,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                                 item.getId().toString(),
                                 this.pegaItems(items),
                                 item.getPaymentType(),
-                                item.getValue(),
+                                item.getOrderValue(),
                                 item.getStatus().toString()
                         );
                     })
@@ -304,7 +308,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                     orderId,
                     this.pegaItems(items),
                     item.getPaymentType(),
-                    item.getValue(),
+                    item.getOrderValue(),
                     item.getStatus().toString()
             );
         }

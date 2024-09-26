@@ -88,7 +88,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(ErrorTreatedException.class, () -> {
@@ -147,7 +147,7 @@ public class CheckoutUseCaseTest {
                 .thenReturn(Mono.error(new Exception("api indisponivel")));
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(ApiCartException.class, () -> {
@@ -215,7 +215,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
@@ -274,7 +274,7 @@ public class CheckoutUseCaseTest {
                 .thenReturn(Mono.error(new WebClientResponseException(500, "Empty cart", null, new CartResponseErrorDTO("Empty cart").toString().getBytes(), null)));
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
@@ -343,7 +343,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(ApiCartException.class, () -> {
@@ -423,7 +423,7 @@ public class CheckoutUseCaseTest {
         );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(ErrorTreatedException.class, () -> {
@@ -503,7 +503,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
@@ -611,7 +611,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução
         var processa = service.processa(new SolicitaPagamentoRequestDTO(
@@ -722,7 +722,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução
         var processa = service.processa(new SolicitaPagamentoRequestDTO(
@@ -833,7 +833,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução
         service.processaPendentes();
@@ -924,7 +924,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(RuntimeException.class, service::processaPendentes);
@@ -988,7 +988,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução
         service.processaPendentes();
@@ -1067,7 +1067,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução
         var busca = service.busca("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
@@ -1134,7 +1134,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
@@ -1205,7 +1205,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução
         var busca = service.buscaPorOrderId(orderId.toString());
@@ -1277,7 +1277,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
@@ -1323,7 +1323,7 @@ public class CheckoutUseCaseTest {
                 .thenReturn(mock1);
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -1398,7 +1398,7 @@ public class CheckoutUseCaseTest {
                 );
 
         final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
-                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper, "chaveForte");
 
         // execução e avaliação
         var excecao = Assertions.assertThrows(ErrorTreatedException.class, () -> {
