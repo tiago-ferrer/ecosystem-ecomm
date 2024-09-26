@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import br.com.fiap.postech.adjt.cart.gateways.CartGateway;
-import br.com.fiap.postech.adjt.cart.infrastructure.controller.CartItemDTOMapper;
+import br.com.fiap.postech.adjt.cart.infrastructure.controller.dtos.CartItemMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.gateways.CartEntityMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.gateways.CartRepositoryGateway;
 import br.com.fiap.postech.adjt.cart.infrastructure.gateways.ItemsCartEntityMapper;
@@ -29,7 +29,7 @@ public class CartConfig {
   }
 
   @Bean
-  CartItemDTOMapper cartDTOMapper() {
-    return new CartItemDTOMapper();
+  CartItemMapper cartDTOMapper() {
+    return new CartItemMapper();
   }
 }

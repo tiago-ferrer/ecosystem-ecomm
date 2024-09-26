@@ -1,7 +1,7 @@
-package br.com.fiap.postech.adjt.cart.infrastructure.controller;
+package br.com.fiap.postech.adjt.cart.infrastructure.controller.dtos;
 
 import java.util.UUID;
 
-public record CartItemsRequest(UUID consumerId, String itemId, Integer quantity) {
+public record CreateItemsDto(UUID consumerId, String itemId, Integer quantity) {
 
 }

@@ -1,4 +1,9 @@
 package br.com.fiap.postech.adjt.checkout.infrastructure.gateways;
 
-public interface CheckoutEventGatewaly {
+import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.CheckoutRequest;
+
+public interface CheckoutEventGateway {
+    default void sendCheckoutEvent(CheckoutRequest checkoutRequest) {
+
+    }
 }

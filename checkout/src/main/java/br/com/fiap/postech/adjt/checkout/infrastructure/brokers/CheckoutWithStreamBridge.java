@@ -1,6 +1,7 @@
-package br.com.fiap.postech.adjt.checkout.infrastructure.brokers.config;
+package br.com.fiap.postech.adjt.checkout.infrastructure.brokers;
 
 
+import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.CheckoutRequest;
 import br.com.fiap.postech.adjt.checkout.infrastructure.gateways.CheckoutEventGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +15,8 @@ public class CheckoutWithStreamBridge implements CheckoutEventGateway {
     private final StreamBridge streamBridge;
     private final MessageProperties messageProperties;
     @Override
-    public void sendClienteAcceptedEvent() {
-        log.info("Mensagem enviada para o serviço de produtos");
-        streamBridge.send(messageProperties.getClienteAcceptedChannel(), pedidoCreated);
+    public void sendCheckoutEvent(CheckoutRequest checkout) {
+        log.info("Mensagem enviada para o serviço de pagamento");
+        streamBridge.send(messageProperties.getCheckoutChannel(), checkout);
     }
 }

@@ -1,8 +1,8 @@
 package br.com.fiap.postech.adjt.checkout.infrastructure.controllers;
 
-import br.com.fiap.msclientes.controllers.exceptions.BadRequestException;
-import br.com.fiap.msclientes.controllers.exceptions.ControllerNotFoundException;
-import br.com.fiap.msclientes.controllers.exceptions.StandardError;
+import br.com.fiap.postech.adjt.checkout.infrastructure.controllers.exceptions.BadRequestException;
+import br.com.fiap.postech.adjt.checkout.infrastructure.controllers.exceptions.ControllerNotFoundException;
+import br.com.fiap.postech.adjt.checkout.infrastructure.controllers.exceptions.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

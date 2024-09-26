@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout.infrastructure.brokers.config;
+package br.com.fiap.postech.adjt.checkout.infrastructure.brokers;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -6,5 +6,5 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 public class MessageProperties {
-    private String clienteAcceptedChannel = "checkoutSupplier-out-0";
+    private String checkoutChannel = "checkoutSupplier-out-0";
 }

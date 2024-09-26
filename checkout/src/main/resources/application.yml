@@ -1,1 +1,29 @@
-spring.application.name=checkout
+server:
+  port:8082
+spring:
+  application:
+    name: checkout
+  datasource:
+    url: ${db.uri.auth.checkout}
+    username: ${db.username.auth}
+    password: ${db.password.auth}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    username: {rabbitmq.username}
+    password: {rabbitmq.password}
+    host: {rabbitmq.host}
+    port: 5672
+
+  cloud:
+    stream:
+      bindings:
+        checkoutSupplier-out-0:
+          destination: app.v1.event.checkout
+
