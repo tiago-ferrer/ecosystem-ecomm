@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.clients.CartClient;
-import br.com.fiap.postech.adjt.checkout.clients.ClearCartClient;
 import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
 import br.com.fiap.postech.adjt.checkout.controller.exception.NotFoundException;
 import br.com.fiap.postech.adjt.checkout.mapper.OrderMapper;
@@ -32,7 +31,6 @@ public class CheckoutServiceImpl implements CheckoutService {
 	private final OrderRepository orderRepository;
 	private final PaymentClient paymentClient;
 	private final CartClient cartClient;
-	private final ClearCartClient clearCartClient;
 
     private final String apiKey = System.getenv("API_KEY");
 
@@ -84,7 +82,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 	private void clearCart(UUID consumerId) {
 		try {
-			clearCartClient.clearCart(consumerId);
+			cartClient.clearCart(consumerId);
 			System.out.println("Carrinho limpo");
 		} catch (Exception e) {
 			throw new NotFoundException("Empty cart: " + consumerId);
