@@ -12,8 +12,8 @@ public class OrderAsyncUseCase {
         this.service = service;
     }
 
-    //TODO: Executa de 5 em 5 minutos, no minuto 00. Exemplo: 20:05 / 20:10 / 20:15 / 20:20
-    @Scheduled(cron = "0 0/5 * * * ?")
+    //TODO: Executa de 2 em 2 minutos, no minuto 00. Exemplo: 20:02 / 20:04 / 20:06 / 20:08
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void verificaPagamentosPendentes() {
         this.service.processaPendentes();
     }

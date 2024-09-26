@@ -21,6 +21,7 @@ public class OrderAsyncEntity {
 
     @Id
     private UUID id;
+    private UUID orderId;
     private String consumerId;
     private Long amount;
     private String currency;

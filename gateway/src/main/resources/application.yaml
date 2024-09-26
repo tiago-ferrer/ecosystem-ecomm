@@ -6,21 +6,21 @@ spring:
     gateway:
       routes:
       - id: cart
-        uri: http://localhost:8081
+        uri: http://cart:8081
         predicates:
         - Path=/cart/**
         - Method=GET,POST,PUT
         filters:
         - RewritePath=/cart/(?<segment>.*), /${segment}
       - id: products
-        uri: http://localhost:8083
+        uri: http://products:8083
         predicates:
           - Path=/products/**
           - Method=GET
         filters:
           - RewritePath=/products/(?<segment>.*), /${segment}
       - id: checkout
-        uri: http://localhost:8082
+        uri: http://checkout:8082
         predicates:
           - Path=/checkout/**
         filters:

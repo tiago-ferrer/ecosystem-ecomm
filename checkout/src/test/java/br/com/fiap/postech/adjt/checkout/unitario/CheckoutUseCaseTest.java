@@ -777,6 +777,7 @@ public class CheckoutUseCaseTest {
                         List.of(
                                 new OrderAsyncEntity(
                                         orderId,
+                                        orderId,
                                         "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
                                         10L,
                                         "BRL",
@@ -789,6 +790,7 @@ public class CheckoutUseCaseTest {
                                         LocalDateTime.now()
                                 ),
                                 new OrderAsyncEntity(
+                                        orderId2,
                                         orderId2,
                                         "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
                                         10L,
@@ -869,6 +871,7 @@ public class CheckoutUseCaseTest {
                         List.of(
                                 new OrderAsyncEntity(
                                         orderId,
+                                        orderId,
                                         "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
                                         10L,
                                         "BRL",
@@ -881,6 +884,7 @@ public class CheckoutUseCaseTest {
                                         LocalDateTime.now()
                                 ),
                                 new OrderAsyncEntity(
+                                        orderId2,
                                         orderId2,
                                         "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
                                         10L,

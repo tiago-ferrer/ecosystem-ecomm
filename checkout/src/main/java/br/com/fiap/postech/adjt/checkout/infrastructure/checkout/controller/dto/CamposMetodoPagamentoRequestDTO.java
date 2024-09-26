@@ -1,5 +1,6 @@
 package br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 public record CamposMetodoPagamentoRequestDTO(
@@ -8,9 +9,11 @@ public record CamposMetodoPagamentoRequestDTO(
 		String number,
 
 		@JsonInclude(JsonInclude.Include.NON_NULL)
+		@JsonAlias("expiration_month")
 		String expirationMonth,
 
 		@JsonInclude(JsonInclude.Include.NON_NULL)
+		@JsonAlias("expiration_year")
 		String expirationYear,
 
 		@JsonInclude(JsonInclude.Include.NON_NULL)

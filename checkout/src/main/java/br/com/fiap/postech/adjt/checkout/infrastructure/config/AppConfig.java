@@ -10,7 +10,7 @@ public class AppConfig {
     @Bean
     public WebClient webClient(WebClient.Builder webClientBuilder) {
         return webClientBuilder
-                .baseUrl("http://localhost:8081")
+                .baseUrl("http://cart:8081")
                 .build();
     }
 

@@ -25,6 +25,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      POSTGRES_HOST: db-cart:5432
   db-cart:
     image: postgres:16.2
     container_name: "containerBancoDeDadosCart"
@@ -47,6 +49,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      POSTGRES_HOST: db-checkout:5432
   db-checkout:
     image: postgres:16.2
     container_name: "containerBancoDeDadosCheckout"

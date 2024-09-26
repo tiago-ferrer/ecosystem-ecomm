@@ -162,6 +162,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                 statusPagamento = StatusPagamento.PENDING;
                 final var orderAsyncEntity = OrderAsyncEntity.builder()
                         .id(UUID.randomUUID())
+                        .orderId(orderId)
                         .consumerId(pagamento.consumerId())
                         .amount(pagamento.amount())
                         .currency(pagamento.currency())
@@ -245,7 +246,7 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
 
                     final var statusPagamento = StatusPagamento.valueOf(executa.status().toUpperCase());
                     final var orderEntity = OrderEntity.builder()
-                            .id(UUID.randomUUID())
+                            .id(pagamento.getOrderId())
                             .usuario(pagamento.getConsumerId())
                             .paymentType(pagamento.getPaymentMethodType())
                             .value(new BigDecimal(pagamento.getAmount()))
