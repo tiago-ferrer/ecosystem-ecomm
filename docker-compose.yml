@@ -45,8 +45,8 @@ services:
     environment:
       - 'DB_USERNAME=admin'
       - 'DB_PASSWORD=admin'
-      - 'DB_URL=jdbc:postgresql://localhost:15432/checkout'
-      - 'CART_BASE_URL=http://localhost:8081'
+      - 'DB_URL=jdbc:postgresql://database:5432/checkout'
+      - 'CART_BASE_URL=http://cart:8081'
       - 'PAYMENT_BASE_URL=https://payment-api-latest.onrender.com'
       - 'API_KEY='
 

@@ -11,7 +11,7 @@ spring:
   datasource:
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:admin}
-    url: ${DB_URL:jdbc:postgresql://localhost:15432/checkout}
+    url: ${DB_URL:jdbc:postgresql://database:5432/checkout}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -28,6 +28,6 @@ logging:
   level:
     org.springframework.security: trace
 app:
-  cart-base-url: ${CART_BASE_URL:http://localhost:8081}
+  cart-base-url: ${CART_BASE_URL:http://cart:8081}
   payment-base-url: ${PAYMENT_BASE_URL:https://payment-api-latest.onrender.com}
   payment-key: ${API_KEY}
