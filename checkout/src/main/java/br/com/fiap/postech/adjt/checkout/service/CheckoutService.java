@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,10 +28,16 @@ public class CheckoutService {
 
     private final CartService cartService;
 
-    public CheckoutService(OrderService orderService, CheckoutRepository checkoutRepository, CartService cartService) {
+    private final KafkaTemplate<String, Checkout> checkoutKafkaTemplate;
+
+    public CheckoutService(OrderService orderService,
+                           CheckoutRepository checkoutRepository,
+                           CartService cartService,
+                           KafkaTemplate<String, Checkout> checkoutKafkaTemplate) {
         this.orderService = orderService;
         this.checkoutRepository = checkoutRepository;
         this.cartService = cartService;
+        this.checkoutKafkaTemplate = checkoutKafkaTemplate;
     }
 
     @Transactional
@@ -65,10 +74,19 @@ public class CheckoutService {
             checkoutRepository.saveAndFlush(checkout);
             order = orderService.saveOrder(cart, checkout);
             checkout.setOrderId(order.getOrderId());
+
+            //Envio da mensagem para o tópico checkout-processing-topic
+            try {
+                checkoutKafkaTemplate.send("checkout-processing-topic", checkout.getOrderId().toString(), checkout);
+                System.out.println("Send Checkout: " + checkout);
+            } catch (Exception e) {
+                throw new RuntimeException("Error while sending message to Kafka", e);
+            }
+
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
         }
-//        chamada kafka aqui - surround com try-catch para exceção 500
+
         return new CheckoutResponseDTO(order.getOrderId().toString(), checkout.getStatus());
     }
 
@@ -87,7 +105,7 @@ public class CheckoutService {
 
     private void validatePaymentMethod(CheckoutRequestDTO checkoutRequestDTO) {
         PaymentMethod paymentMethod = PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod());
-        if(paymentMethod == null || !areFieldsValid(paymentMethod)){
+        if (paymentMethod == null || !areFieldsValid(paymentMethod)) {
             throw new InvalidPaymentMethodException();
         }
     }
@@ -127,10 +145,9 @@ public class CheckoutService {
     }
 
     private static void validateCartItemList(Cart cart) {
-        if(cart.getItemList()==null || cart.getItemList().isEmpty()) {
+        if (cart.getItemList() == null || cart.getItemList().isEmpty()) {
             throw new EmptyCartException();
         }
     }
-
 
 }
