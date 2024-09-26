@@ -21,7 +21,7 @@ public class GatewayConfig {
                         .uri("http://cart:8081"))
 
                 .route("Method Not Allowed", r -> r.path("/cart/**")
-                        .and().method("PUT", "DELETE")
+                        .and().method("DELETE")
                         .filters(f -> f.setStatus(HttpStatus.NOT_FOUND)
                                 .modifyResponseBody(String.class, String.class, (exchange, body) -> {
                                     exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
