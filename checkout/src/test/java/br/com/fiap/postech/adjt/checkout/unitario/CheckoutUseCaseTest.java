@@ -11,6 +11,8 @@ import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.Car
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.CamposMetodoPagamentoRequestDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.MetodoPagamentoRequestDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.SolicitaPagamentoRequestDTO;
+import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.ItemsOrderEntity;
+import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.ItemsOrderId;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.OrderAsyncEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.repository.ItemsOrderRepository;
@@ -998,6 +1000,298 @@ public class CheckoutUseCaseTest {
         verifyNoInteractions(itemsOrderRepository);
         verifyNoInteractions(objectMapper);
         verifyNoInteractions(cartClient);
+    }
+
+    @Test
+    public void busca_sucesso_buscaNaBaseDeDados() {
+        // preparação
+        var cartClient = mock(CartClient.class);
+        var webClient = mock(WebClient.class);
+        var paymentClient = mock(PaymentClient.class);
+        var paymentClientAsync = mock(PaymentClientAsync.class);
+        var orderRepository = mock(OrderRepository.class);
+        var itemsOrderRepository = mock(ItemsOrderRepository.class);
+        var orderAsyncRepository = mock(OrderAsyncRepository.class);
+        var objectMapper = mock(ObjectMapper.class);
+
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        Mockito.when(orderRepository.findByUsuario(Mockito.any()))
+                .thenReturn(
+                        List.of(
+                                new OrderEntity(
+                                        orderId,
+                                        "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                        "cartao",
+                                        new BigDecimal("100.00"),
+                                        StatusPagamento.APPROVED,
+                                        LocalDateTime.now()
+                                ),
+                                new OrderEntity(
+                                        orderId2,
+                                        "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                        "pix",
+                                        new BigDecimal("200.00"),
+                                        StatusPagamento.DECLINED,
+                                        LocalDateTime.now()
+                                )
+                        )
+                );
+
+        Mockito.when(itemsOrderRepository.findByIdIdOrder(Mockito.any()))
+                .thenReturn(
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 2L),
+                                        4L
+                                )
+                        ),
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 2L),
+                                        4L
+                                )
+                        )
+                );
+
+        final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+
+        // execução
+        var busca = service.busca("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
+
+        // avaliação
+        Assertions.assertEquals(2, busca.orders().size());
+
+        verify(orderRepository, times(0)).findByUsuarioAndStatus(anyString(), any());
+        verify(orderRepository, times(0)).save(any());
+        verify(orderRepository, times(1)).findByUsuario(any());
+        verify(itemsOrderRepository, times(0)).saveAll(any());
+        verify(itemsOrderRepository, times(0)).save(any());
+        verify(itemsOrderRepository, times(2)).findByIdIdOrder(any());
+
+        verifyNoInteractions(cartClient);
+        verifyNoInteractions(paymentClientAsync);
+        verifyNoInteractions(paymentClient);
+        verifyNoInteractions(webClient);
+        verifyNoInteractions(orderAsyncRepository);
+        verifyNoInteractions(objectMapper);
+    }
+
+    @Test
+    public void busca_semPagamento_buscaNaBaseDeDados() {
+        // preparação
+        var cartClient = mock(CartClient.class);
+        var webClient = mock(WebClient.class);
+        var paymentClient = mock(PaymentClient.class);
+        var paymentClientAsync = mock(PaymentClientAsync.class);
+        var orderRepository = mock(OrderRepository.class);
+        var itemsOrderRepository = mock(ItemsOrderRepository.class);
+        var orderAsyncRepository = mock(OrderAsyncRepository.class);
+        var objectMapper = mock(ObjectMapper.class);
+
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        Mockito.when(orderRepository.findByUsuario(Mockito.any()))
+                .thenReturn(
+                        List.of()
+                );
+
+        Mockito.when(itemsOrderRepository.findByIdIdOrder(Mockito.any()))
+                .thenReturn(
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 2L),
+                                        4L
+                                )
+                        ),
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 2L),
+                                        4L
+                                )
+                        )
+                );
+
+        final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            var busca = service.busca("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
+        });
+
+        verify(orderRepository, times(0)).findByUsuarioAndStatus(anyString(), any());
+        verify(orderRepository, times(0)).save(any());
+        verify(orderRepository, times(1)).findByUsuario(any());
+
+        verifyNoInteractions(cartClient);
+        verifyNoInteractions(itemsOrderRepository);
+        verifyNoInteractions(paymentClientAsync);
+        verifyNoInteractions(paymentClient);
+        verifyNoInteractions(webClient);
+        verifyNoInteractions(orderAsyncRepository);
+        verifyNoInteractions(objectMapper);
+    }
+
+    @Test
+    public void buscaPorOrderId_sucesso_buscaNaBaseDeDados() {
+        // preparação
+        var cartClient = mock(CartClient.class);
+        var webClient = mock(WebClient.class);
+        var paymentClient = mock(PaymentClient.class);
+        var paymentClientAsync = mock(PaymentClientAsync.class);
+        var orderRepository = mock(OrderRepository.class);
+        var itemsOrderRepository = mock(ItemsOrderRepository.class);
+        var orderAsyncRepository = mock(OrderAsyncRepository.class);
+        var objectMapper = mock(ObjectMapper.class);
+
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        Mockito.when(orderRepository.findById(Mockito.any()))
+                .thenReturn(
+                            Optional.of(new OrderEntity(
+                                    orderId,
+                                    "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                    "cartao",
+                                    new BigDecimal("100.00"),
+                                    StatusPagamento.APPROVED,
+                                    LocalDateTime.now()
+                            ))
+                );
+
+        Mockito.when(itemsOrderRepository.findByIdIdOrder(Mockito.any()))
+                .thenReturn(
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 2L),
+                                        4L
+                                )
+                        ),
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 2L),
+                                        4L
+                                )
+                        )
+                );
+
+        final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+
+        // execução
+        var busca = service.buscaPorOrderId(orderId.toString());
+
+        // avaliação
+        Assertions.assertEquals(orderId.toString(), busca.orderId());
+        Assertions.assertEquals(2, busca.items().size());
+        Assertions.assertEquals("cartao", busca.paymentType());
+        Assertions.assertEquals(new BigDecimal("100.00"), busca.value());
+        Assertions.assertEquals(StatusPagamento.APPROVED.name(), busca.paymentStatus());
+
+        verify(orderRepository, times(0)).findByUsuarioAndStatus(anyString(), any());
+        verify(orderRepository, times(0)).save(any());
+        verify(orderRepository, times(0)).findByUsuario(any());
+        verify(orderRepository, times(1)).findById(any());
+        verify(itemsOrderRepository, times(0)).saveAll(any());
+        verify(itemsOrderRepository, times(0)).save(any());
+        verify(itemsOrderRepository, times(1)).findByIdIdOrder(any());
+
+        verifyNoInteractions(cartClient);
+        verifyNoInteractions(paymentClientAsync);
+        verifyNoInteractions(paymentClient);
+        verifyNoInteractions(webClient);
+        verifyNoInteractions(orderAsyncRepository);
+        verifyNoInteractions(objectMapper);
+    }
+
+    @Test
+    public void buscaPorOrderId_semPagamento_buscaNaBaseDeDados() {
+        // preparação
+        var cartClient = mock(CartClient.class);
+        var webClient = mock(WebClient.class);
+        var paymentClient = mock(PaymentClient.class);
+        var paymentClientAsync = mock(PaymentClientAsync.class);
+        var orderRepository = mock(OrderRepository.class);
+        var itemsOrderRepository = mock(ItemsOrderRepository.class);
+        var orderAsyncRepository = mock(OrderAsyncRepository.class);
+        var objectMapper = mock(ObjectMapper.class);
+
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        Mockito.when(orderRepository.findById(Mockito.any()))
+                .thenReturn(
+                        Optional.empty()
+                );
+
+        Mockito.when(itemsOrderRepository.findByIdIdOrder(Mockito.any()))
+                .thenReturn(
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId, 2L),
+                                        4L
+                                )
+                        ),
+                        List.of(
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 1L),
+                                        3L
+                                ),
+                                new ItemsOrderEntity(
+                                        new ItemsOrderId(orderId2, 2L),
+                                        4L
+                                )
+                        )
+                );
+
+        final var service = new CheckoutUseCaseImpl(cartClient, webClient, paymentClient, paymentClientAsync,
+                orderRepository, itemsOrderRepository, orderAsyncRepository, objectMapper);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            var busca = service.buscaPorOrderId(orderId2.toString());
+        });
+
+        verify(orderRepository, times(0)).findByUsuarioAndStatus(anyString(), any());
+        verify(orderRepository, times(0)).save(any());
+        verify(orderRepository, times(0)).findByUsuario(any());
+        verify(orderRepository, times(1)).findById(any());
+
+        verifyNoInteractions(cartClient);
+        verifyNoInteractions(itemsOrderRepository);
+        verifyNoInteractions(paymentClientAsync);
+        verifyNoInteractions(paymentClient);
+        verifyNoInteractions(webClient);
+        verifyNoInteractions(orderAsyncRepository);
+        verifyNoInteractions(objectMapper);
     }
 
     @ParameterizedTest

@@ -1,10 +1,9 @@
 package br.com.fiap.postech.adjt.checkout.unitario;
 
+import br.com.fiap.postech.adjt.checkout.domain.checkout.StatusPagamento;
+import br.com.fiap.postech.adjt.checkout.domain.exception.ErrorTreatedException;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.CheckoutController;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.CamposMetodoPagamentoRequestDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.MetodoPagamentoRequestDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.PagamentoResponseDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.SolicitaPagamentoRequestDTO;
+import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.*;
 import br.com.fiap.postech.adjt.checkout.useCase.checkout.CheckoutUseCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -56,6 +57,104 @@ public class CheckoutControllerTest {
 
         // avaliação
         Assertions.assertEquals(HttpStatus.OK, processa.getStatusCode());
+    }
+
+    @Test
+    public void busca_sucesso() {
+        // preparação
+        var service = Mockito.mock(CheckoutUseCase.class);
+        Mockito.when(service.busca(
+                                any()
+                        )
+                )
+                .thenReturn(
+                        new BuscaListaPagamentoResponseDTO(
+                                List.of(
+                                        new BuscaPagamentoResponseDTO(
+                                                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                                                List.of(new ItensPagamentoResponseDTO(1L, 2L)),
+                                                "cartao de credito",
+                                                new BigDecimal("100.00"),
+                                                StatusPagamento.APPROVED.name()
+                                        )
+                                )
+                        )
+                );
+
+        var controller = new CheckoutController(service);
+
+        // execução
+        var processa = controller.busca("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.OK, processa.getStatusCode());
+    }
+
+    @Test
+    public void busca_erro() {
+        // preparação
+        var service = Mockito.mock(CheckoutUseCase.class);
+        Mockito.when(service.busca(
+                                any()
+                        )
+                )
+                .thenThrow(
+                        new ErrorTreatedException("Erro ao buscar pagamentos")
+                );
+
+        var controller = new CheckoutController(service);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(ErrorTreatedException.class, () -> {
+            var processa = controller.busca("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
+        });
+    }
+
+    @Test
+    public void buscaPorOrderId_sucesso() {
+        // preparação
+        var service = Mockito.mock(CheckoutUseCase.class);
+        Mockito.when(service.buscaPorOrderId(
+                                any()
+                        )
+                )
+                .thenReturn(
+                        new BuscaPagamentoResponseDTO(
+                                "e7c5c208-c4c3-42fc-9370-3141309cb7bc",
+                                List.of(new ItensPagamentoResponseDTO(1L, 2L)),
+                                "cartao de credito",
+                                new BigDecimal("100.00"),
+                                StatusPagamento.APPROVED.name()
+                        )
+                );
+
+        var controller = new CheckoutController(service);
+
+        // execução
+        var processa = controller.buscaPorOrderId("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.OK, processa.getStatusCode());
+    }
+
+    @Test
+    public void buscaPorOrderId_erro() {
+        // preparação
+        var service = Mockito.mock(CheckoutUseCase.class);
+        Mockito.when(service.buscaPorOrderId(
+                                any()
+                        )
+                )
+                .thenThrow(
+                        new ErrorTreatedException("Erro ao buscar pagamentos")
+                );
+
+        var controller = new CheckoutController(service);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(ErrorTreatedException.class, () -> {
+            var processa = controller.buscaPorOrderId("e7c5c208-c4c3-42fc-9370-3141309cb7d0");
+        });
     }
 
     @ParameterizedTest

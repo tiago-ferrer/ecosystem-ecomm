@@ -10,10 +10,7 @@ import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.CartClient;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.request.CartRequestDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.CartResponseDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.CartResponseErrorDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.CamposMetodoPagamentoRequestDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.MetodoPagamentoRequestDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.PagamentoResponseDTO;
-import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.SolicitaPagamentoRequestDTO;
+import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.*;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.ItemsOrderEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.ItemsOrderId;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.OrderAsyncEntity;
@@ -27,7 +24,6 @@ import br.com.fiap.postech.adjt.checkout.infrastructure.payment.client.request.P
 import br.com.fiap.postech.adjt.checkout.infrastructure.payment.client.response.PaymentResponseDTO;
 import br.com.fiap.postech.adjt.checkout.useCase.checkout.CheckoutUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -36,10 +32,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -260,6 +256,58 @@ public class CheckoutUseCaseImpl implements CheckoutUseCase {
                     this.orderAsyncRepository.delete(pagamento);
                 });
 
+    }
+
+    @Override
+    public BuscaListaPagamentoResponseDTO busca(final String consumerId) {
+        final var pagamentos = this.orderRepository.findByUsuario(consumerId);
+        if(Objects.nonNull(pagamentos) && !pagamentos.isEmpty()) {
+            final var itemsEntity = pagamentos
+                    .stream()
+                    .map(item -> {
+                        final var items = this.itemsOrderRepository.findByIdIdOrder(item.getId());
+                        return new BuscaPagamentoResponseDTO(
+                                item.getId().toString(),
+                                this.pegaItems(items),
+                                item.getPaymentType(),
+                                item.getValue(),
+                                item.getStatus().toString()
+                        );
+                    })
+                    .toList();
+            return new BuscaListaPagamentoResponseDTO(itemsEntity);
+        }
+        throw new ErrorTreatedException("Order not found");
+    }
+
+    private List<ItensPagamentoResponseDTO> pegaItems(final List<ItemsOrderEntity> items) {
+        if(Objects.nonNull(items)) {
+            return items
+                    .stream()
+                    .map(item -> new ItensPagamentoResponseDTO(
+                            item.getId().getEan(),
+                            item.getQuantidade()
+                    ))
+                    .toList();
+        }
+        return List.of();
+    }
+
+    @Override
+    public BuscaPagamentoResponseDTO buscaPorOrderId(final String orderId) {
+        final var pagamento = this.orderRepository.findById(UUID.fromString(orderId));
+        if(pagamento.isPresent()) {
+            final var item = pagamento.get();
+            final var items = this.itemsOrderRepository.findByIdIdOrder(UUID.fromString(orderId));
+            return new BuscaPagamentoResponseDTO(
+                    orderId,
+                    this.pegaItems(items),
+                    item.getPaymentType(),
+                    item.getValue(),
+                    item.getStatus().toString()
+            );
+        }
+        throw new ErrorTreatedException("Order not found");
     }
 
 }

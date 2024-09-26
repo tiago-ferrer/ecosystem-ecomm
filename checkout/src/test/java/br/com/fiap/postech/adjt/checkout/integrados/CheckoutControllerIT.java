@@ -6,6 +6,8 @@ import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.request.Cart
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.CartDetailsResponseDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.cart.client.response.CartResponseDTO;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.dto.*;
+import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.ItemsOrderEntity;
+import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.ItemsOrderId;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.model.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.repository.ItemsOrderRepository;
 import br.com.fiap.postech.adjt.checkout.infrastructure.checkout.repository.OrderAsyncRepository;
@@ -41,6 +43,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.CheckoutController.URL_CONSUMER_ID;
+import static br.com.fiap.postech.adjt.checkout.infrastructure.checkout.controller.CheckoutController.URL_ORDER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -775,6 +779,269 @@ public class CheckoutControllerIT {
 
         Assertions.assertEquals(orderEntity.getId().toString(), responseApp.orderId());
         Assertions.assertEquals(StatusPagamento.APPROVED.name(), responseApp.status());
+    }
+
+    @Test
+    public void busca_deveRetornar200_sucessoComMaisDeUmPagamento_buscaNaBaseDeDados() throws Exception {
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        this.orderRepository.saveAll(
+                List.of(
+                        new OrderEntity(
+                                orderId,
+                                "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                "cartao de credito",
+                                new BigDecimal("100.00"),
+                                StatusPagamento.PENDING,
+                                LocalDateTime.now()
+                        ),
+                        new OrderEntity(
+                                orderId2,
+                                "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                "pix",
+                                new BigDecimal("200.00"),
+                                StatusPagamento.DECLINED,
+                                LocalDateTime.now()
+                        )
+                )
+        );
+
+        this.itemsOrderRepository.saveAll(
+                List.of(
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId, 1L),
+                                3L
+                        ),
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId, 2L),
+                                4L
+                        ),
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId2, 1L),
+                                3L
+                        ),
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId2, 2L),
+                                4L
+                        )
+                )
+        );
+
+        Mockito.when(cartClient.deletaOCarrinho(Mockito.any()))
+                .thenReturn(
+                        null
+                );
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get(URL_CONSUMER_ID.replace("{consumerId}", "e7c5c208-c4c3-42fc-9370-3141309cb7d0"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<BuscaListaPagamentoResponseDTO>() {});
+
+        Assertions.assertEquals(2, this.orderRepository.findAll().size());
+        Assertions.assertEquals(4, this.itemsOrderRepository.findAll().size());
+        Assertions.assertEquals(0, this.orderAsyncRepository.findAll().size());
+
+        Assertions.assertEquals(2, responseApp.orders().size());
+    }
+
+    @Test
+    public void busca_deveRetornar200_sucessoComUmPagamentoEUmItem_buscaNaBaseDeDados() throws Exception {
+        final var orderId = UUID.randomUUID();
+        this.orderRepository.save(
+                    new OrderEntity(
+                            orderId,
+                            "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                            "cartao de credito",
+                            new BigDecimal("100.00"),
+                            StatusPagamento.PENDING,
+                            LocalDateTime.now()
+                    )
+        );
+
+        this.itemsOrderRepository.save(
+                    new ItemsOrderEntity(
+                            new ItemsOrderId(orderId, 1L),
+                            3L
+                    )
+        );
+
+        Mockito.when(cartClient.deletaOCarrinho(Mockito.any()))
+                .thenReturn(
+                        null
+                );
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get(URL_CONSUMER_ID.replace("{consumerId}", "e7c5c208-c4c3-42fc-9370-3141309cb7d0"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<BuscaListaPagamentoResponseDTO>() {});
+
+        Assertions.assertEquals(1, this.orderRepository.findAll().size());
+        Assertions.assertEquals(1, this.itemsOrderRepository.findAll().size());
+        Assertions.assertEquals(0, this.orderAsyncRepository.findAll().size());
+
+        Assertions.assertEquals(orderId.toString(), responseApp.orders().get(0).orderId());
+        Assertions.assertEquals(1L, responseApp.orders().get(0).items().get(0).itemId());
+        Assertions.assertEquals(3L, responseApp.orders().get(0).items().get(0).qnt());
+        Assertions.assertEquals("cartao de credito", responseApp.orders().get(0).paymentType());
+        Assertions.assertEquals(new BigDecimal("100.00"), responseApp.orders().get(0).value());
+        Assertions.assertEquals(StatusPagamento.PENDING.name(), responseApp.orders().get(0).paymentStatus());
+    }
+
+    @Test
+    public void busca_deveRetornar400_semPagamento_buscaNaBaseDeDados() throws Exception {
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get(URL_CONSUMER_ID.replace("{consumerId}", "e7c5c208-c4c3-42fc-9370-3141309cb7d0"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals(0, this.orderRepository.findAll().size());
+        Assertions.assertEquals(0, this.itemsOrderRepository.findAll().size());
+        Assertions.assertEquals(0, this.orderAsyncRepository.findAll().size());
+
+        Assertions.assertEquals("Order not found", responseApp.error());
+    }
+
+    @Test
+    public void buscaPorOrderId_deveRetornar200_sucesso_buscaNaBaseDeDados() throws Exception {
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        this.orderRepository.saveAll(
+                List.of(
+                        new OrderEntity(
+                                orderId,
+                                "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                "cartao de credito",
+                                new BigDecimal("100.00"),
+                                StatusPagamento.PENDING,
+                                LocalDateTime.now()
+                        ),
+                        new OrderEntity(
+                                orderId2,
+                                "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                "pix",
+                                new BigDecimal("200.00"),
+                                StatusPagamento.DECLINED,
+                                LocalDateTime.now()
+                        )
+                )
+        );
+
+        this.itemsOrderRepository.saveAll(
+                List.of(
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId, 1L),
+                                3L
+                        ),
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId2, 2L),
+                                4L
+                        )
+                )
+        );
+
+        Mockito.when(cartClient.deletaOCarrinho(Mockito.any()))
+                .thenReturn(
+                        null
+                );
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get(URL_ORDER_ID.replace("{orderId}", orderId.toString()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<BuscaPagamentoResponseDTO>() {});
+
+        Assertions.assertEquals(2, this.orderRepository.findAll().size());
+        Assertions.assertEquals(2, this.itemsOrderRepository.findAll().size());
+        Assertions.assertEquals(0, this.orderAsyncRepository.findAll().size());
+
+        Assertions.assertEquals(orderId.toString(), responseApp.orderId());
+        Assertions.assertEquals(1L, responseApp.items().get(0).itemId());
+        Assertions.assertEquals(3L, responseApp.items().get(0).qnt());
+        Assertions.assertEquals("cartao de credito", responseApp.paymentType());
+        Assertions.assertEquals(new BigDecimal("100.00"), responseApp.value());
+        Assertions.assertEquals(StatusPagamento.PENDING.name(), responseApp.paymentStatus());
+    }
+
+    @Test
+    public void buscaPorOrderId_deveRetornar400_semPagamento_buscaNaBaseDeDados() throws Exception {
+        final var orderId = UUID.randomUUID();
+        final var orderId2 = UUID.randomUUID();
+        this.orderRepository.saveAll(
+                List.of(
+                        new OrderEntity(
+                                orderId,
+                                "e7c5c208-c4c3-42fc-9370-3141309cb7d0",
+                                "cartao de credito",
+                                new BigDecimal("100.00"),
+                                StatusPagamento.PENDING,
+                                LocalDateTime.now()
+                        )
+                )
+        );
+
+        this.itemsOrderRepository.saveAll(
+                List.of(
+                        new ItemsOrderEntity(
+                                new ItemsOrderId(orderId, 1L),
+                                3L
+                        )
+                )
+        );
+
+        Mockito.when(cartClient.deletaOCarrinho(Mockito.any()))
+                .thenReturn(
+                        null
+                );
+
+        final var response = this.mockMvc
+                .perform(MockMvcRequestBuilders.get(URL_ORDER_ID.replace("{orderId}", orderId2.toString()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isBadRequest()
+                )
+                .andReturn();
+
+        final var responseAppString = response.getResponse().getContentAsString();
+        final var responseApp = this.objectMapper
+                .readValue(responseAppString, new TypeReference<ErrorHandlingResponseDTO>() {});
+
+        Assertions.assertEquals(1, this.orderRepository.findAll().size());
+        Assertions.assertEquals(1, this.itemsOrderRepository.findAll().size());
+        Assertions.assertEquals(0, this.orderAsyncRepository.findAll().size());
+
+        Assertions.assertEquals("Order not found", responseApp.error());
     }
 
     @ParameterizedTest

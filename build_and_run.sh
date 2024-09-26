@@ -23,6 +23,11 @@ build_images() {
   docker build -t checkout:latest .
   cd ..
 
+  # Build products image
+  cd products || exit
+  docker build -t products:latest .
+  cd ..
+
   echo "Docker images built successfully."
 }
 
