@@ -44,7 +44,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:8.5
-    container_name: pgadmin4-shopping-cart
+    container_name: pgadmin4-cart
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@db.com"
