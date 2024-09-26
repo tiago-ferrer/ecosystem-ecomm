@@ -71,7 +71,7 @@ class OrderServiceTest {
 
     @Test
     void getOrderByOrderIdShouldReturnOrder() {
-        
+
         UUID orderId = UUID.randomUUID();
         Order expectedOrder = new Order();
         when(orderRepository.findByOrderId(orderId)).thenReturn(expectedOrder);
