@@ -3,6 +3,7 @@ package br.com.fiap.postech.adjt.checkout.dataprovider.database.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -31,5 +32,16 @@ public class OrderItemEntity {
     @JoinColumn(name="order_id")
     private OrderEntity order;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderItemEntity that)) return false;
+        return Objects.equals(id, that.id) && Objects.equals(codItem, that.codItem) && Objects.equals(quantity, that.quantity) && Objects.equals(price, that.price) && Objects.equals(order, that.order);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, codItem, quantity, price, order);
+    }
 }
 

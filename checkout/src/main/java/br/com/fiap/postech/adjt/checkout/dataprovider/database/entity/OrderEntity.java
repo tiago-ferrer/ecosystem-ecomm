@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity(name = "orders")
@@ -44,5 +45,17 @@ public class OrderEntity {
     public void removeItems(OrderItemEntity child) {
         items.remove(child);
         child.setOrder(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderEntity that)) return false;
+        return Objects.equals(orderId, that.orderId) && paymentStatus == that.paymentStatus && Objects.equals(consumerId, that.consumerId) && Objects.equals(paymentType, that.paymentType) && Objects.equals(value, that.value) && Objects.equals(items, that.items);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(orderId, paymentStatus, consumerId, paymentType, value, items);
     }
 }

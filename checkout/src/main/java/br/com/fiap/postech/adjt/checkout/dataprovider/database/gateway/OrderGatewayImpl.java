@@ -42,8 +42,6 @@ public class OrderGatewayImpl implements OrderGateway {
 
     @Override
     public Optional<OrderModel> findOrderModelById(UUID uuid) {
-        OrderEntity teste = orderRepository.findById(uuid).orElse(null);
-
         return orderRepository.findByOrderId(uuid).map(orderMapper::toOrderModel);
     }
 
