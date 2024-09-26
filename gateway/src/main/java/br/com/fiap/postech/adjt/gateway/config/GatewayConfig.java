@@ -16,9 +16,9 @@ public class GatewayConfig {
 
         return builder.routes()
                 // Rotas para o serviço de carrinho
-                .route("Get cart", r -> r.path("/cart/**")
+                .route("ms-cart", r -> r.path("/cart/**")
                         .and().method("GET", "POST")
-                        .uri("http://localhost:8080"))
+                        .uri("http://cart:8081"))
 
                 .route("Method Not Allowed", r -> r.path("/cart/**")
                         .and().method("PUT", "DELETE")
@@ -28,8 +28,11 @@ public class GatewayConfig {
                                     return Mono.just("{\"message\": \"Método não permitido\"}");
                                 })
                         )
-                        .uri("http://localhost:8080")
+                        .uri("http://cart:8081")
                 )
+                .route("ms-checkout", r -> r.path("/checkout/**")
+                        .and().method("GET", "POST")
+                        .uri("http://checkout:8082"))
                 .build();
     }
 }
