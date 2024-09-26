@@ -1,5 +1,5 @@
 package br.com.fiap.postech.adjt.checkout.model;
 
 public enum PaymentMethodType {
-    BR_CREDIT_CARD, BR_DEBIT_CARD
+    br_credit_card, br_debit_card
 }

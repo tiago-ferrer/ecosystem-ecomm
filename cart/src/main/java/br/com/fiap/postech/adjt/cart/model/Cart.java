@@ -17,6 +17,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
+
     @Column(nullable = false, unique = true)
     private UUID consumerId;
 
