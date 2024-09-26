@@ -22,6 +22,8 @@ services:
       context: ./cart
     expose:
       - "8081"
+    depends_on:
+      - mongo
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
@@ -36,6 +38,8 @@ services:
       context: ./checkout
     expose:
       - "8082"
+    depends_on:
+      - database
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
       interval: 30s
