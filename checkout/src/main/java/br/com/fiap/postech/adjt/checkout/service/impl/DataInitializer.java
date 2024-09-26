@@ -8,45 +8,70 @@ import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.request.PaymentFieldsRequest;
+import br.com.fiap.postech.adjt.checkout.model.request.PaymentMethodRequest;
 import br.com.fiap.postech.adjt.checkout.model.request.PaymentRequest;
 import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DataInitializer {
 
     private final OrderRepository orderRepository;
     private final PaymentClient paymentClient;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public DataInitializer(OrderRepository orderRepository, PaymentClient paymentClient) {
+    public DataInitializer(OrderRepository orderRepository, PaymentClient paymentClient, ObjectMapper objectMapper) {
         this.orderRepository = orderRepository;
         this.paymentClient = paymentClient;
+        this.objectMapper = objectMapper;
     }
 
-    // Executa a cada 1 minuto (60.000 milissegundos)
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 15000)
     public void init() {
         List<OrderEntity> pendingOrders = orderRepository.findByPaymentStatus("pending");
-        System.out.println("Pending orders: " + pendingOrders.size()); // Log para verificar pedidos pendentes
 
         for (OrderEntity order : pendingOrders) {
-            PaymentRequest paymentRequest = new PaymentRequest();
-            paymentRequest.setConsumerId(order.getConsumerId().toString());
+            
+        	PaymentRequest paymentRequest = new PaymentRequest();
+            paymentRequest.setOrderId(order.getOrderId().toString());
             paymentRequest.setAmount(order.getValue());
             paymentRequest.setCurrency("BRL");
+            
+            PaymentMethodRequest paymentMethod = new PaymentMethodRequest();
+            paymentMethod.setType("br_credit_card");
+            
+            PaymentFieldsRequest fields = new PaymentFieldsRequest();
+            fields.setNumber(order.getCard().getNumber());
+            fields.setExpiration_month(order.getCard().getExpiration_month());
+            fields.setExpiration_year(order.getCard().getExpiration_year());
+            fields.setCvv(order.getCard().getCvv());
+            fields.setName(order.getCard().getName());
+            
+            paymentMethod.setFields(fields);
+            paymentRequest.setPayment_method(paymentMethod);
 
             try {
-                CheckoutResponse paymentResponse = paymentClient.processPayment("apiKey", paymentRequest);
-                System.out.println("Payment response: " + paymentResponse.getStatus()); // Log da resposta de pagamento
+                String jsonPayload = objectMapper.writeValueAsString(paymentRequest);
+                System.out.println("PaymentRequest Payload (JSON): " + jsonPayload);
+            } catch (Exception e) {
+                System.err.println("Failed to serialize PaymentRequest: " + e.getMessage());
+            }
+
+            try {
+                CheckoutResponse paymentResponse = paymentClient.processPayment("9f6ce8f2761d1a9a42b722045cc712785f444455e726582d947c14aa313c2fa3", paymentRequest);
+                System.out.println("Payment response: " + paymentResponse.getStatus());
                 order.setPaymentStatus(paymentResponse.getStatus());
                 orderRepository.save(order);
-                System.out.println("Order status updated to: " + order.getPaymentStatus()); // Log da atualização do status
+                System.out.println("Order status updated to: " + order.getPaymentStatus());
             } catch (Exception e) {
-                System.err.println("Payment failed: " + e.getMessage()); // Log do erro
+                System.err.println("Payment failed: " + e.getMessage());
                 order.setPaymentStatus("declined");
                 orderRepository.save(order);
-                System.out.println("Order status updated to: declined"); // Log da atualização do status
+                System.out.println("Order status updated to: declined");
             }
         }
     }

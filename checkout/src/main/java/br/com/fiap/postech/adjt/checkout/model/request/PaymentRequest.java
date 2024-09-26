@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentRequest {
 	@NotEmpty
-    private String consumerId;
+    private String orderId;
     
 	@NotEmpty
     private int amount;
@@ -24,5 +24,5 @@ public class PaymentRequest {
 
     @NotNull(message = "Payment method cannot be null")
     @JsonProperty("payment_method")
-    private PaymentMethodRequest paymentMethod;
+    private PaymentMethodRequest payment_method;
 }
