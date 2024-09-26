@@ -45,7 +45,6 @@ O endpoint `/` deve receber uma chamada `POST` com o `consumerId` e as informaç
     }
   }
   ```
-
 - **Respostas**
   - 200 OK
       ```
@@ -64,7 +63,6 @@ O endpoint `/` deve receber uma chamada `POST` com o `consumerId` e as informaç
 
 
 ### Busca todos os checkouts feitos
-
 - **Endpoint:** `GET /{consumerId}`
 - **Descrição:** Processa o pagamento e cria um pedido.
 - **Resposta esperada (JSON):**
@@ -86,7 +84,6 @@ O endpoint `/` deve receber uma chamada `POST` com o `consumerId` e as informaç
   ```
 
 ### Busca por pedido
-
 - **Endpoint:** `GET /by-order-id/{orderId}`
 - **Descrição:** Processa o pagamento e cria um pedido.
 - **Resposta esperada (JSON):**
@@ -104,6 +101,7 @@ O endpoint `/` deve receber uma chamada `POST` com o `consumerId` e as informaç
     "paymentStatus" : "declined"
     }
   ```
+
 ## Validações e Erros
 ### Pagamento
 - Invalid payment information: As informações de pagamento devem ser válidas e completas. Caso contrário, retorna erro 400.
