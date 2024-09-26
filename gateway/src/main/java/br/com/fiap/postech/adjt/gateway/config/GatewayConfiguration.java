@@ -15,6 +15,8 @@ public class GatewayConfiguration {
                         .uri("lb://cart"))
                 .route(r -> r.path("/checkout/**")
                         .uri("lb://checkout"))
+                .route(r -> r.path("/products/**")
+                        .uri("lb://products"))
                 .build();
     }
 }
