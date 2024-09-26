@@ -18,5 +18,11 @@ public class CartItemResponse {
 
     @JsonProperty("quantity") // Certifique-se de que o nome do campo corresponde ao JSON
     private Integer quantity; // Quantidade do produto
-    
+
+	public CartItemResponse(Long itemId, Integer quantity) {
+		super();
+		this.itemId = itemId;
+		this.quantity = quantity;
+	}
+   
 }

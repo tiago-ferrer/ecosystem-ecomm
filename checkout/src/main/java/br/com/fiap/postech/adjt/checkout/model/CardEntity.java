@@ -15,18 +15,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "cart-orders")
-public class CartItemEntity {
+@Table(name = "card-orders")
+public class CardEntity {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    private Long itemId;
-    private int quantity;
-
-    public CartItemEntity(Long itemId, int quantity) {
-		super();
-		this.itemId = itemId;
-		this.quantity = quantity;
-	}
+	
+	private UUID consumerId;
+    private String number;
+    private String expiration_month;
+    private String expiration_year;
+    private String cvv;
+    private String name;
 }

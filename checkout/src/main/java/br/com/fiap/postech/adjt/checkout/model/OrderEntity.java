@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,5 +33,14 @@ public class OrderEntity {
     @OneToMany(cascade = CascadeType.ALL)
     private List<CartItemEntity> items;
 
-   
+    @OneToOne(cascade = CascadeType.ALL) // Use @OneToOne for a single card
+    private CardEntity card;
+
+    public OrderEntity(UUID orderId, String paymentType, int value, String paymentStatus, List<CartItemEntity> items) {
+        this.orderId = orderId;
+        this.paymentType = paymentType;
+        this.value = value;
+        this.paymentStatus = paymentStatus;
+        this.items = items;
+    }
 }

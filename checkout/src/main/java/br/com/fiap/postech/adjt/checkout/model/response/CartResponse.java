@@ -13,13 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CartResponse {
 
-    @JsonProperty("id") // Certifique-se de que o nome do campo corresponde ao JSON
-    private Long id; // ID do carrinho
+	@JsonProperty("id") // Certifique-se de que o nome do campo corresponde ao JSON
+	private Long id; // ID do carrinho
 
-    @JsonProperty("customerId") // Certifique-se de que o nome do campo corresponde ao JSON
-    private String customerId; // ID do cliente
+	@JsonProperty("customerId") // Certifique-se de que o nome do campo corresponde ao JSON
+	private String customerId; // ID do cliente
 
-    @JsonProperty("items") // Certifique-se de que o nome do campo corresponde ao JSON
-    private List<CartItemResponse> items; // Lista de itens do carrinho
+	@JsonProperty("items") // Certifique-se de que o nome do campo corresponde ao JSON
+	private List<CartItemResponse> items; // Lista de itens do carrinho
+
+	public CartResponse(String customerId, List<CartItemResponse> items) {
+		super();
+		this.customerId = customerId;
+		this.items = items;
+	}
 
 }
