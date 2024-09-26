@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout;
+package br.com.fiap.postech.adjt.checkout.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

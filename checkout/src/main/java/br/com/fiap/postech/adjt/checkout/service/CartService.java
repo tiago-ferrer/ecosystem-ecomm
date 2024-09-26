@@ -1,7 +1,10 @@
 package br.com.fiap.postech.adjt.checkout.service;
 
+import br.com.fiap.postech.adjt.checkout.dto.ConsumerIdRequest;
 import br.com.fiap.postech.adjt.checkout.model.Cart;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,12 +24,17 @@ public class CartService {
     }
 
     public Cart getCart(UUID consumerId) {
-        String url = cartServiceUrl + "/" + consumerId;
-        return restTemplate.getForObject(url, Cart.class);
+        String url = cartServiceUrl;
+        ConsumerIdRequest request = new ConsumerIdRequest(consumerId.toString());
+
+        return restTemplate.postForObject(url, request, Cart.class);
     }
 
     public void clearCart(UUID consumerId) {
-        String url = cartServiceUrl + "/" + consumerId;
-        restTemplate.delete(url);
+        String url = cartServiceUrl;
+        ConsumerIdRequest request = new ConsumerIdRequest(consumerId.toString());
+
+        HttpEntity<ConsumerIdRequest> entity = new HttpEntity<>(request);
+        restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
 }

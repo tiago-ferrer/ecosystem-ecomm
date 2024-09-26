@@ -12,7 +12,7 @@ services:
     networks:
       - my_network
 
-  # Banco de Dados para o Checkout
+  # Checkout database
   checkout-db:
     image: postgres:13
     environment:
@@ -24,51 +24,63 @@ services:
     networks:
       - my_network
 
-  # Microsserviço Cart
+  # Cart microservice
   cart:
     image: cart:latest
     environment:
       - DATABASE_URL=jdbc:postgresql://cart-db:5432/cart_db
       - DATABASE_USER=cart_user
       - DATABASE_PASSWORD=cart_password
-      - productCatalogUrl=http://products:8080
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - cart-db
       - products
+    expose:
+      - "8081"
     networks:
       - my_network
 
-  # Microsserviço Checkout
+  # Checkout microservice
   checkout:
-    image: cart:latest
+    image: checkout:latest
     environment:
       - DATABASE_URL=jdbc:postgresql://checkout-db:5432/checkout_db
       - DATABASE_USER=checkout_user
       - DATABASE_PASSWORD=checkout_password
-      - paymentExternalAPI=https://external-payment-api.com
-      - KAFKA_BROKER=kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - PAYMENT_SERVICE_URL=https://payment-api-latest.onrender.com/create-payment
+      - CART_SERVICE_URL=http://cart:8081
+      - PAYMENT_APIKEY_VALUE=0998721033dc0d0c65a5417b9287c5e27c0925895dda7fae3baf0c417d56cc45
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - checkout-db
       - kafka
+    expose:
+      - "8082"
     networks:
       - my_network
 
-  # Microsservice Products
+
+  # Products microservice
   products:
-    image: products:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    image: catalog:latest
+    expose:
+      - "8083"
     networks:
       - my_network
 
   # Kafka
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: wurstmeister/kafka:latest
+    expose:
+      - "9092"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     depends_on:
       - zookeeper
     networks:
@@ -76,28 +88,27 @@ services:
 
   # Zookeeper
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: wurstmeister/zookeeper:latest
+    expose:
+      - "2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
       - my_network
 
-  # Gateway
+  # Gateway service
   gateway:
     image: gateway:latest
-    environment:
-      - CART_URL=http://cart:8080
-      - CHECKOUT_URL=http://checkout:8080
-      - PRODUCTS_URL=http://products:8080
+    ports:
+      - "8080:8080"
     depends_on:
       - cart
       - checkout
       - products
     networks:
       - my_network
-    ports:
-      - "8080:8080" # Expondo a porta do gateway para o mundo externo
+
 
 networks:
   my_network:

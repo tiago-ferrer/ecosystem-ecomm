@@ -7,6 +7,9 @@ import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.PaymentMessage;
 import br.com.fiap.postech.adjt.checkout.model.PaymentStatus;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,9 @@ public class PaymentConsumer {
     private final OrderService orderService;
     private final String paymentServiceUrl;
     private final CartService cartService;
+
+    @Value("${api.key.value}")
+    private String apiKeyValue;
 
     public PaymentConsumer(RestTemplate restTemplate, OrderService orderService, @Value("${payment.service.url}") String paymentServiceUrl, CartService cartService) {
         this.restTemplate = restTemplate;
@@ -33,14 +39,20 @@ public class PaymentConsumer {
         Checkout checkout = paymentMessage.getCheckout();
         ExternalPaymentRequestDTO externalPayment = createExternalPayment(order, checkout);
 
-        // Enviar requisição de pagamento para a API externa
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apiKey", apiKeyValue);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Criando a entidade da requisição com os headers e o body (externalPayment)
+        HttpEntity<ExternalPaymentRequestDTO> requestEntity = new HttpEntity<>(externalPayment, headers);
+
+        // Fazendo a requisição com headers e body
         ResponseEntity<CheckoutResponseDTO> response = restTemplate.postForEntity(
                 paymentServiceUrl,
-                externalPayment,
+                requestEntity,
                 CheckoutResponseDTO.class
         );
 
-        // Atualizar o status do pedido baseado na resposta da payment-api
         if (response.getBody() != null && response.getBody().paymentStatus().equals(PaymentStatus.approved)) {
             order.setPaymentStatus(PaymentStatus.approved);
             cartService.clearCart(checkout.getConsumerId());
@@ -48,7 +60,6 @@ public class PaymentConsumer {
             order.setPaymentStatus(PaymentStatus.declined);
         }
 
-        // Persistir a atualização do pedido no banco
         orderService.updateOrder(order);
     }
 

@@ -26,48 +26,27 @@ public class CheckoutService {
 
     private final CartService cartService;
 
-    private final KafkaTemplate<String, Checkout> checkoutKafkaTemplate;
+
     private final PaymentProducer paymentProducer;
 
     public CheckoutService(OrderService orderService,
                            CheckoutRepository checkoutRepository,
-                           CartService cartService,
-                           KafkaTemplate<String, Checkout> checkoutKafkaTemplate, PaymentProducer paymentProducer) {
+                           CartService cartService, PaymentProducer paymentProducer) {
         this.orderService = orderService;
         this.checkoutRepository = checkoutRepository;
         this.cartService = cartService;
-        this.checkoutKafkaTemplate = checkoutKafkaTemplate;
         this.paymentProducer = paymentProducer;
     }
 
     @Transactional
     public CheckoutResponseDTO processPayment(CheckoutRequestDTO checkoutRequestDTO) {
-//        Cart cart = cartService.getCart(checkoutRequestDTO.consumerId());
-//        validateCartItemList(cart);
+        Cart cart = cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()));
+        validateCartItemList(cart);
         validatePaymentMethod(checkoutRequestDTO);
         Checkout checkout = null;
         Order order = null;
-        try {
-            Cart cart = new Cart();
-            cart.setConsumerId(UUID.fromString("153e23c8-322e-4fec-b9c4-72b8f74ad002"));
-            List<Item> itemList = new ArrayList<>();
-            Item item1 = new Item();
-            Item item2 = new Item();
-            Item item3 = new Item();
-            item1.setItemId(1L);
-            item1.setPrice(25.00);
-            item1.setQuantity(2);
-            itemList.add(item1);
-            item2.setItemId(3L);
-            item2.setPrice(100.00);
-            item2.setQuantity(1);
-            itemList.add(item2);
-            item3.setItemId(2L);
-            item3.setPrice(50.00);
-            item3.setQuantity(45);
-            itemList.add(item3);
-            cart.setItemList(itemList);
 
+        try {
             checkout = new Checkout(UUID.fromString(checkoutRequestDTO.consumerId()), null, checkoutRequestDTO.amount(),
                     Currency.valueOf(checkoutRequestDTO.currency()),
                     PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod()), PaymentStatus.pending);
