@@ -1,38 +1,107 @@
 version: '3.8'
-
 services:
+  # Cart database
+  cart-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: cart_user
+      POSTGRES_PASSWORD: cart_password
+      POSTGRES_DB: cart_db
+    volumes:
+      - cart-db-data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  # Banco de Dados para o Checkout
+  checkout-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: checkout_user
+      POSTGRES_PASSWORD: checkout_password
+      POSTGRES_DB: checkout_db
+    volumes:
+      - checkout-db-data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  # Microsserviço Cart
+  cart:
+    image: cart:latest
+    environment:
+      - DATABASE_URL=jdbc:postgresql://cart-db:5432/cart_db
+      - DATABASE_USER=cart_user
+      - DATABASE_PASSWORD=cart_password
+      - productCatalogUrl=http://products:8080
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - cart-db
+      - products
+    networks:
+      - my_network
+
+  # Microsserviço Checkout
+  checkout:
+    image: cart:latest
+    environment:
+      - DATABASE_URL=jdbc:postgresql://checkout-db:5432/checkout_db
+      - DATABASE_USER=checkout_user
+      - DATABASE_PASSWORD=checkout_password
+      - paymentExternalAPI=https://external-payment-api.com
+      - KAFKA_BROKER=kafka:9092
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - checkout-db
+      - kafka
+    networks:
+      - my_network
+
+  # Microsservice Products
+  products:
+    image: products:latest
+    networks:
+      - my_network
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    networks:
+      - my_network
+
+  # Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - my_network
+
+  # Gateway
   gateway:
     image: gateway:latest
-    ports:
-      - "8080:8080"
+    environment:
+      - CART_URL=http://cart:8080
+      - CHECKOUT_URL=http://checkout:8080
+      - PRODUCTS_URL=http://products:8080
     depends_on:
       - cart
       - checkout
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8080/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      - products
+    networks:
+      - my_network
+    ports:
+      - "8080:8080" # Expondo a porta do gateway para o mundo externo
 
-  cart:
-    image: cart:latest
-    expose:
-      - "8081"
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+networks:
+  my_network:
 
-  checkout:
-    image: checkout:latest
-    expose:
-      - "8082"
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+volumes:
+  cart-db-data:
+  checkout-db-data:
