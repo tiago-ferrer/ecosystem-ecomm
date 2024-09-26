@@ -36,3 +36,18 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+      - checkoutdb
+    env_file:
+      - ./checkout/.env
+
+  checkoutdb:
+    container_name: checkoutdb
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: "checkoutdb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123123"
+    ports:
+      - "0.0.0.0:5433:5432" # Bind to all interfaces on the host

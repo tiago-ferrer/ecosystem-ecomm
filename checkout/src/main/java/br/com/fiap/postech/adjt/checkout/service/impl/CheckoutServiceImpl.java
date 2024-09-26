@@ -31,9 +31,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final PaymentClient paymentClient;
     private final CartClient cartClient;
     private final ClearCartClient clearCartClient;
-    
 
-    private final String apiKey = "777396e205b7881490af58e82df453333673428889284694abab7dd9";
+    private final String apiKey = System.getenv("API_KEY");
 
     @Transactional
     public CheckoutResponse processCheckout(UUID consumerId, int amount, String currency, PaymentMethodRequest paymentMethod) {
