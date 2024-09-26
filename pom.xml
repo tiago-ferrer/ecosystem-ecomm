@@ -35,6 +35,7 @@
         <module>gateway</module>
         <module>cart</module>
         <module>checkout</module>
+        <module>catalog</module>
     </modules>
     <dependencies>
         <dependency>
