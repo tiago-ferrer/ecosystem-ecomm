@@ -1,21 +1,11 @@
 package br.com.fiap.postech.adjt.cart.controller.impl;
 
 import br.com.fiap.postech.adjt.cart.controller.CartController;
-import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.ClearCartRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.FindCartByCustomerIdRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.*;
 import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cart")
