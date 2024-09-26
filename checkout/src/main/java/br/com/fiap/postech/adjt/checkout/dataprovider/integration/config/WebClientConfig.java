@@ -20,7 +20,7 @@ public class WebClientConfig {
     @Bean
     public WebClient webClientCart(WebClient.Builder builder) {
         return builder
-                .baseUrl("http://localhost:8081")
+                .baseUrl("http://cart:8081")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
