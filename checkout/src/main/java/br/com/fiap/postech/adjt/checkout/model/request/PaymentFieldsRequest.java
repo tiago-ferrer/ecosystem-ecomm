@@ -17,11 +17,11 @@ public class PaymentFieldsRequest {
 
     @NotBlank(message = "Expiration month cannot be blank")
     @JsonProperty("expiration_month")
-    private String expirationMonth;
+    private String expiration_month;
 
     @NotBlank(message = "Expiration year cannot be blank")
     @JsonProperty("expiration_year")
-    private String expirationYear;
+    private String expiration_year;
 
     @NotBlank(message = "CVV cannot be blank")
     private String cvv;

@@ -18,5 +18,5 @@ public class PaymentMethodRequest {
 
     @NotNull(message = "Payment fields cannot be null")
     @JsonProperty("fields")
-    private PaymentFieldsRequest paymentFields;
+    private PaymentFieldsRequest fields;
 }

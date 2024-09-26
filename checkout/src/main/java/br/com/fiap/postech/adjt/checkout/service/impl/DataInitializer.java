@@ -32,7 +32,7 @@ public class DataInitializer {
 
         for (OrderEntity order : pendingOrders) {
             PaymentRequest paymentRequest = new PaymentRequest();
-            paymentRequest.setConsumerId(order.getConsumerId().toString());
+            paymentRequest.setOrderId(order.getConsumerId().toString());
             paymentRequest.setAmount(order.getValue());
             paymentRequest.setCurrency("BRL");
 

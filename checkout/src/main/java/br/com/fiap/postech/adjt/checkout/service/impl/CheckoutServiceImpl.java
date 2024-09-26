@@ -33,7 +33,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final ClearCartClient clearCartClient;
     
 
-    private final String apiKey = "777396e205b7881490af58e82df453333673428889284694abab7dd9";
+    private final String apiKey = "9f6ce8f2761d1a9a42b722045cc712785f444455e726582d947c14aa313c2fa3";
 
     @Transactional
     public CheckoutResponse processCheckout(UUID consumerId, int amount, String currency, PaymentMethodRequest paymentMethod) {
@@ -57,8 +57,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     private OrderEntity createPendingOrder(UUID consumerId, int amount, PaymentMethodRequest paymentMethod) {
         OrderEntity order = new OrderEntity();
         order.setConsumerId(consumerId);
-//      List<CartItemEntity> cartItems = fetchCartItems(consumerId);
-//      order.setItems(cartItems);
+//        List<CartItemEntity> cartItems = fetchCartItems(consumerId);
+//        order.setItems(cartItems);
         order.setPaymentType(paymentMethod.getType());
         order.setValue(amount);
         order.setPaymentStatus("pending");
@@ -68,20 +68,17 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private void processPaymentAsync(OrderEntity order, PaymentRequest paymentRequest) {
         try {
-            // Processa o pagamento via API externa
             CheckoutResponse paymentResponse = paymentClient.processPayment(apiKey, paymentRequest);
             order.setPaymentStatus(paymentResponse.getStatus());
+            System.out.println(paymentResponse.getStatus());
         } catch (Exception e) {
-            // Em caso de erro, define o status como "declined"
             order.setPaymentStatus("declined");
         } finally {
-            // Salva o status atualizado do pedido
             orderRepository.save(order);
         }
     }
 
 	private void clearCart(UUID consumerId) {
-		// Limpa o carrinho do consumidor via API de carrinho
 		try {
 			clearCartClient.clearCart(consumerId);
 		} catch (Exception e) {
@@ -91,16 +88,12 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private List<CartItemEntity> fetchCartItems(UUID consumerId) {
         try {
-            // Busca os itens do carrinho via API de carrinho
             List<CartResponse> cartResponses = cartClient.consultCart(consumerId);
-
-            // Converte CartResponse para CartItemEntity
             return cartResponses.stream()
                     .map(cartResponse -> new CartItemEntity(cartResponse.getItemId(), cartResponse.getQuantity()))
                     .toList();
 
         } catch (Exception e) {
-            // Lança uma exceção se não for possível buscar os itens do carrinho
             throw new NotFoundException("Cart items not found for consumerId: " + consumerId);
         }
     }
