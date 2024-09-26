@@ -57,4 +57,18 @@ public class CartTests {
         cart.getItems().clear();
         assertTrue(cart.getItems().isEmpty());
     }
+
+    @Test
+    public void testAddItem() {
+        Item item = new Item("product1", 2); // Criar um item válido
+        cart.getItems().add(item);
+        assertTrue(cart.getItems().contains(item));
+    }
+
+    @Test
+    public void testRemoveNonExistentItem() {
+        Item nonExistentItem = new Item("product2", 1);
+        boolean result = cart.getItems().remove(nonExistentItem);
+        assertFalse(result); // Remover um item que não existe deve retornar false
+    }
 }
