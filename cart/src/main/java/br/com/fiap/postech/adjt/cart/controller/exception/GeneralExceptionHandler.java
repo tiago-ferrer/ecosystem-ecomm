@@ -36,5 +36,4 @@ public class GeneralExceptionHandler {
                 .status(HttpStatusCode.valueOf(404))
                 .body(e.getMessage());
     }
-
 }

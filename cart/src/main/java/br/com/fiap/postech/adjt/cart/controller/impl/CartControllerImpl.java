@@ -28,9 +28,7 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @PostMapping("/items")
-    public ResponseEntity<Cart> add(
-            @RequestBody AddCartItemRequest request) {
-
+    public ResponseEntity<Cart> add(@RequestBody AddCartItemRequest request) {
         Cart cart = cartService.add(request);
 
         return ResponseEntity.ok(cart);
@@ -38,9 +36,7 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @DeleteMapping("/item")
-    public ResponseEntity<Cart> remove(
-            @RequestBody RemoveCartItemRequest request) {
-
+    public ResponseEntity<Cart> remove(@RequestBody RemoveCartItemRequest request) {
         Cart cart = cartService.remove(request);
 
         return ResponseEntity.ok(cart);
@@ -48,9 +44,7 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @PutMapping("/item")
-    public ResponseEntity<Cart> increment(
-            @RequestBody IncrementCartItemRequest request) {
-
+    public ResponseEntity<Cart> increment(@RequestBody IncrementCartItemRequest request) {
         Cart cart = cartService.increment(request);
 
         return ResponseEntity.ok(cart);
@@ -58,9 +52,7 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @GetMapping
-    public ResponseEntity<Cart> findByCustomerId(
-            @RequestBody FindCartByCustomerIdRequest request) {
-
+    public ResponseEntity<Cart> findByCustomerId(@RequestBody FindCartByCustomerIdRequest request) {
         Cart cart = cartService.findByCustomerId(request.consumerId());
 
         return ResponseEntity.ok(cart);
@@ -68,9 +60,7 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Cart> clear(
-            @RequestBody ClearCartRequest request) {
-
+    public ResponseEntity<Cart> clear(@RequestBody ClearCartRequest request) {
         Cart cart = cartService.clear(request.consumerId());
 
         return ResponseEntity.ok(cart);

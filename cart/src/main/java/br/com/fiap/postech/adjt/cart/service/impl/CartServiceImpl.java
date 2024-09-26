@@ -80,7 +80,6 @@ public class CartServiceImpl implements CartService {
     }
 
     private void validateRequest(AddCartItemRequest request) {
-
         if (request.quantity() == null || request.quantity().isEmpty()
                 || request.quantity().isBlank() || Integer.parseInt(request.quantity()) <= 0){
             throw new IllegalArgumentException("Invalid itemId quantity");
@@ -90,7 +89,6 @@ public class CartServiceImpl implements CartService {
         if (itemResponse.getStatusCode() != HttpStatus.OK || itemResponse.getBody() == null) {
             throw new NotFoundException("Invalid itemId does not exist");
         }
-
     }
 
     private Cart getCartByCustomerId(UUID consumerId) {
