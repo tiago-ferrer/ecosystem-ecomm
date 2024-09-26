@@ -21,7 +21,7 @@ public class GatewayConfig {
                         .uri("http://cart:8081"))
 
                 .route("Method Not Allowed", r -> r.path("/cart/**")
-                        .and().method("PUT", "DELETE")
+                        .and().method( "DELETE")
                         .filters(f -> f.setStatus(HttpStatus.NOT_FOUND)
                                 .modifyResponseBody(String.class, String.class, (exchange, body) -> {
                                     exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
@@ -33,6 +33,30 @@ public class GatewayConfig {
                 .route("ms-checkout", r -> r.path("/checkout/**")
                         .and().method("GET", "POST")
                         .uri("http://checkout:8082"))
+
+                .route("products-external", r -> r.path("/products/**")
+                        .and().method("GET")
+                        .filters(f -> f
+                                .modifyResponseBody(String.class, String.class, (serverWebExchange, body) -> {
+                                    if (body == null || body.isEmpty()) {
+                                        serverWebExchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+                                        serverWebExchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                                        return Mono.just("{\"message\": \"Id não localizado\"}");
+                                    }
+                                    return Mono.just(body);
+                                }))
+                        .uri("https://fakestoreapi.com"))
+
+                .route("Method Not Allowed", r -> r.path("/products/**")
+                        .and().method("POST", "DELETE", "PUT", "PATCH")
+                        .filters(f -> f.setStatus(HttpStatus.NOT_FOUND)
+                                .modifyResponseBody(String.class, String.class, (exchange, body) -> {
+                                    exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                                    return Mono.just("{\"message\": \"Método não permitido\"}");
+                                })
+                        )
+                        .uri("http://localhost:8080")
+                )
                 .build();
     }
 }
