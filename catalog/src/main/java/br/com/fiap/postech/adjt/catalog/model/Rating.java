@@ -6,12 +6,11 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Builder
 public class Rating {
 
-    private BigDecimal rate;
-    private Integer count;
+    private final BigDecimal rate;
+    private final Integer count;
 
 }

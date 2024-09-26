@@ -15,13 +15,4 @@ public interface ProductsClient {
     @GetMapping(value = "/{id}")
     Product getProductById(@PathVariable("id") Long id);
 
-    @PostMapping
-    Product createProducts(@RequestBody Product product);
-
-    @PutMapping
-    Product updateProducts(@RequestBody Product product);
-
-    @DeleteMapping(value = "/{id}")
-    Product deleteProductById(@PathVariable("id") Long id);
-
 }
