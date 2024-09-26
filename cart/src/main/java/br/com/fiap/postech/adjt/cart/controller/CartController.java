@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/cart")
 public class CartController {
 
     private final CartService cartService;
@@ -20,21 +20,20 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @PostMapping("/add")
+    @PostMapping("/items")
     public ResponseEntity<?> addItemToCart(
             @RequestParam UUID consumerId,
             @RequestBody AddItemToCartDTO addItemToCartDTO) {
         return cartService.addItemToCart(consumerId, addItemToCartDTO);
     }
 
-
-    @GetMapping("/items")
+    @GetMapping
     public ResponseEntity<List<Cart>> getCartItems(@RequestParam UUID consumerId) {
         List<Cart> items = cartService.getCartItems(consumerId);
         return ResponseEntity.ok(items);
     }
 
-    @DeleteMapping("/remove")
+    @DeleteMapping("/item")
     public ResponseEntity<?> removeItemFromCart(
             @RequestParam String consumerId,
             @RequestParam Long itemId) {
@@ -42,7 +41,7 @@ public class CartController {
     }
 
 
-    @DeleteMapping("/removeAll")
+    @DeleteMapping
     public ResponseEntity<?> removeAllItemsFromCart(@RequestParam String consumerId) {
         return cartService.removeAllItemsFromCart(consumerId);
     }

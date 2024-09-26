@@ -181,3 +181,4 @@ O endpoint `/` deve receber uma chamada `POST` com o `consumerId` e as informaç
   "status": "declined"
 }
 ```
+//"apiKey": "977a97f9416d603aa3b9d9e37bc1df2b66606551b119421ebd0acd866eebdeff"
