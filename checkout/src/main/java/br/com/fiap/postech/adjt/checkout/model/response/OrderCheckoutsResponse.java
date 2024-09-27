@@ -2,6 +2,7 @@ package br.com.fiap.postech.adjt.checkout.model.response;
 
 import java.util.List;
 
+import br.com.fiap.postech.adjt.checkout.model.dto.response.CartResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

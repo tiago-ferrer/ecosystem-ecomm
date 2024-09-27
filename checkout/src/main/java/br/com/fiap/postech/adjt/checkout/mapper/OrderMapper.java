@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import br.com.fiap.postech.adjt.checkout.model.CartItemEntity;
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
-import br.com.fiap.postech.adjt.checkout.model.response.CartResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.CartResponse;
 import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
 
 public class OrderMapper {

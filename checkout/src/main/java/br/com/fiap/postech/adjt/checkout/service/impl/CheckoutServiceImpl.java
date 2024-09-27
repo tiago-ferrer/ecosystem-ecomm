@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.springframework.http.ResponseEntity;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.ClearCartRequest;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.FindCartByCustomerIdRequest;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.clients.CartClient;
@@ -14,9 +15,11 @@ import br.com.fiap.postech.adjt.checkout.mapper.OrderMapper;
 import br.com.fiap.postech.adjt.checkout.model.CardEntity;
 import br.com.fiap.postech.adjt.checkout.model.CartItemEntity;
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.ClearCartRequest;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.FindCartByCustomerIdRequest;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.CartResponse;
 import br.com.fiap.postech.adjt.checkout.model.request.PaymentMethodRequest;
 import br.com.fiap.postech.adjt.checkout.model.request.PaymentRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.CartResponse;
 import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
@@ -82,7 +85,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 	private void clearCart(UUID consumerId) {
 		try {
-			cartClient.clearCart(consumerId);
+			cartClient.clear(new ClearCartRequest(consumerId.toString()));
 			System.out.println("Carrinho limpo");
 		} catch (Exception e) {
 			throw new NotFoundException("Empty cart: " + consumerId);
@@ -91,11 +94,12 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 	private List<CartItemEntity> fetchCartItems(UUID consumerId) {
 		try {
-			ResponseEntity<CartResponse> responseEntity = cartClient.consultCart(consumerId);
-			CartResponse cartResponse = responseEntity.getBody();
-			if (cartResponse != null && cartResponse.getItems() != null) {
-				return cartResponse.getItems().stream()
-						.map(item -> new CartItemEntity(item.getItemId(), item.getQuantity())).toList();
+			FindCartByCustomerIdRequest findCartByCustomerIdRequest = new FindCartByCustomerIdRequest(consumerId.toString());
+			CartResponse cartResponse = cartClient.consult(findCartByCustomerIdRequest);
+
+			if (cartResponse != null && cartResponse.items() != null) {
+				return cartResponse.items().stream()
+						.map(item -> new CartItemEntity(item.itemId(), item.qnt())).toList();
 			} else {
 				return List.of();
 			}
