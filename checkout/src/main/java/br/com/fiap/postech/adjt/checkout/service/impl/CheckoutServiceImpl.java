@@ -1,13 +1,5 @@
 package br.com.fiap.postech.adjt.checkout.service.impl;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
-import br.com.fiap.postech.adjt.checkout.model.dto.request.ClearCartRequest;
-import br.com.fiap.postech.adjt.checkout.model.dto.request.FindCartByCustomerIdRequest;
-import org.springframework.stereotype.Service;
-
 import br.com.fiap.postech.adjt.checkout.clients.CartClient;
 import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
 import br.com.fiap.postech.adjt.checkout.controller.exception.NotFoundException;
@@ -26,6 +18,11 @@ import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -42,24 +39,26 @@ public class CheckoutServiceImpl implements CheckoutService {
 			PaymentMethodRequest paymentMethod) {
 
 		OrderEntity order = createPendingOrder(consumerId, amount, paymentMethod);
+
 		PaymentRequest paymentRequest = new PaymentRequest(order.getOrderId().toString(), amount, currency,
 				paymentMethod);
+
 		CompletableFuture.runAsync(() -> processPaymentAsync(order, paymentRequest));
+
 //		clearCart(consumerId);
+
 		return new CheckoutResponse(order.getConsumerId().toString(), order.getPaymentStatus());
 	}
 
 	private OrderEntity createPendingOrder(UUID consumerId, int amount, PaymentMethodRequest paymentMethod) {
 		OrderEntity order = new OrderEntity();
-		CardEntity cardEntity = new CardEntity();
-
 		order.setConsumerId(consumerId);
-		List<CartItemEntity> cartItems = fetchCartItems(consumerId);
-		order.setItems(cartItems);
+		order.setItems(fetchCartItems(consumerId));
 		order.setPaymentType(paymentMethod.getType());
 		order.setValue(amount);
 		order.setPaymentStatus("pending");
 
+		CardEntity cardEntity = new CardEntity();
 		cardEntity.setConsumerId(consumerId);
 		cardEntity.setNumber(paymentMethod.getFields().getNumber());
 		cardEntity.setExpiration_month(paymentMethod.getFields().getExpiration_month());
