@@ -2,7 +2,7 @@ package br.com.fiap.postech.adjt.checkout.controller;
 
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutRequestDTO;
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutResponseDTO;
-import br.com.fiap.postech.adjt.checkout.dto.OrderResponseDTO;
+import br.com.fiap.postech.adjt.checkout.dto.OrderDTO;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/checkout")
+@RequestMapping
 public class CheckoutController {
 
     private final CheckoutService checkoutService;
@@ -26,12 +26,12 @@ public class CheckoutController {
     }
 
     @GetMapping("/by-order-id/{orderId}")
-    public OrderResponseDTO searchPaymentByOrderId(@PathVariable String orderId) {
+    public OrderDTO searchPaymentByOrderId(@PathVariable String orderId) {
         return checkoutService.searchPaymentByOrderId(orderId);
     }
 
     @GetMapping("/{consumerId}")
-    public List<OrderResponseDTO> searchPaymentByConsumer(@PathVariable String consumerId) {
+    public List<OrderDTO> searchPaymentByConsumer(@PathVariable String consumerId) {
         return checkoutService.searchPaymentByConsumer(consumerId);
     }
 

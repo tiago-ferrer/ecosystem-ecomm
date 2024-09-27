@@ -4,7 +4,7 @@
 build_images() {
 
   echo "Gen targets"
-  mvn clean install -U
+  mvn clean install -DskipTests -U -T 4
 
   echo "Building Docker images..."
 
@@ -21,6 +21,11 @@ build_images() {
   # Build checkout image
   cd checkout || exit
   docker build -t checkout:latest .
+  cd ..
+
+ # Build products image
+  cd catalog || exit
+  docker build -t catalog:latest .
   cd ..
 
   echo "Docker images built successfully."

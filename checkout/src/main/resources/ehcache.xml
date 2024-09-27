@@ -1,0 +1,13 @@
+<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+
+    <cache alias="exampleCache">
+        <expiry>
+            <ttl unit="seconds">600</ttl> <!-- Cache expira em 10 minutos -->
+        </expiry>
+        <resources>
+            <heap unit="entries">100</heap> <!-- Cache de até 100 entradas -->
+        </resources>
+    </cache>
+</config>

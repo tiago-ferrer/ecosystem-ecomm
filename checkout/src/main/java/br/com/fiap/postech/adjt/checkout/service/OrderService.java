@@ -43,12 +43,13 @@ public class OrderService {
         orderRepository.save(existingOrder);
     }
 
+    @Transactional
     protected Order createOrderFromCart(Cart cart, Checkout checkout) {
         Order order = new Order();
-        order.setConsumerId(cart.getConsumerId());
-        order.setItemList(cart.getItemList());
+        order.setConsumerId(checkout.getConsumerId());
+        order.setItems(cart.getItems());
         order.setCurrency(checkout.getCurrency());
-        order.setTotalValue(checkout.getAmount());
+        order.setValue(checkout.getAmount());
         order.setPaymentMethodType(checkout.getPaymentMethod().getType());
         order.setPaymentStatus(checkout.getStatus());
         orderRepository.save(order);

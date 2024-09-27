@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ExternalPaymentRequestDTO(
         @ValidUUID String orderId,
-        Double amount,
+        Integer amount,
         String currency,
         PaymentMethod paymentMethod
 ) {

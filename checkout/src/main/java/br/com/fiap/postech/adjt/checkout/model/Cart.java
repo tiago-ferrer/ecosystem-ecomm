@@ -8,5 +8,5 @@ import java.util.UUID;
 @Data
 public class Cart {
     private UUID consumerId;
-    private List<Item> itemList;
+    private List<Item> items;
 }
