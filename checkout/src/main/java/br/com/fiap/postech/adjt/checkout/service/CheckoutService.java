@@ -9,14 +9,11 @@ import br.com.fiap.postech.adjt.checkout.mapper.PaymentMethodMapper;
 import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CheckoutService {
@@ -53,7 +50,7 @@ public class CheckoutService {
             checkoutRepository.saveAndFlush(checkout);
             order = orderService.createAndSaveOrder(cart, checkout);
             checkout.setOrderId(order.getOrderId());
-            paymentProducer.sendPaymentRequest(order,checkout);
+            paymentProducer.sendPaymentRequest(order, checkout);
 
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
