@@ -15,7 +15,7 @@ public interface CartService {
 
     Cart increment(IncrementCartItemRequest request);
 
-    FindCartByCustomerIdResponse findByCustomerId(UUID consumerId);
+    FindCartByCustomerIdResponse findByCustomerId(String consumerId);
 
     Cart clear(UUID consumerId);
 }

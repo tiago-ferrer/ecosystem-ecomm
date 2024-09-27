@@ -83,8 +83,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public FindCartByCustomerIdResponse findByCustomerId(UUID consumerId) {
-        Cart cart = getCartByCustomerIdIfExist(consumerId);
+    public FindCartByCustomerIdResponse findByCustomerId(String consumerId) {
+        UUID validConsumerID = getValidConsumerIdFromTextualUUID(consumerId);
+
+        Cart cart = getCartByCustomerIdIfExist(validConsumerID);
 
         cart.checkIfCartIsEmpty();
 
