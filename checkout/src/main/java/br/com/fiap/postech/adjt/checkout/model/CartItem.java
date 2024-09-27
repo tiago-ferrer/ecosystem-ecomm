@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "cart-orders")
-public class CartItemEntity {
+@Table(name = "cart-items")
+public class CartItem {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +24,7 @@ public class CartItemEntity {
     private Long itemId;
     private int quantity;
 
-    public CartItemEntity(Long itemId, int quantity) {
+    public CartItem(Long itemId, int quantity) {
 		super();
 		this.itemId = itemId;
 		this.quantity = quantity;

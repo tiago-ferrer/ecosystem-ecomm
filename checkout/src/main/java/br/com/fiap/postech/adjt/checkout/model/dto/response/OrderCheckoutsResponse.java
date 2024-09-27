@@ -1,19 +1,13 @@
 package br.com.fiap.postech.adjt.checkout.model.dto.response;
 
 import java.util.List;
+import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderCheckoutsResponse {
-
-	private String orderId;
-	private List<CartResponse> items;
-	private String paymentType;
-	private double value;
-	private String paymentStatus;
+public record OrderCheckoutsResponse(
+        UUID orderId,
+        List<CartItemResponse> items,
+        String paymentType,
+        double value,
+        String paymentStatus
+) {
 }

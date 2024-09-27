@@ -1,7 +1,7 @@
 package br.com.fiap.postech.adjt.checkout.controller.impl;
 
 import br.com.fiap.postech.adjt.checkout.controller.CheckoutController;
-import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.CheckoutRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
@@ -58,8 +58,8 @@ public class CheckoutControllerImpl implements CheckoutController {
 
     @Override
     @GetMapping("/by-order-id/{orderId}")
-    public ResponseEntity<OrderEntity> getOrderById(@PathVariable UUID orderId) {
-        OrderEntity order = checkoutService.getOrderById(orderId);
+    public ResponseEntity<Order> getOrderById(@PathVariable UUID orderId) {
+        Order order = checkoutService.getOrderById(orderId);
         return ResponseEntity.ok(order);
     }
 }

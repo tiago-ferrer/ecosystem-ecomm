@@ -3,7 +3,7 @@ package br.com.fiap.postech.adjt.checkout.service;
 import java.util.List;
 import java.util.UUID;
 
-import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentMethodRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
@@ -15,6 +15,6 @@ public interface CheckoutService {
 
 	List<OrderCheckoutsResponse> getOrdersByConsumerId(UUID consumerId);
 
-	OrderEntity getOrderById(UUID orderId);
+	Order getOrderById(UUID orderId);
 
 }

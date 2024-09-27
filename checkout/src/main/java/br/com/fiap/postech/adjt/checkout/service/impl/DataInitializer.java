@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
-import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentFieldsRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentMethodRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentRequest;
@@ -36,9 +36,9 @@ public class DataInitializer {
 
     @Scheduled(fixedRate = 15000)
     public void init() {
-        List<OrderEntity> pendingOrders = orderRepository.findByPaymentStatus("pending");
+        List<Order> pendingOrders = orderRepository.findByPaymentStatus("pending");
 
-        for (OrderEntity order : pendingOrders) {
+        for (Order order : pendingOrders) {
             
         	PaymentRequest paymentRequest = new PaymentRequest();
             paymentRequest.setOrderId(order.getOrderId().toString());
