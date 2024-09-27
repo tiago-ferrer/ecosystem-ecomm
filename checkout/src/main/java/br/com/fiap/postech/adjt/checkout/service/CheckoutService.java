@@ -15,6 +15,5 @@ public interface CheckoutService {
 
 	List<OrderCheckoutsResponse> getOrdersByConsumerId(UUID consumerId);
 
-	Order getOrderById(UUID orderId);
-
+	OrderCheckoutsResponse getOrderById(UUID orderId);
 }

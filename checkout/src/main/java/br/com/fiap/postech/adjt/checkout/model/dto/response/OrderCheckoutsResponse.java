@@ -7,7 +7,7 @@ public record OrderCheckoutsResponse(
         UUID orderId,
         List<CartItemResponse> items,
         String paymentType,
-        double value,
+        int value,
         String paymentStatus
 ) {
 }

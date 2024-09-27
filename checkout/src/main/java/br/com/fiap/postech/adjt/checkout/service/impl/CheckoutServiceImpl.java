@@ -122,9 +122,11 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     @Override
-    public Order getOrderById(UUID orderId) {
-        return orderRepository.findById(orderId)
+    public OrderCheckoutsResponse getOrderById(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found for orderId: " + orderId));
+
+        return toResponse(order);
     }
 
     private OrderCheckoutsResponse toResponse(Order order) {

@@ -1,6 +1,5 @@
 package br.com.fiap.postech.adjt.checkout.controller;
 
-import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.CheckoutRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
@@ -18,5 +17,5 @@ public interface CheckoutController {
 
     ResponseEntity<List<OrderCheckoutsResponse>> getOrdersByConsumerId(@PathVariable UUID consumerId);
 
-    ResponseEntity<Order> getOrderById(@PathVariable UUID orderId);
+    ResponseEntity<OrderCheckoutsResponse> getOrderById(@PathVariable UUID orderId);
 }
