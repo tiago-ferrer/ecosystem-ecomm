@@ -74,9 +74,12 @@ public class CheckoutServiceImpl implements CheckoutService {
 		try {
 			CheckoutResponse paymentResponse = paymentClient.processPayment(apiKey, paymentRequest);
 			order.setPaymentStatus(paymentResponse.getStatus());
-			System.out.println(paymentResponse.getStatus());
+			logger.info("Payment processing result in order {}: {}", order.getOrderId(), paymentResponse.getStatus());
 		} catch (Exception e) {
+			// TODO: Clear cart if declined
 			order.setPaymentStatus("declined");
+			logger.info("Payment processing result in order %s: declined", order.getOrderId());
+			logger.error("error: ", e.getMessage());
 		} finally {
 			orderRepository.save(order);
 		}
