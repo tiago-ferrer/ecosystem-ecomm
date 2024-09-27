@@ -109,7 +109,7 @@ public class CartServiceImpl implements CartService {
 
         ResponseEntity<ItemResponse> itemResponse = itemsClient.findById(request.itemId());
         if (itemResponse.getStatusCode() != HttpStatus.OK || itemResponse.getBody() == null) {
-            throw new NotFoundException ("Invalid itemId does not exist");
+            throw new NotFoundException("Invalid itemId does not exist");
         }
     }
 
