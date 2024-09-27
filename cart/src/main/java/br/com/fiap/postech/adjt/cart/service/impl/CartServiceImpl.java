@@ -39,7 +39,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart add(AddCartItemRequest request) {
+    public void add(AddCartItemRequest request) {
         UUID consumerID = getValidConsumerIdFromTextualUUID(request.consumerId());
 
         validateRequest(request);
@@ -49,13 +49,11 @@ public class CartServiceImpl implements CartService {
         Cart cart = getCartByCustomerId(consumerID);
         cart.addItem(cartItem);
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart remove(RemoveCartItemRequest request) {
+    public void remove(RemoveCartItemRequest request) {
         UUID consumerID = getValidConsumerIdFromTextualUUID(request.consumerId());
 
         Cart cart = getCartByCustomerIdIfExist(consumerID);
@@ -67,21 +65,17 @@ public class CartServiceImpl implements CartService {
             throw e;
         }
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart increment(IncrementCartItemRequest request) {
+    public void increment(IncrementCartItemRequest request) {
         UUID consumerId = getValidConsumerIdFromTextualUUID(request.consumerId());
 
         Cart cart = getCartByCustomerIdIfExist(consumerId);
         cart.incrementItem(request.itemId());
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        cartRepository.save(cart);
     }
 
     @Override
@@ -104,16 +98,14 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart clear(String consumerId) {
+    public void clear(String consumerId) {
         UUID validConsumerID = getValidConsumerIdFromTextualUUID(consumerId);
 
         Cart cart = getCartByCustomerIdIfExist(validConsumerID);
 
         cart.clear();
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        cartRepository.save(cart);
     }
 
     private UUID getValidConsumerIdFromTextualUUID(String uuid) {

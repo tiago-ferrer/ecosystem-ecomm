@@ -4,18 +4,15 @@ import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdResponse;
-import br.com.fiap.postech.adjt.cart.model.entity.Cart;
-
-import java.util.UUID;
 
 public interface CartService {
-    Cart add(AddCartItemRequest request);
+    void add(AddCartItemRequest request);
 
-    Cart remove(RemoveCartItemRequest request);
+    void remove(RemoveCartItemRequest request);
 
-    Cart increment(IncrementCartItemRequest request);
+    void increment(IncrementCartItemRequest request);
 
     FindCartByCustomerIdResponse findByCustomerId(String consumerId);
 
-    Cart clear(String consumerId);
+    void clear(String consumerId);
 }
