@@ -23,7 +23,13 @@ public class Cart {
     }
 
     public Cart(UUID customerId) {
-        setCustomerId(customerId);
+        this.customerId = customerId;
+        items = new ArrayList<>();
+    }
+
+    public Cart(Long id, UUID customerId) {
+        this.id = id;
+        this.customerId = customerId;
         items = new ArrayList<>();
     }
 
