@@ -1,5 +1,6 @@
-package br.com.fiap.postech.adjt.cart;
+package br.com.fiap.postech.adjt;
 
+import br.com.fiap.postech.adjt.cart.CartApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -31,13 +31,6 @@ public class CartItem {
         this.cart = cart;
     }
 
-    private void setItemId(Long itemId) {
-        if (itemId == null || itemId < 0) {
-            throw new IllegalArgumentException("Invalid itemId does not exist");
-        }
-        this.itemId = itemId;
-    }
-
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
@@ -48,10 +41,6 @@ public class CartItem {
 
     public Integer getQuantity() {
         return quantity;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public void setCart(Cart cart) {

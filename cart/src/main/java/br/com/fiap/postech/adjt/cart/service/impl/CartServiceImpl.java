@@ -45,9 +45,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = getCartByCustomerId(consumerID);
         cart.addItem(cartItem);
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        return cartRepository.save(cart);
     }
 
     @Override
@@ -63,9 +61,7 @@ public class CartServiceImpl implements CartService {
             throw e;
         }
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        return cartRepository.save(cart);
     }
 
     @Override
@@ -73,9 +69,8 @@ public class CartServiceImpl implements CartService {
         Cart cart = getCartByCustomerIdIfExist(request.consumerId());
         cart.incrementItem(request.itemId());
 
-        Cart savedCart = cartRepository.save(cart);
 
-        return savedCart;
+        return cartRepository.save(cart);
     }
 
     @Override
@@ -93,9 +88,7 @@ public class CartServiceImpl implements CartService {
 
         cart.clear();
 
-        Cart savedCart = cartRepository.save(cart);
-
-        return savedCart;
+        return cartRepository.save(cart);
     }
 
     private UUID getValidConsumerIdFromTextualUUID(String uuid) {
@@ -125,6 +118,6 @@ public class CartServiceImpl implements CartService {
 
     private Cart getCartByCustomerIdIfExist(UUID uuid) {
         return cartRepository.findByCustomerId(uuid)
-                .orElseThrow(() -> new InvalidConsumerIdFormatException());
+                .orElseThrow(InvalidConsumerIdFormatException::new);
     }
 }
