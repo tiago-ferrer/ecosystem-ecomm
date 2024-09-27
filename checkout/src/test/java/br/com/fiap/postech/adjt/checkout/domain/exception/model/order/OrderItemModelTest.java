@@ -5,73 +5,65 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-class OrderItemModelTest {
-
-    @Test
-    void constructorAndGetters_ShouldInitializeFields() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        Long quantity = 10L;
-        String codItem = "ITEM123";
-
-        // Act
-        OrderItemModel orderItem = new OrderItemModel(id, quantity, codItem);
-
-        // Assert
-        assertEquals(id, orderItem.getId());
-        assertEquals(quantity, orderItem.getQuantity());
-        assertEquals(codItem, orderItem.getCodItem());
-    }
+public class OrderItemModelTest {
 
     @Test
-    void setters_ShouldSetFields() {
-        // Arrange
-        OrderItemModel orderItem = new OrderItemModel();
+    public void testBuilder() {
         UUID id = UUID.randomUUID();
         Long quantity = 5L;
-        String codItem = "ITEM456";
+        String codItem = "ITEM123";
 
-        // Act
-        orderItem.setId(id);
-        orderItem.setQuantity(quantity);
-        orderItem.setCodItem(codItem);
-
-        // Assert
-        assertEquals(id, orderItem.getId());
-        assertEquals(quantity, orderItem.getQuantity());
-        assertEquals(codItem, orderItem.getCodItem());
-    }
-
-    @Test
-    void builder_ShouldBuildOrderItemModel() {
-        // Arrange
-        UUID id = UUID.randomUUID();
-        Long quantity = 20L;
-        String codItem = "ITEM789";
-
-        // Act
         OrderItemModel orderItem = OrderItemModel.builder()
                 .id(id)
                 .quantity(quantity)
                 .codItem(codItem)
                 .build();
 
-        // Assert
-        assertEquals(id, orderItem.getId());
-        assertEquals(quantity, orderItem.getQuantity());
-        assertEquals(codItem, orderItem.getCodItem());
+        assertThat(orderItem).isNotNull();
+        assertThat(orderItem.getId()).isEqualTo(id);
+        assertThat(orderItem.getQuantity()).isEqualTo(quantity);
+        assertThat(orderItem.getCodItem()).isEqualTo(codItem);
     }
 
     @Test
-    void noArgsConstructor_ShouldInitializeDefaultValues() {
-        // Act
+    public void testNoArgsConstructor() {
         OrderItemModel orderItem = new OrderItemModel();
 
-        // Assert
-        assertNull(orderItem.getId());
-        assertNull(orderItem.getQuantity());
-        assertNull(orderItem.getCodItem());
+        assertThat(orderItem).isNotNull();
+        assertThat(orderItem.getId()).isNull();
+        assertThat(orderItem.getQuantity()).isNull();
+        assertThat(orderItem.getCodItem()).isNull();
+    }
+
+    @Test
+    public void testAllArgsConstructor() {
+        UUID id = UUID.randomUUID();
+        Long quantity = 10L;
+        String codItem = "ITEM456";
+
+        OrderItemModel orderItem = new OrderItemModel(id, quantity, codItem);
+
+        assertThat(orderItem).isNotNull();
+        assertThat(orderItem.getId()).isEqualTo(id);
+        assertThat(orderItem.getQuantity()).isEqualTo(quantity);
+        assertThat(orderItem.getCodItem()).isEqualTo(codItem);
+    }
+
+    @Test
+    public void testGettersAndSetters() {
+        OrderItemModel orderItem = new OrderItemModel();
+        UUID id = UUID.randomUUID();
+        Long quantity = 3L;
+        String codItem = "ITEM789";
+
+        orderItem.setId(id);
+        orderItem.setQuantity(quantity);
+        orderItem.setCodItem(codItem);
+
+        assertThat(orderItem.getId()).isEqualTo(id);
+        assertThat(orderItem.getQuantity()).isEqualTo(quantity);
+        assertThat(orderItem.getCodItem()).isEqualTo(codItem);
     }
 }

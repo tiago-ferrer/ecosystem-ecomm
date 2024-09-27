@@ -1,6 +1,5 @@
-package br.com.fiap.postech.adjt.checkout.dataprovider.integration;
+package br.com.fiap.postech.adjt.checkout.dataprovider.integration.config;
 
-import br.com.fiap.postech.adjt.checkout.dataprovider.integration.config.WebClientConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
