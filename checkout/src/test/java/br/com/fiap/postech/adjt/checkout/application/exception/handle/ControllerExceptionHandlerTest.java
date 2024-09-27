@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.WebRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(ControllerExceptionHandler.class)
@@ -50,4 +52,24 @@ public class ControllerExceptionHandlerTest {
         ResponseEntity<ErrorDTO> responseEntity = handler.handleValidationExceptions(appException);
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
+
+    @Test
+    public void handleValidationExceptions_WhenCalledWithMethodArgumentNotValidException_ShouldReturnResponseEntity() {
+        BindingResult bindingResult = mock(BindingResult.class);
+
+        when(methodArgumentNotValidException.getBindingResult()).thenReturn(bindingResult);
+        when(bindingResult.getAllErrors()).thenReturn(new ArrayList<>());
+
+        ResponseEntity<ErrorDTO> responseEntity = handler.handleValidationExceptions(methodArgumentNotValidException);
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+
+    @Test
+    public void handleGlobalException_WhenCalledWithUnhandledException_ShouldReturnInternalServerError() {
+        Exception unhandledException = new IllegalStateException("Unhandled exception");
+        ResponseEntity<ErrorDTO> responseEntity = handler.handleGlobalException(unhandledException);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+    }
+
 }

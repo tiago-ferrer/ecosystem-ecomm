@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout.model;
+package br.com.fiap.postech.adjt.checkout.domain.exception.model;
 
 import br.com.fiap.postech.adjt.checkout.dataprovider.database.entity.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.domain.model.enums.PaymentStatus;
