@@ -1,7 +1,6 @@
 package br.com.fiap.postech.adjt.checkout.infrastructure.controllers;
-
-
 import br.com.fiap.postech.adjt.checkout.infrastructure.brokers.CheckoutWithStreamBridge;
+import br.com.fiap.postech.adjt.checkout.infrastructure.client.GetCartClient;
 import br.com.fiap.postech.adjt.checkout.infrastructure.controllers.exceptions.ValidationTrigger;
 import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.*;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.gateways.OrderGateway;
@@ -24,13 +23,18 @@ public class OrderController {
 
   private final OrderGateway orderGateway;
   private final CheckoutWithStreamBridge checkoutWithStreamBridge;
+  private  final GetCartClient getCartClient;
   @PostMapping()
   public ResponseEntity checkout(@RequestBody() @Valid CheckoutRequest checkoutRequest, BindingResult bindingResult)  {
       new ValidationTrigger(bindingResult).verify();
       if (!UUID_REGEX.matcher(checkoutRequest.consumerId().toString()).matches()) {
           ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid orderId format"));
       }
-      BeforeSave response = orderGateway.checkout(checkoutRequest);
+      GetCartResponse cart = getCartClient.exec(new GetCartPayload(checkoutRequest.consumerId()));
+      if (cart.items().isEmpty()) {
+          ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Empty cart"));
+      }
+      BeforeSave response = orderGateway.checkout(checkoutRequest, cart.items());
       checkoutWithStreamBridge.sendCheckoutEvent(new PaymentConsumerPayload(checkoutRequest.consumerId(), response.orderId()));
       return ResponseEntity.ok(response);
   }

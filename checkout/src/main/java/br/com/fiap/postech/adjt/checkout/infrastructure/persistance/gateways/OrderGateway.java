@@ -7,6 +7,7 @@ import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.BeforeSave;
 import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.CheckoutRequest;
 import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.OrderInfo;
 import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.OrderInfoList;
+import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.entities.ItemEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.entities.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.repositories.OrderRepository;
 import lombok.AllArgsConstructor;
@@ -22,12 +23,16 @@ import java.util.UUID;
 public class OrderGateway {
     private final OrderRepository orderRepository;
 
-    public BeforeSave checkout(CheckoutRequest checkoutRequest) {
+    public BeforeSave checkout(CheckoutRequest checkoutRequest, List<Item> items) {
+        List<ItemEntity> itemsEntities = items.stream()
+                .map(item -> new ItemEntity(item.itemId(), item.qnt()))
+                .toList();
         OrderEntity newOrder = OrderEntity.builder()
                 .consumerId(checkoutRequest.consumerId())
                 .value(checkoutRequest.amount())
                 .paymentType(checkoutRequest.payment_method().type())
                 .paymentStatus(OrderStatus.PENDING)
+                .items(itemsEntities)
                 .currency(checkoutRequest.currency())
                 .fieldsNumber(checkoutRequest.payment_method().fields().number())
                 .fieldsExpirationMonth(checkoutRequest.payment_method().fields().expiration_month())

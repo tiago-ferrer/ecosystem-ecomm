@@ -21,8 +21,6 @@ public class ProcessPaymentUseCase {
         PaymentRequest paymentRequest = orderGateway.findById(dto.orderId());
         PaymentResponse paymentResponse = paymentRequestUseCase.exec(paymentRequest);
         orderGateway.updateOrderStatus(dto.orderId(), paymentResponse.status());
-        GetCartResponse cart = getCartList.exec(new GetCartPayload(dto.consumerId()));
-        orderGateway.updateOrderList(dto.orderId(), cart.items());
         log.info("O pagamento foi processado!!!! " + paymentResponse.status());
     }
 }
