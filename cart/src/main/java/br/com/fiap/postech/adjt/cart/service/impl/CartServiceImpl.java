@@ -11,6 +11,7 @@ import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.model.entity.CartItem;
 import br.com.fiap.postech.adjt.cart.repository.CartRepository;
 import br.com.fiap.postech.adjt.cart.service.CartService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class CartServiceImpl implements CartService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -78,6 +80,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart findByCustomerId(UUID consumerId) {
         Cart cart = getCartByCustomerIdIfExist(consumerId);
+
         cart.checkIfCartIsEmpty();
 
         return cart;
@@ -86,6 +89,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart clear(UUID consumerId) {
         Cart cart = getCartByCustomerIdIfExist(consumerId);
+
         cart.clear();
 
         Cart savedCart = cartRepository.save(cart);
