@@ -6,6 +6,8 @@ import br.com.fiap.postech.adjt.cart.controller.exception.NotFoundException;
 import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdCartItemResponse;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdResponse;
 import br.com.fiap.postech.adjt.cart.model.dto.response.ItemResponse;
 import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.model.entity.CartItem;
@@ -18,7 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -79,12 +83,20 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart findByCustomerId(UUID consumerId) {
+    public FindCartByCustomerIdResponse findByCustomerId(UUID consumerId) {
         Cart cart = getCartByCustomerIdIfExist(consumerId);
 
         cart.checkIfCartIsEmpty();
 
-        return cart;
+        return toFindCartByCustomerIdResponse(cart);
+    }
+
+    private FindCartByCustomerIdResponse toFindCartByCustomerIdResponse(Cart cart) {
+        List<FindCartByCustomerIdCartItemResponse> items = cart.getItems().stream()
+                .map(it -> new FindCartByCustomerIdCartItemResponse(it.getItemId(), it.getQuantity()))
+                .collect(Collectors.toUnmodifiableList());
+
+        return new FindCartByCustomerIdResponse(items);
     }
 
     @Override

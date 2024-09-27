@@ -2,6 +2,7 @@ package br.com.fiap.postech.adjt.cart.controller.impl;
 
 import br.com.fiap.postech.adjt.cart.controller.CartController;
 import br.com.fiap.postech.adjt.cart.model.dto.request.*;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdResponse;
 import br.com.fiap.postech.adjt.cart.model.dto.response.MessageResponse;
 import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.service.CartService;
@@ -43,10 +44,10 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @GetMapping
-    public ResponseEntity<Cart> findByCustomerId(@RequestBody FindCartByCustomerIdRequest request) {
-        Cart cart = cartService.findByCustomerId(request.consumerId());
+    public ResponseEntity<FindCartByCustomerIdResponse> findByCustomerId(@RequestBody FindCartByCustomerIdRequest request) {
+        FindCartByCustomerIdResponse items = cartService.findByCustomerId(request.consumerId());
 
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(items);
     }
 
     @Override
