@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout.model.request;
+package br.com.fiap.postech.adjt.checkout.model.dto.request;
 
 import java.util.UUID;
 

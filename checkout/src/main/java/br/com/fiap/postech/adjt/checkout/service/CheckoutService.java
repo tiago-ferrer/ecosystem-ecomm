@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
-import br.com.fiap.postech.adjt.checkout.model.request.PaymentMethodRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
-import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentMethodRequest;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
 
 public interface CheckoutService {
 
