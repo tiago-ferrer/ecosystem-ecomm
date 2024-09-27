@@ -1,21 +1,13 @@
 package br.com.fiap.postech.adjt.cart.controller.impl;
 
 import br.com.fiap.postech.adjt.cart.controller.CartController;
-import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.ClearCartRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.FindCartByCustomerIdRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.request.*;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdResponse;
+import br.com.fiap.postech.adjt.cart.model.dto.response.MessageResponse;
 import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cart")
@@ -28,51 +20,41 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @PostMapping("/items")
-    public ResponseEntity<Cart> add(
-            @RequestBody AddCartItemRequest request) {
+    public ResponseEntity<MessageResponse> add(@RequestBody AddCartItemRequest request) {
+        cartService.add(request);
 
-        Cart cart = cartService.add(request);
-
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item added to cart successfully"));
     }
 
     @Override
     @DeleteMapping("/item")
-    public ResponseEntity<Cart> remove(
-            @RequestBody RemoveCartItemRequest request) {
+    public ResponseEntity<MessageResponse> remove(@RequestBody RemoveCartItemRequest request) {
+        cartService.remove(request);
 
-        Cart cart = cartService.remove(request);
-
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item removed from cart successfully"));
     }
 
     @Override
     @PutMapping("/item")
-    public ResponseEntity<Cart> increment(
-            @RequestBody IncrementCartItemRequest request) {
+    public ResponseEntity<MessageResponse> increment(@RequestBody IncrementCartItemRequest request) {
+        cartService.increment(request);
 
-        Cart cart = cartService.increment(request);
-
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item removed from cart successfully"));
     }
 
     @Override
     @GetMapping
-    public ResponseEntity<Cart> findByCustomerId(
-            @RequestBody FindCartByCustomerIdRequest request) {
+    public ResponseEntity<FindCartByCustomerIdResponse> findByCustomerId(@RequestBody FindCartByCustomerIdRequest request) {
+        FindCartByCustomerIdResponse items = cartService.findByCustomerId(request.consumerId());
 
-        Cart cart = cartService.findByCustomerId(request.consumerId());
-
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(items);
     }
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Cart> clear(
-            @RequestBody ClearCartRequest request) {
+    public ResponseEntity<MessageResponse> clear(@RequestBody ClearCartRequest request) {
+        cartService.clear(request.consumerId());
 
-        Cart cart = cartService.clear(request.consumerId());
-
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item removed from cart successfully"));
     }
 }

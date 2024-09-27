@@ -20,9 +20,9 @@ public class CartItem {
     public CartItem() {
     }
 
-    public CartItem(Long itemId, String quantity) {
-        setItemId(itemId);
-        setQuantity(Integer.valueOf(quantity));
+    public CartItem(Long itemId, Integer quantity) {
+        this.itemId = itemId;
+        this.quantity = quantity;
     }
 
     public CartItem(Long itemId, Integer quantity, Cart cart) {

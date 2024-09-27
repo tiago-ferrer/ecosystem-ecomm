@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "card-orders")
-public class CardEntity {
+@Table(name = "card")
+public class Card {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)

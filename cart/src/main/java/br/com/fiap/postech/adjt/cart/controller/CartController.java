@@ -1,31 +1,18 @@
 package br.com.fiap.postech.adjt.cart.controller;
 
-import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.ClearCartRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.FindCartByCustomerIdRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
-import br.com.fiap.postech.adjt.cart.model.entity.Cart;
+import br.com.fiap.postech.adjt.cart.model.dto.request.*;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdResponse;
+import br.com.fiap.postech.adjt.cart.model.dto.response.MessageResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface CartController {
-    ResponseEntity<Cart> add(
-            AddCartItemRequest request
-    );
+    ResponseEntity<MessageResponse> add(AddCartItemRequest request);
 
-    ResponseEntity<Cart> remove(
-            RemoveCartItemRequest request
-    );
+    ResponseEntity<MessageResponse> remove(RemoveCartItemRequest request);
 
-    ResponseEntity<Cart> increment(
-            IncrementCartItemRequest request
-    );
+    ResponseEntity<MessageResponse> increment(IncrementCartItemRequest request);
 
-    ResponseEntity<Cart> findByCustomerId(
-            FindCartByCustomerIdRequest request
-    );
+    ResponseEntity<FindCartByCustomerIdResponse> findByCustomerId(FindCartByCustomerIdRequest request);
 
-    ResponseEntity<Cart> clear(
-            ClearCartRequest request
-    );
+    ResponseEntity<MessageResponse> clear(ClearCartRequest request);
 }

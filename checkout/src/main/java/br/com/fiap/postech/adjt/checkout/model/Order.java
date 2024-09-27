@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "orders")
-public class OrderEntity {
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID orderId;
@@ -31,12 +31,12 @@ public class OrderEntity {
     private String paymentStatus;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<CartItemEntity> items;
+    private List<CartItem> items;
 
     @OneToOne(cascade = CascadeType.ALL) // Use @OneToOne for a single card
-    private CardEntity card;
+    private Card card;
 
-    public OrderEntity(UUID orderId, String paymentType, int value, String paymentStatus, List<CartItemEntity> items) {
+    public Order(UUID orderId, String paymentType, int value, String paymentStatus, List<CartItem> items) {
         this.orderId = orderId;
         this.paymentType = paymentType;
         this.value = value;

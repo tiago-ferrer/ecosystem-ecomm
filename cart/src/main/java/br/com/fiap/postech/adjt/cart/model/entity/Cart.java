@@ -1,5 +1,6 @@
 package br.com.fiap.postech.adjt.cart.model.entity;
 
+import br.com.fiap.postech.adjt.cart.controller.exception.InvalidConsumerIdFormatException;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -22,12 +23,22 @@ public class Cart {
     }
 
     public Cart(UUID customerId) {
-        setCustomerId(customerId);
+        this.customerId = customerId;
+        items = new ArrayList<>();
+    }
+
+    public Cart(Long id, UUID customerId) {
+        this.id = id;
+        this.customerId = customerId;
         items = new ArrayList<>();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public UUID getCustomerId() {
@@ -69,7 +80,7 @@ public class Cart {
                             }
                         },
                         () -> {
-                            throw new IllegalArgumentException("Invalid itemId, there is no itemId %s in the cart".formatted(itemId));
+                            throw new InvalidConsumerIdFormatException();
                         }
                 );
     }

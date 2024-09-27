@@ -1,6 +1,6 @@
 package br.com.fiap.postech.adjt.cart.controller.exception;
 
-import org.springframework.http.HttpStatusCode;
+import br.com.fiap.postech.adjt.cart.model.dto.response.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,18 +23,13 @@ public class GeneralExceptionHandler {
                 .body("Invalid input format");
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity
-                .badRequest()
-                .body(e.getMessage());
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            InvalidConsumerIdFormatException.class,
+            NotFoundException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestException(RuntimeException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
     }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatusCode.valueOf(404))
-                .body(e.getMessage());
-    }
-
 }
