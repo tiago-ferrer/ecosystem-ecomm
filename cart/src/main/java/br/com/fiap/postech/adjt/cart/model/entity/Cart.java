@@ -1,6 +1,9 @@
 package br.com.fiap.postech.adjt.cart.model.entity;
 
+import br.com.fiap.postech.adjt.cart.controller.exception.InvalidConsumerIdFormatException;
 import jakarta.persistence.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +11,8 @@ import java.util.UUID;
 
 @Entity(name = "carts")
 public class Cart {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,7 +74,8 @@ public class Cart {
                             }
                         },
                         () -> {
-                            throw new IllegalArgumentException("Invalid itemId, there is no itemId %s in the cart".formatted(itemId));
+                            logger.error("Invalid itemId, there is no itemId %s in the cart".formatted(itemId));
+                            throw new InvalidConsumerIdFormatException();
                         }
                 );
     }

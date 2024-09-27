@@ -1,6 +1,7 @@
 package br.com.fiap.postech.adjt.cart.service.impl;
 
 import br.com.fiap.postech.adjt.cart.clients.ItemsClient;
+import br.com.fiap.postech.adjt.cart.controller.exception.InvalidConsumerIdFormatException;
 import br.com.fiap.postech.adjt.cart.controller.exception.NotFoundException;
 import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
@@ -46,7 +47,7 @@ public class CartServiceImpl implements CartService {
         try {
             return UUID.fromString(request.consumerId());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid consumerId format");
+            throw new InvalidConsumerIdFormatException();
         }
     }
 
@@ -107,6 +108,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private Cart getCartByCustomerIdIfExist(UUID uuid) {
-        return cartRepository.findByCustomerId(uuid).orElseThrow(() -> new NotFoundException("Invalid consumerId format"));
+        return cartRepository.findByCustomerId(uuid)
+                .orElseThrow(() -> new InvalidConsumerIdFormatException());
     }
 }

@@ -23,14 +23,12 @@ public class GeneralExceptionHandler {
                 .body("Invalid input format");
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-        ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e) {
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            InvalidConsumerIdFormatException.class,
+            NotFoundException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestException(IllegalArgumentException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
         return ResponseEntity.badRequest().body(errorResponse);
     }
