@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout.model.response;
+package br.com.fiap.postech.adjt.checkout.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

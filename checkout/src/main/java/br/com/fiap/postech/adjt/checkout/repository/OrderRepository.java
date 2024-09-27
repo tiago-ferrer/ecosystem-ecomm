@@ -5,11 +5,11 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
+import br.com.fiap.postech.adjt.checkout.model.Order;
 
-public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
+public interface OrderRepository extends JpaRepository<Order, UUID> {
 	
-	List<OrderEntity> findByConsumerId(UUID consumerId);
+	List<Order> findByConsumerId(UUID consumerId);
 
-	List<OrderEntity> findByPaymentStatus(String string);
+	List<Order> findByPaymentStatus(String string);
 }

@@ -1,19 +1,15 @@
 package br.com.fiap.postech.adjt.checkout.controller.impl;
 
 import br.com.fiap.postech.adjt.checkout.controller.CheckoutController;
-import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
-import br.com.fiap.postech.adjt.checkout.model.request.CheckoutRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
-import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.CheckoutRequest;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -61,8 +57,8 @@ public class CheckoutControllerImpl implements CheckoutController {
 
     @Override
     @GetMapping("/by-order-id/{orderId}")
-    public ResponseEntity<OrderEntity> getOrderById(UUID orderId) {
-        OrderEntity order = checkoutService.getOrderById(orderId);
-        return ResponseEntity.ok(order);
+    public ResponseEntity<OrderCheckoutsResponse> getOrderById(@PathVariable UUID orderId) {
+        OrderCheckoutsResponse orderCheckoutsResponse = checkoutService.getOrderById(orderId);
+        return ResponseEntity.ok(orderCheckoutsResponse);
     }
 }

@@ -1,9 +1,8 @@
 package br.com.fiap.postech.adjt.checkout.controller;
 
-import br.com.fiap.postech.adjt.checkout.model.OrderEntity;
-import br.com.fiap.postech.adjt.checkout.model.request.CheckoutRequest;
-import br.com.fiap.postech.adjt.checkout.model.response.CheckoutResponse;
-import br.com.fiap.postech.adjt.checkout.model.response.OrderCheckoutsResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.request.CheckoutRequest;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
+import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,5 +17,5 @@ public interface CheckoutController {
 
     ResponseEntity<List<OrderCheckoutsResponse>> getOrdersByConsumerId(@PathVariable UUID consumerId);
 
-    ResponseEntity<OrderEntity> getOrderById(@PathVariable UUID orderId);
+    ResponseEntity<OrderCheckoutsResponse> getOrderById(@PathVariable UUID orderId);
 }

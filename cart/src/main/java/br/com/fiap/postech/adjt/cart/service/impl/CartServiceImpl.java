@@ -6,6 +6,8 @@ import br.com.fiap.postech.adjt.cart.controller.exception.NotFoundException;
 import br.com.fiap.postech.adjt.cart.model.dto.request.AddCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.IncrementCartItemRequest;
 import br.com.fiap.postech.adjt.cart.model.dto.request.RemoveCartItemRequest;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdCartItemResponse;
+import br.com.fiap.postech.adjt.cart.model.dto.response.FindCartByCustomerIdResponse;
 import br.com.fiap.postech.adjt.cart.model.dto.response.ItemResponse;
 import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.model.entity.CartItem;
@@ -18,7 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -35,7 +39,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart add(AddCartItemRequest request) {
+    public void add(AddCartItemRequest request) {
         UUID consumerID = getValidConsumerIdFromTextualUUID(request.consumerId());
 
         validateRequest(request);
@@ -45,11 +49,11 @@ public class CartServiceImpl implements CartService {
         Cart cart = getCartByCustomerId(consumerID);
         cart.addItem(cartItem);
 
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart remove(RemoveCartItemRequest request) {
+    public void remove(RemoveCartItemRequest request) {
         UUID consumerID = getValidConsumerIdFromTextualUUID(request.consumerId());
 
         Cart cart = getCartByCustomerIdIfExist(consumerID);
@@ -61,34 +65,47 @@ public class CartServiceImpl implements CartService {
             throw e;
         }
 
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart increment(IncrementCartItemRequest request) {
-        Cart cart = getCartByCustomerIdIfExist(request.consumerId());
+    public void increment(IncrementCartItemRequest request) {
+        UUID consumerId = getValidConsumerIdFromTextualUUID(request.consumerId());
+
+        Cart cart = getCartByCustomerIdIfExist(consumerId);
         cart.incrementItem(request.itemId());
 
-
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     @Override
-    public Cart findByCustomerId(UUID consumerId) {
-        Cart cart = getCartByCustomerIdIfExist(consumerId);
+    public FindCartByCustomerIdResponse findByCustomerId(String consumerId) {
+        UUID validConsumerID = getValidConsumerIdFromTextualUUID(consumerId);
+
+        Cart cart = getCartByCustomerIdIfExist(validConsumerID);
 
         cart.checkIfCartIsEmpty();
 
-        return cart;
+        return toFindCartByCustomerIdResponse(cart);
+    }
+
+    private FindCartByCustomerIdResponse toFindCartByCustomerIdResponse(Cart cart) {
+        List<FindCartByCustomerIdCartItemResponse> items = cart.getItems().stream()
+                .map(it -> new FindCartByCustomerIdCartItemResponse(it.getItemId(), it.getQuantity()))
+                .collect(Collectors.toUnmodifiableList());
+
+        return new FindCartByCustomerIdResponse(items);
     }
 
     @Override
-    public Cart clear(UUID consumerId) {
-        Cart cart = getCartByCustomerIdIfExist(consumerId);
+    public void clear(String consumerId) {
+        UUID validConsumerID = getValidConsumerIdFromTextualUUID(consumerId);
+
+        Cart cart = getCartByCustomerIdIfExist(validConsumerID);
 
         cart.clear();
 
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
     }
 
     private UUID getValidConsumerIdFromTextualUUID(String uuid) {
@@ -118,6 +135,6 @@ public class CartServiceImpl implements CartService {
 
     private Cart getCartByCustomerIdIfExist(UUID uuid) {
         return cartRepository.findByCustomerId(uuid)
-                .orElseThrow(InvalidConsumerIdFormatException::new);
+                .orElseThrow(() -> new InvalidConsumerIdFormatException());
     }
 }
