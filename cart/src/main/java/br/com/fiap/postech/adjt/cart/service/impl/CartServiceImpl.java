@@ -11,6 +11,8 @@ import br.com.fiap.postech.adjt.cart.model.entity.Cart;
 import br.com.fiap.postech.adjt.cart.model.entity.CartItem;
 import br.com.fiap.postech.adjt.cart.repository.CartRepository;
 import br.com.fiap.postech.adjt.cart.service.CartService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.UUID;
 
 @Service
 public class CartServiceImpl implements CartService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ItemsClient itemsClient;
     private final CartRepository cartRepository;
@@ -55,7 +59,14 @@ public class CartServiceImpl implements CartService {
     public Cart remove(RemoveCartItemRequest request) {
         Cart cart = getCartByCustomerIdIfExist(request.consumerId());
 
-        cart.removeItem(request.itemId());
+        Cart cart = getCartByCustomerIdIfExist(consumerID);
+
+        try{
+            cart.removeItem(request.itemId());
+        }catch (InvalidConsumerIdFormatException e){
+            logger.error("Invalid itemId, there is no itemId %s in the cart".formatted(request.itemId()));
+            throw e;
+        }
 
         Cart savedCart = cartRepository.save(cart);
 
