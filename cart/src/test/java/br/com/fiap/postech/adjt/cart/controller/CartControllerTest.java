@@ -50,9 +50,9 @@ class CartControllerTest {
         int quantity = 2;
         ItemRequest itemRequest = new ItemRequest(consumerId, itemId, quantity);
 
-        ResponseEntity<String> response = cartController.createCartItem(itemRequest);
+        ResponseEntity<MessageResponse> response = cartController.createCartItem(itemRequest);
 
-        assertEquals(ResponseEntity.ok("Item added to cart successfully"), response);
+        assertEquals(ResponseEntity.ok(new MessageResponse("Item added to cart successfully")), response);
 
         verify(cartService).createCartItem(itemRequest);
     }
@@ -97,9 +97,9 @@ class CartControllerTest {
     void removeItemFromCart() {
         AddOrRemoveItemRequest request = new AddOrRemoveItemRequest("152e23c8-302e-4fec-b9c4-72b8f74ad102",1L);
 
-        ResponseEntity<String> response = cartController.removeItemFromCart(request);
+        ResponseEntity<MessageResponse> response = cartController.removeItemFromCart(request);
 
-        assertEquals(ResponseEntity.ok("Item removed from cart successfully"), response);
+        assertEquals(ResponseEntity.ok(new MessageResponse("Item removed from cart successfully")), response);
         verify(cartService).removeItemFromCart(request);
     }
 
@@ -128,9 +128,9 @@ class CartControllerTest {
         Long validItemId = 1L;
         AddOrRemoveItemRequest request = new AddOrRemoveItemRequest(consumerId.toString(), validItemId);
 
-        ResponseEntity<String> response = cartController.addItemFromCart(request);
+        ResponseEntity<MessageResponse> response = cartController.addItemFromCart(request);
 
-        assertEquals(ResponseEntity.ok("Item added from cart successfully"), response);
+        assertEquals(ResponseEntity.ok(new MessageResponse("Item added from cart successfully")), response);
         verify(cartService).addItemToCart(request);
     }
 
@@ -209,9 +209,9 @@ class CartControllerTest {
 
         doNothing().when(cartService).deleteAllItens(consumerId);
 
-        ResponseEntity<String> response = cartController.deleteAllItens(request);
+        ResponseEntity<MessageResponse> response = cartController.deleteAllItens(request);
 
-        assertEquals(ResponseEntity.ok("Items removed from cart successfully"), response);
+        assertEquals(ResponseEntity.ok(new MessageResponse("Items removed from cart successfully")), response);
 
         verify(cartService).deleteAllItens(consumerId);
     }

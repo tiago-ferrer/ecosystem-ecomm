@@ -50,7 +50,7 @@ public class CartControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Item added to cart successfully"));
+                .andExpect(content().json(objectMapper.writeValueAsString(new MessageResponse("Item added to cart successfully"))));
 
         verify(cartService, times(1)).createCartItem(any(ItemRequest.class));
     }
@@ -67,7 +67,7 @@ public class CartControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Item added from cart successfully"));
+                .andExpect(content().json(objectMapper.writeValueAsString(new MessageResponse("Item added from cart successfully"))));
 
         verify(cartService, times(1)).addItemToCart(any(AddOrRemoveItemRequest.class));
     }
@@ -83,7 +83,7 @@ public class CartControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(removeRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Item removed from cart successfully"));
+                .andExpect(content().json(objectMapper.writeValueAsString(new MessageResponse("Item removed from cart successfully"))));
 
         verify(cartService, times(1)).removeItemFromCart(any(AddOrRemoveItemRequest.class));
     }
@@ -118,7 +118,7 @@ public class CartControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(consumerIdRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Items removed from cart successfully"));
+                .andExpect(content().json(objectMapper.writeValueAsString(new MessageResponse("Items removed from cart successfully"))));
 
         verify(cartService, times(1)).deleteAllItens(anyString());
     }
