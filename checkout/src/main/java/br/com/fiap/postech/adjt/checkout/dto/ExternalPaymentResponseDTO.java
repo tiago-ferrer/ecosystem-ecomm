@@ -1,11 +1,9 @@
 package br.com.fiap.postech.adjt.checkout.dto;
 
 import br.com.fiap.postech.adjt.checkout.model.PaymentStatus;
-import lombok.Builder;
 
-@Builder
-public record CheckoutResponseDTO(
+public record ExternalPaymentResponseDTO(
         String orderId,
-        PaymentStatus status
+        String status
 ) {
 }

@@ -19,15 +19,20 @@ import java.util.Map;
 @EnableKafka
 public class KafkaProducerConfig {
 
-    @Value("${kafka.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String kafkaBoostrapServers;
 
     @Bean
     public ProducerFactory<String, PaymentMessage> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBoostrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+        configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 300);
+        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 10);
+        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        configProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 

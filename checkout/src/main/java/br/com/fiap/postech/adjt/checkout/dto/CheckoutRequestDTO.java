@@ -7,7 +7,7 @@ import lombok.Builder;
 @Builder
 public record CheckoutRequestDTO(
         @ValidUUID String consumerId,
-        @JsonProperty("amount") Double amount,
+        @JsonProperty("amount") Integer amount,
         @JsonProperty("currency") String currency,
         @JsonProperty("payment_method") PaymentMethodRequestDTO paymentMethod
 ) {

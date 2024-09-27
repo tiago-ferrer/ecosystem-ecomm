@@ -22,7 +22,7 @@ public class Checkout {
 
     private UUID orderId;
 
-    private Double amount;
+    private Integer amount;
 
     private Currency currency;
 

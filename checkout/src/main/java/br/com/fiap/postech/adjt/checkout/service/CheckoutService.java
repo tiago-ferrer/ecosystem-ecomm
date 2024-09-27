@@ -2,18 +2,20 @@ package br.com.fiap.postech.adjt.checkout.service;
 
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutRequestDTO;
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutResponseDTO;
-import br.com.fiap.postech.adjt.checkout.dto.OrderResponseDTO;
 import br.com.fiap.postech.adjt.checkout.exception.EmptyCartException;
 import br.com.fiap.postech.adjt.checkout.exception.InvalidPaymentMethodException;
+import br.com.fiap.postech.adjt.checkout.exception.PaymentProcessingException;
+import br.com.fiap.postech.adjt.checkout.kafka.PaymentProducer;
 import br.com.fiap.postech.adjt.checkout.mapper.PaymentMethodMapper;
 import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 @Service
 public class CheckoutService {
@@ -37,39 +39,36 @@ public class CheckoutService {
 
     @Transactional
     public CheckoutResponseDTO processPayment(CheckoutRequestDTO checkoutRequestDTO) {
-        Cart cart = cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()));
-        validateCartItemList(cart);
-        validatePaymentMethod(checkoutRequestDTO);
-        Checkout checkout = null;
-        Order order = null;
-
+        Mono<Cart> monoCart = cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()));
+        Cart cart = monoCart.block();
         try {
-            checkout = new Checkout(UUID.fromString(checkoutRequestDTO.consumerId()), null, checkoutRequestDTO.amount(),
-                    Currency.valueOf(checkoutRequestDTO.currency()),
-                    PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod()), PaymentStatus.pending);
-            checkoutRepository.saveAndFlush(checkout);
-            order = orderService.createAndSaveOrder(cart, checkout);
-            checkout.setOrderId(order.getOrderId());
+            validateCartItemList(cart);
+            validatePaymentMethod(checkoutRequestDTO);
+        } catch (EmptyCartException e) {
+            throw new EmptyCartException();
+        } catch (InvalidPaymentMethodException e) {
+            throw new InvalidPaymentMethodException();
+        }
+        Checkout checkout = new Checkout(UUID.fromString(checkoutRequestDTO.consumerId()), null, checkoutRequestDTO.amount(),
+                Currency.valueOf(checkoutRequestDTO.currency()),
+                PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod()), PaymentStatus.pending);
+        checkoutRepository.save(checkout);
+        Order order = orderService.createAndSaveOrder(cart, checkout);
+        checkout.setOrderId(order.getOrderId());
+        try {
             paymentProducer.sendPaymentRequest(order, checkout);
-
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new PaymentProcessingException();
         }
-
         return new CheckoutResponseDTO(order.getOrderId().toString(), checkout.getStatus());
     }
 
-    public OrderResponseDTO searchPaymentByOrderId(String orderId) {
-        Order order = orderService.getOrderByOrderId(orderId);
-        return order.toDTO();
-    }
 
-    public List<OrderResponseDTO> searchPaymentByConsumer(String consumerId) {
-        List<Order> orders = orderService.getOrderByConsumerId(consumerId);
-        List<OrderResponseDTO> ordersDto = orders.stream()
-                .map(OrderResponseDTO::new)
-                .collect(Collectors.toList());
-        return ordersDto;
+    public Checkout findByOrderId(UUID orderId) {
+        return checkoutRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Checkout not found for order: " + orderId));
     }
 
     private void validatePaymentMethod(CheckoutRequestDTO checkoutRequestDTO) {
@@ -80,6 +79,7 @@ public class CheckoutService {
     }
 
     private boolean areFieldsValid(PaymentMethod paymentMethod) {
+        System.out.println(paymentMethod.getType().toString());
         if (paymentMethod.getType().equals(PaymentMethodType.br_credit_card) ||
                 paymentMethod.getType().equals(PaymentMethodType.br_debit_card)) {
             return true;
@@ -88,6 +88,7 @@ public class CheckoutService {
         PaymentMethodFields fields = paymentMethod.getFields();
 
         String expirationYear = fields.getExpiration_year();
+        System.out.println(expirationYear);
         if (expirationYear != null && !expirationYear.isEmpty()) {
             int year = Integer.parseInt(expirationYear);
             if (year >= 2024) {
@@ -96,6 +97,7 @@ public class CheckoutService {
         }
 
         String expirationMonth = fields.getExpiration_month();
+        System.out.println(expirationMonth);
         if (expirationMonth != null && !expirationMonth.isEmpty()) {
             int month = Integer.parseInt(expirationMonth);
             if (month > 0 && month <= 12) {
@@ -104,6 +106,7 @@ public class CheckoutService {
         }
 
         String cardNumber = fields.getNumber();
+        System.out.println(cardNumber);
         if (cardNumber != null && !cardNumber.isEmpty()) {
             int numberLength = cardNumber.length();
             if (numberLength >= 13 && numberLength <= 16) {
@@ -114,7 +117,7 @@ public class CheckoutService {
     }
 
     private static void validateCartItemList(Cart cart) {
-        if (cart.getItemList() == null || cart.getItemList().isEmpty()) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new EmptyCartException();
         }
     }

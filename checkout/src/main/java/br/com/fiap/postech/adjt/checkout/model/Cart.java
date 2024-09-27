@@ -10,5 +10,5 @@ import java.util.UUID;
 @Builder
 public class Cart {
     private UUID consumerId;
-    private List<Item> itemList;
+    private List<Item> items;
 }

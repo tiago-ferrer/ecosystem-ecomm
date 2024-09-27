@@ -1,15 +1,12 @@
 package br.com.fiap.postech.adjt.cart.controller;
 
-import br.com.fiap.postech.adjt.cart.dto.AddOrRemoveItemRequest;
-import br.com.fiap.postech.adjt.cart.dto.CartResponse;
-import br.com.fiap.postech.adjt.cart.dto.ConsumerIdRequest;
-import br.com.fiap.postech.adjt.cart.dto.ItemRequest;
+import br.com.fiap.postech.adjt.cart.dto.*;
 import br.com.fiap.postech.adjt.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping
 public class CartController {
 
     private final CartService cartService;
@@ -24,21 +21,21 @@ public class CartController {
     }
 
     @PostMapping("/items")
-    public ResponseEntity<String> createCartItem(@RequestBody ItemRequest request) {
+    public ResponseEntity<MessageResponse> createCartItem(@RequestBody ItemRequest request) {
         cartService.createCartItem(request);
-        return ResponseEntity.ok(ITEM_CREATED_SUCCESS_MESSAGE);
+        return ResponseEntity.ok(new MessageResponse(ITEM_CREATED_SUCCESS_MESSAGE));
     }
 
     @DeleteMapping("/item")
-    public ResponseEntity<String> removeItemFromCart(@RequestBody AddOrRemoveItemRequest request) {
+    public ResponseEntity<MessageResponse> removeItemFromCart(@RequestBody AddOrRemoveItemRequest request) {
         cartService.removeItemFromCart(request);
-        return ResponseEntity.ok(ITEM_REMOVE_SUCCESS_MESSAGE);
+        return ResponseEntity.ok(new MessageResponse(ITEM_REMOVE_SUCCESS_MESSAGE));
     }
 
     @PutMapping("/item")
-    public ResponseEntity<String> addItemFromCart(@RequestBody AddOrRemoveItemRequest request) {
+    public ResponseEntity<MessageResponse> addItemFromCart(@RequestBody AddOrRemoveItemRequest request) {
         cartService.addItemToCart(request);
-        return ResponseEntity.ok(ITEM_ADD_SUCCESS_MESSAGE);
+        return ResponseEntity.ok(new MessageResponse(ITEM_ADD_SUCCESS_MESSAGE));
     }
 
     @GetMapping
@@ -49,8 +46,8 @@ public class CartController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteAllItens(@RequestBody ConsumerIdRequest request) {
+    public ResponseEntity<MessageResponse> deleteAllItens(@RequestBody ConsumerIdRequest request) {
         cartService.deleteAllItens(request.consumerId());
-        return ResponseEntity.ok(ALL_ITEM_REMOVE_SUCCESS_MESSAGE);
+        return ResponseEntity.ok(new MessageResponse(ALL_ITEM_REMOVE_SUCCESS_MESSAGE));
     }
 }

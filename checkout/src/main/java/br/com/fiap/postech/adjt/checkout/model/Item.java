@@ -6,12 +6,14 @@ import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Embeddable
 @Builder
 public class Item {
 
     private Long itemId;
-    private int quantity;
-    private Double price;
+
+    private int qnt;
 }
