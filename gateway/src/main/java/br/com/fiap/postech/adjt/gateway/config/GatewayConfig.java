@@ -8,11 +8,15 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @Component
 public class GatewayConfig {
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+
+        AtomicReference<String> uriProducts = new AtomicReference<>("https://fakestoreapi.com");
 
         return builder.routes()
                 // Rotas para o serviço de carrinho
@@ -21,7 +25,7 @@ public class GatewayConfig {
                         .uri("http://cart:8081"))
 
                 .route("Method Not Allowed", r -> r.path("/cart/**")
-                        .and().method( "DELETE")
+                        .and().method("DELETE")
                         .filters(f -> f.setStatus(HttpStatus.NOT_FOUND)
                                 .modifyResponseBody(String.class, String.class, (exchange, body) -> {
                                     exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
@@ -38,14 +42,15 @@ public class GatewayConfig {
                         .and().method("GET")
                         .filters(f -> f
                                 .modifyResponseBody(String.class, String.class, (serverWebExchange, body) -> {
-                                    if (body == null || body.isEmpty()) {
+                                    if (serverWebExchange.getResponse().getStatusCode() == HttpStatus.OK && (body == null || body.isEmpty())) {
                                         serverWebExchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
                                         serverWebExchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                                        uriProducts.set("http://localhost:8080");
                                         return Mono.just("{\"message\": \"Id não localizado\"}");
                                     }
                                     return Mono.just(body);
-                                }))
-                        .uri("https://fakestoreapi.com"))
+                                })
+                        ).uri(uriProducts.get()))
 
                 .route("Method Not Allowed", r -> r.path("/products/**")
                         .and().method("POST", "DELETE", "PUT", "PATCH")
