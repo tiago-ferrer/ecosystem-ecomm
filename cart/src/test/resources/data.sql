@@ -1,5 +1,5 @@
 INSERT INTO cart_table
-    (consumer_id)
+(consumer_id)
 VALUES
     ('2012db3a-1ad7-4446-bbac-844977e8649b'),
     ('a5794f3a-621a-4bb3-8c2d-c12301c66357'),
@@ -7,7 +7,7 @@ VALUES
     ('153e23c8-322e-4fec-b9c4-72b8f74ad002');
 
 INSERT INTO item_table
-    (id, item_id, qnt, consumer_id)
+(id, item_id, qnt, consumer_id)
 VALUES
     ('4550e95d-9ec3-44d6-b337-eb0c7754c591', 1, 2, '2012db3a-1ad7-4446-bbac-844977e8649b'),
     ('114736f0-71b9-4180-8ceb-5bebd139ae62', 2, 3, '2012db3a-1ad7-4446-bbac-844977e8649b'),

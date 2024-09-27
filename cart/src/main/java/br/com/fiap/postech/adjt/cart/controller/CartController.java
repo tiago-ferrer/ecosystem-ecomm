@@ -40,8 +40,6 @@ public class CartController {
                 return ResponseEntity.ok().body(new MessageResponse("Item added to cart successfully"));
             }
             throw new InvalidUUIDException();
-        } catch(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid consumerId format");
         } catch (InvalidItemException | InvalidItemQuantityException | InvalidUUIDException e)  {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -58,8 +56,6 @@ public class CartController {
                 return ResponseEntity.ok().body(new MessageResponse("Item removed from cart successfully"));
             }
             throw new InvalidUUIDException();
-        } catch(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid consumerId format");
         } catch (InvalidItemException | EmptyCartException | InvalidUUIDException e)  {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -76,8 +72,6 @@ public class CartController {
                 return ResponseEntity.ok().body(new MessageResponse("Item incremented from cart successfully"));
             }
             throw new InvalidUUIDException();
-        } catch(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid consumerId format");
         } catch (InvalidItemException | InvalidUUIDException e)  {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -95,8 +89,6 @@ public class CartController {
                 return ResponseEntity.ok(new CartResponse(itemsResponse));
             }
             throw new InvalidUUIDException();
-        } catch(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid consumerId format");
         } catch (EmptyCartException | InvalidUUIDException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -113,7 +105,7 @@ public class CartController {
                 return ResponseEntity.ok().body(new MessageResponse("Items removed from cart successfully"));
             }
             throw new InvalidUUIDException();
-        } catch(IllegalArgumentException | InvalidUUIDException e) {
+        } catch(InvalidUUIDException e) {
             return ResponseEntity.badRequest().body("Invalid consumerId format");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());

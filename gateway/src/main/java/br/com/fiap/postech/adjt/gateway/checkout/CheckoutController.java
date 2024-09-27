@@ -6,6 +6,7 @@ import br.com.fiap.postech.adjt.gateway.checkout.response.GetOrdersByConsumerIdR
 import br.com.fiap.postech.adjt.gateway.checkout.response.OrderResponse;
 import br.com.fiap.postech.adjt.gateway.response.ErrorResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @RequestMapping("/checkout")
 public class CheckoutController {
 
+    @Value("${checkout-uri}")
+    private String checkoutURI;
+
     private final RestClient restClient = RestClient.create();
-    private final String checkoutURI = "http://checkout:8082";
 
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody @Valid CreateOrderRequest createOrderRequest) {

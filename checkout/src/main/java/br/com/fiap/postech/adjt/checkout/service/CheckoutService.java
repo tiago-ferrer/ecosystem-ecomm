@@ -6,6 +6,7 @@ import br.com.fiap.postech.adjt.checkout.entity.Item;
 import br.com.fiap.postech.adjt.checkout.entity.Order;
 import br.com.fiap.postech.adjt.checkout.entity.PaymentStatus;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -19,7 +20,17 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Service
 public class CheckoutService {
 
+    @Value("${payment-api-key}")
+    private String paymentApiKey;
+
+    @Value("${cart-uri}")
+    private String cartURI;
+
+    @Value("${payment-api-uri}")
+    private String paymentApiUri;
+
     private final OrderRepository orderRepository;
+
     private final RestClient restClient = RestClient.create();
 
     public CheckoutService(OrderRepository orderRepository) {
@@ -27,10 +38,9 @@ public class CheckoutService {
     }
 
     public Order createOrder(CreateOrderRequest createOrderRequest) {
-        // 1.obter carrinho
+
         CartDTO cart = findCart(UUID.fromString(createOrderRequest.consumerId()));
 
-        // 2. persistir pedido
         Order order = new Order();
         order.setOrderId(UUID.randomUUID());
         order.setStatus(PaymentStatus.pending);
@@ -48,26 +58,19 @@ public class CheckoutService {
         order.setItems(items);
         orderRepository.save(order);
 
-        // 3. efetuar pagamento
         ProcessPaymentDTO processPaymentDTO = new ProcessPaymentDTO(
                 order.getOrderId().toString(),
-                order.getValue().longValue(),
+                order.getValue(),
                 "BRL",
                 createOrderRequest.payment_method()
         );
         PaymentDTO paymentDTO = processPayment(processPaymentDTO);
 
-        // 4. tempo de resposta menor que 300ms
-
-        // 5. processamento assíncrono
-
-        // 6. atualizar status do pedido dependendo da resposta da api de pagamento
         if (!paymentDTO.status().equals(order.getStatus())) {
             order.setStatus(paymentDTO.status());
             orderRepository.save(order);
         }
 
-        // 7. limpar carrinho
         removeAllItems(UUID.fromString(createOrderRequest.consumerId()));
 
         return order;
@@ -81,9 +84,7 @@ public class CheckoutService {
         return orderRepository.findByOrderId(orderId);
     }
 
-     private CartDTO findCart(UUID consumerId) {
-//         String cartURI = "http://localhost:8081";
-        String cartURI = "http://cart:8081";
+    CartDTO findCart(UUID consumerId) {
          FindCartDTO findCartRequest = new FindCartDTO(consumerId.toString());
          return restClient
                  .method(HttpMethod.GET)
@@ -92,11 +93,9 @@ public class CheckoutService {
                  .body(findCartRequest)
                  .retrieve()
                  .toEntity(CartDTO.class).getBody();
-     }
+    }
 
-     private void removeAllItems(UUID consumerId) {
-//         String cartURI = "http://localhost:8081";
-        String cartURI = "http://cart:8081";
+    void removeAllItems(UUID consumerId) {
         RemoveAllItemsDTO removeAllItemsRequest = new RemoveAllItemsDTO(consumerId.toString());
          restClient
                  .method(HttpMethod.DELETE)
@@ -105,17 +104,17 @@ public class CheckoutService {
                  .body(removeAllItemsRequest)
                  .retrieve()
                  .toEntity(CartDTO.class).getBody();
-     }
+    }
 
-     private PaymentDTO processPayment(ProcessPaymentDTO processPaymentDTO) {
+    PaymentDTO processPayment(ProcessPaymentDTO processPaymentDTO) {
          return restClient
                  .post()
-                 .uri("https://payment-api-latest.onrender.com/create-payment")
+                 .uri(paymentApiUri)
                  .contentType(APPLICATION_JSON)
-                 .header("apiKey", "8aa4f012c4c6b43e6dfb427596381b0640618323c196f70022e02daadf639ac0")
+                 .header("apiKey", paymentApiKey)
                  .body(processPaymentDTO)
                  .retrieve()
                  .toEntity(PaymentDTO.class).getBody();
-     }
+    }
 
 }

@@ -67,15 +67,6 @@ public class CartService {
 
     public void incrementItem(UUID consumerId, Long itemId) {
         Cart cart = cartRepository.findByConsumerId(consumerId);
-        if (cart.getItems().isEmpty()) {
-            Item item = new Item();
-            item.setItemId(itemId);
-            item.setQnt(Integer.toUnsignedLong(1));
-            item.setCart(cart);
-            cart.getItems().add(item);
-            cartRepository.save(cart);
-            return;
-        }
         AtomicBoolean foundItem = new AtomicBoolean(false);
         cart.getItems().forEach(cartItem -> {
             if (cartItem.getItemId().equals(itemId)) {
