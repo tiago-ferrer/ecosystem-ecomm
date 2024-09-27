@@ -17,7 +17,7 @@ public class GatewayConfig {
         return builder.routes()
                 // Rotas para o serviço de carrinho
                 .route("ms-cart", r -> r.path("/cart/**")
-                        .and().method("GET", "POST")
+                        .and().method("GET", "POST", "PUT")
                         .uri("http://cart:8081"))
 
                 .route("Method Not Allowed", r -> r.path("/cart/**")
