@@ -18,6 +18,9 @@ import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,11 +31,14 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class CheckoutServiceImpl implements CheckoutService {
 
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Value("${api.client.payment.key}")
+	private String apiKey;
+
 	private final OrderRepository orderRepository;
 	private final PaymentClient paymentClient;
 	private final CartClient cartClient;
-
-    private final String apiKey = System.getenv("API_KEY");
 
 	@Transactional
 	public CheckoutResponse processCheckout(UUID consumerId, int amount, String currency,
@@ -44,8 +50,6 @@ public class CheckoutServiceImpl implements CheckoutService {
 				paymentMethod);
 
 		CompletableFuture.runAsync(() -> processPaymentAsync(order, paymentRequest));
-
-//		clearCart(consumerId);
 
 		return new CheckoutResponse(order.getConsumerId().toString(), order.getPaymentStatus());
 	}
