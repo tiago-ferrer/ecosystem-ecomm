@@ -38,7 +38,7 @@ class CartServiceTest {
     @Test
     void getCartShouldReturnCart() {
         UUID consumerId = UUID.randomUUID();
-        Cart expectedCart = new Cart();
+        Cart expectedCart = Cart.builder().build();
 
         when(restTemplate.postForObject(eq(cartServiceUrl), any(ConsumerIdRequest.class), eq(Cart.class)))
                 .thenReturn(expectedCart);

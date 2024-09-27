@@ -32,10 +32,10 @@ class OrderServiceTest {
     @Test
     void createAndSaveOrderShouldCreateOrder() {
 
-        Cart cart = new Cart();
+        Cart cart = Cart.builder().build();
         UUID consumerId = UUID.randomUUID();
         cart.setConsumerId(consumerId);
-        cart.setItemList(Arrays.asList(new Item()));
+        cart.setItemList(Arrays.asList(Item.builder().build()));
 
         Checkout checkout = new Checkout();
         checkout.setCurrency(Currency.BRL);
