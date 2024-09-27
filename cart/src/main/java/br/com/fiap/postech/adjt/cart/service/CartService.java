@@ -75,7 +75,6 @@ public class CartService {
 
 
     public ResponseEntity<?> removeAllItemsFromCart(String consumerIdStr) {
-        // Validação do consumerId
         if (!isValidUUID(consumerIdStr)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid consumerId format"));
         }
