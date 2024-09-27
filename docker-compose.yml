@@ -3,7 +3,11 @@ version: '3.8'
 services:
   gateway:
     build:
+<<<<<<< HEAD
       context: ./path/to/gateway
+=======
+      context: ./path/to/gateway  # Altere para o caminho correto do seu Dockerfile
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
     ports:
       - "8080:8080"
     depends_on:
@@ -19,7 +23,11 @@ services:
 
   cart:
     build:
+<<<<<<< HEAD
       context: ./path/to/cart
+=======
+      context: ./path/to/cart  # Altere para o caminho correto do seu Dockerfile
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
     ports:
       - "8081:8081"
     environment:
@@ -37,7 +45,11 @@ services:
 
   checkout:
     build:
+<<<<<<< HEAD
       context: ./path/to/checkout
+=======
+      context: ./path/to/checkout  # Altere para o caminho correto do seu Dockerfile
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
     ports:
       - "8082:8082"
     healthcheck:

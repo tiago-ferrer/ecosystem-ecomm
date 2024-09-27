@@ -90,7 +90,11 @@ class CartServiceTest {
         verify(cartRepository, times(1)).save(cartCaptor.capture());
         assertEquals(consumerId, cartCaptor.getValue().getConsumerId());
         assertEquals(1L, cartCaptor.getValue().getItemId());
+<<<<<<< HEAD
         assertEquals(3, cartCaptor.getValue().getQuantity());
+=======
+        assertEquals(3, cartCaptor.getValue().getQuantity()); // 1 + 2
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
     }
 
     @Test
@@ -123,5 +127,10 @@ class CartServiceTest {
         // Verifica se o item foi excluído
         verify(cartRepository, times(1)).delete(existingItem);
     }
+<<<<<<< HEAD
+=======
+
+    // Outros testes para removeAllItemsFromCart e getCartItems...
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
 }
 
