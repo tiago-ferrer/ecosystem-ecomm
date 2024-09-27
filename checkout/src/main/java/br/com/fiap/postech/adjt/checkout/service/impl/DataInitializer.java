@@ -1,17 +1,14 @@
 package br.com.fiap.postech.adjt.checkout.service.impl;
 
-import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
 import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentFieldsRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentMethodRequest;
 import br.com.fiap.postech.adjt.checkout.model.dto.request.PaymentRequest;
-import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
+import br.com.fiap.postech.adjt.checkout.service.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +19,18 @@ public class DataInitializer {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${api.client.payment.key}")
-    private String API_KEY;
-
-    private final OrderRepository orderRepository;
-    private final PaymentClient paymentClient;
     private final ObjectMapper objectMapper;
+    private final OrderRepository orderRepository;
+    private final PaymentService paymentService;
 
-    @Autowired
-    public DataInitializer(OrderRepository orderRepository, PaymentClient paymentClient, ObjectMapper objectMapper) {
-        this.orderRepository = orderRepository;
-        this.paymentClient = paymentClient;
+    public DataInitializer(
+            ObjectMapper objectMapper,
+            OrderRepository orderRepository,
+            PaymentService paymentService
+    ) {
         this.objectMapper = objectMapper;
+        this.orderRepository = orderRepository;
+        this.paymentService = paymentService;
     }
 
     @Scheduled(fixedRate = 15000)
@@ -50,18 +47,7 @@ public class DataInitializer {
                 logger.error("Failed to serialize PaymentRequest: {}", e.getMessage());
             }
 
-            try {
-                CheckoutResponse paymentResponse = paymentClient.processPayment(API_KEY, paymentRequest);
-                logger.info("Payment response: {}", paymentResponse.getStatus());
-                order.setPaymentStatus(paymentResponse.getStatus());
-                orderRepository.save(order);
-                logger.info("Order {} status updated to: {}", order.getOrderId(), order.getPaymentStatus());
-            } catch (Exception e) {
-                logger.error("Payment failed: ", e.getMessage());
-                order.setPaymentStatus("declined");
-                orderRepository.save(order);
-                logger.info("Order {} status updated to: declined", order.getOrderId());
-            }
+            paymentService.process(order, paymentRequest);
         }
     }
 

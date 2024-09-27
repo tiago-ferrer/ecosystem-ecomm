@@ -1,7 +1,6 @@
 package br.com.fiap.postech.adjt.checkout.service.impl;
 
 import br.com.fiap.postech.adjt.checkout.clients.CartClient;
-import br.com.fiap.postech.adjt.checkout.clients.PaymentClient;
 import br.com.fiap.postech.adjt.checkout.controller.exception.NotFoundException;
 import br.com.fiap.postech.adjt.checkout.model.Card;
 import br.com.fiap.postech.adjt.checkout.model.CartItem;
@@ -16,11 +15,11 @@ import br.com.fiap.postech.adjt.checkout.model.dto.response.CheckoutResponse;
 import br.com.fiap.postech.adjt.checkout.model.dto.response.OrderCheckoutsResponse;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
 import br.com.fiap.postech.adjt.checkout.service.CheckoutService;
+import br.com.fiap.postech.adjt.checkout.service.PaymentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,11 +33,8 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${api.client.payment.key}")
-    private String API_KEY;
-
     private final OrderRepository orderRepository;
-    private final PaymentClient paymentClient;
+    private final PaymentService paymentService;
     private final CartClient cartClient;
 
     @Transactional
@@ -50,7 +46,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         PaymentRequest paymentRequest = new PaymentRequest(order.getOrderId().toString(), amount, currency,
                 paymentMethod);
 
-        CompletableFuture.runAsync(() -> processPaymentAsync(order, paymentRequest));
+        CompletableFuture.runAsync(() -> paymentService.process(order, paymentRequest));
 
         return new CheckoutResponse(order.getConsumerId().toString(), order.getPaymentStatus());
     }
@@ -73,30 +69,6 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         order.setCard(card);
         return orderRepository.save(order);
-    }
-
-    private void processPaymentAsync(Order order, PaymentRequest paymentRequest) {
-        try {
-            CheckoutResponse paymentResponse = paymentClient.processPayment(API_KEY, paymentRequest);
-            order.setPaymentStatus(paymentResponse.getStatus());
-            logger.info("Payment processing result in order {}: {}", order.getOrderId(), paymentResponse.getStatus());
-        } catch (Exception e) {
-            // TODO: Clear cart if declined
-            order.setPaymentStatus("declined");
-            logger.info("Payment processing result in order {}: declined", order.getOrderId());
-            logger.error("error: ", e.getMessage());
-        } finally {
-            orderRepository.save(order);
-        }
-    }
-
-    private void clearCart(UUID consumerId) {
-        try {
-            cartClient.clear(new ClearCartRequest(consumerId.toString()));
-            System.out.println("Carrinho limpo");
-        } catch (Exception e) {
-            throw new NotFoundException("Empty cart: " + consumerId);
-        }
     }
 
     private List<CartItem> fetchCartItems(UUID consumerId) {
