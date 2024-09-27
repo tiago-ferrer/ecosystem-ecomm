@@ -33,7 +33,13 @@ public class CreateOrderUseCase {
     }
 
     public OrderModel createOrder(CheckoutModel checkoutModel) throws AppException {
-        CartModel cartModel = cartGateway.getCartByConsumerId(checkoutModel.getConsumerId());
+        CartModel cartModel;
+        try {
+            cartModel = cartGateway.getCartByConsumerId(checkoutModel.getConsumerId());
+        } catch(Exception e) {
+            throw new AppException(ErrorConstants.USER_ID_FORMAT_INVALID);
+        }
+
         OrderModel orderModel = OrderModel.builder()
                 .consumerId(checkoutModel.getConsumerId())
                 .value(checkoutModel.getAmount())

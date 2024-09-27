@@ -42,7 +42,13 @@ public class OrderFacadeImp implements OrderFacade {
 
     @Override
     public List<OrderDTO> getOrderByCustomerId(String customerId) throws AppException {
-        return orderUseCase.getOrderByConsumerId(customerId).stream().map(orderMapper::toOrderDTO).toList();
+        List<OrderModel> result = orderUseCase.getOrderByConsumerId(customerId);
+
+        if(result.isEmpty()) {
+            throw new AppException("Cart is empty");
+        }
+
+        return result.stream().map(orderMapper::toOrderDTO).toList();
 
     }
 }
