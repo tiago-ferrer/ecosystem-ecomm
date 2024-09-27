@@ -4,6 +4,7 @@ import br.com.fiap.postech.adjt.checkout.dto.ItemDTO;
 import br.com.fiap.postech.adjt.checkout.dto.OrderDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
+@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor

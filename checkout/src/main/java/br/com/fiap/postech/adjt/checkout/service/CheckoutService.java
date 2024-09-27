@@ -11,8 +11,10 @@ import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import reactor.core.publisher.Mono;
-
 import java.util.UUID;
 
 @Service
@@ -55,6 +57,8 @@ public class CheckoutService {
         checkout.setOrderId(order.getOrderId());
         try {
             paymentProducer.sendPaymentRequest(order, checkout);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw new PaymentProcessingException();
         }

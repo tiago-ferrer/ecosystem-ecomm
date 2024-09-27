@@ -1,0 +1,91 @@
+package br.com.fiap.postech.adjt.checkout.service;
+
+import br.com.fiap.postech.adjt.checkout.exception.EmptyCartException;
+import br.com.fiap.postech.adjt.checkout.exception.InvalidConsumerIdFormatException;
+import br.com.fiap.postech.adjt.checkout.model.Cart;
+import br.com.fiap.postech.adjt.checkout.model.Item;
+import br.com.fiap.postech.adjt.checkout.validation.UUIDValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
+class CartValidatorTest {
+
+    private UUIDValidator uuidValidator;
+    private ConstraintValidatorContext context;
+
+    private void invokeValidateCartItemList(Cart cart) throws Exception {
+        Method method = CheckoutService.class.getDeclaredMethod("validateCartItemList", Cart.class);
+        method.setAccessible(true);
+        method.invoke(null, cart);
+    }
+
+    @BeforeEach
+    void setUp() {
+        uuidValidator = new UUIDValidator();
+        context = mock(ConstraintValidatorContext.class);
+        uuidValidator.initialize(null);
+    }
+
+    @Test
+    void validateCartItemListShouldThrowEmptyCartExceptionWhenItemListIsEmpty() {
+
+        Cart emptyCart = Cart.builder().build();
+        emptyCart.setItemList(Collections.emptyList());
+
+        assertThrows(InvocationTargetException.class, () -> {
+            invokeValidateCartItemList(emptyCart);
+        });
+    }
+
+    @Test
+    void validateCartItemListShouldThrowEmptyCartExceptionWhenItemListIsNull() {
+
+        Cart nullCart = Cart.builder().build();
+        nullCart.setItemList(null);
+
+        assertThrows(InvocationTargetException.class, () -> {
+            invokeValidateCartItemList(nullCart);
+        });
+    }
+
+    @Test
+    void validateCartItemListShouldNotThrowExceptionWhenItemListIsNotEmpty() {
+
+        Cart validCart = Cart.builder().build();
+        validCart.setItemList(Arrays.asList(Item.builder().build()));
+
+        assertDoesNotThrow(() -> {
+            invokeValidateCartItemList(validCart);
+        });
+    }
+
+    @Test
+    void isValidShouldReturnTrueForValidUUID() {
+
+        String validUUID = "dcb3f098-6cf2-4c89-bb5e-b0fcb0babe49";
+
+        boolean result = uuidValidator.isValid(validUUID, context);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isValidShouldThrowExceptionForInvalidUUID() {
+
+        String invalidUUID = "invalid-uuid";
+
+        assertThrows(InvalidConsumerIdFormatException.class, () -> {
+            uuidValidator.isValid(invalidUUID, context);
+        });
+    }
+}
+
