@@ -1,0 +1,49 @@
+spring.application.name: checkout
+
+server.port: 8082
+
+spring.datasource.driverClassName: org.postgresql.Driver
+spring.datasource.url: jdbc:postgresql://localhost:5432/checkout
+spring.datasource.username: postgres
+spring.datasource.password: postgres
+
+spring.datasource.driver-class-name: org.postgresql.Driver
+spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # JPA
+spring.jpa.hibernate.ddl-auto: create-drop
+spring.jpa.show-sql: true
+spring.jpa.format-sql: true
+spring.jpa.defer-datasource-initialization: true
+
+  #RABBIT
+
+spring.cloud.stream.binders.rabbit.type: rabbit
+spring.rabbitmq.host: host.docker.internal
+spring.rabbitmq.port: 5672
+spring.rabbitmq.username: rabbitmq
+spring.rabbitmq.password: rabbitmq
+
+spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.host: ${spring.rabbitmq.host}
+spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.port: ${spring.rabbitmq.port}
+spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.username: ${spring.rabbitmq.username}
+spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.password: ${spring.rabbitmq.password}
+
+spring.cloud.stream.default.contentType: application/json
+spring.cloud.stream.defaultBinder: rabbit
+
+spring.rabbitmq.queue.payment.requests: payment.requests
+spring.rabbitmq.queue.payment.responses: payment.responses
+
+spring.rabbitmq.exchange.payment: payment.exchange
+spring.rabbitmq.routingkey.payment.requests: payment.requests
+spring.rabbitmq.routingkey.payment.responses: payment.responses
+
+spring.cloud.stream.function.definition: PaymentCreatedEventListner;
+
+
+spring.cloud.stream.rabbit.bindings.paymentCreatedEventListner-in-0.consumer.auto-bind-dlq: true
+
+URL_CART: http://localhost:8081/cart
+URL_PAYMENT: https://payment-api-latest.onrender.com/create-payment
+API_KEY: a2c83280f75b4e01801c60276405df87b2f14be967be0c61f227f0c39d150d7e
