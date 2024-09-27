@@ -17,5 +17,5 @@ public interface CartService {
 
     FindCartByCustomerIdResponse findByCustomerId(String consumerId);
 
-    Cart clear(UUID consumerId);
+    Cart clear(String consumerId);
 }

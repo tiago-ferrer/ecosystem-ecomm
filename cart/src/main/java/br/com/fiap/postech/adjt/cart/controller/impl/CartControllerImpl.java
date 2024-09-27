@@ -52,9 +52,9 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Cart> clear(@RequestBody ClearCartRequest request) {
-        Cart cart = cartService.clear(request.consumerId());
+    public ResponseEntity<MessageResponse> clear(@RequestBody ClearCartRequest request) {
+        cartService.clear(request.consumerId());
 
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item removed from cart successfully"));
     }
 }

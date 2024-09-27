@@ -74,7 +74,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart increment(IncrementCartItemRequest request) {
-        Cart cart = getCartByCustomerIdIfExist(request.consumerId());
+        UUID consumerId = getValidConsumerIdFromTextualUUID(request.consumerId());
+
+        Cart cart = getCartByCustomerIdIfExist(consumerId);
         cart.incrementItem(request.itemId());
 
         Cart savedCart = cartRepository.save(cart);
@@ -102,8 +104,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart clear(UUID consumerId) {
-        Cart cart = getCartByCustomerIdIfExist(consumerId);
+    public Cart clear(String consumerId) {
+        UUID validConsumerID = getValidConsumerIdFromTextualUUID(consumerId);
+
+        Cart cart = getCartByCustomerIdIfExist(validConsumerID);
 
         cart.clear();
 
