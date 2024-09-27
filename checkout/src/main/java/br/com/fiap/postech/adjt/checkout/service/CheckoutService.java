@@ -7,6 +7,7 @@ import br.com.fiap.postech.adjt.checkout.dto.OrderDTO;
 import br.com.fiap.postech.adjt.checkout.exception.EmptyCartException;
 import br.com.fiap.postech.adjt.checkout.exception.InvalidPaymentMethodException;
 import br.com.fiap.postech.adjt.checkout.exception.PaymentProcessingException;
+import br.com.fiap.postech.adjt.checkout.kafka.PaymentProducer;
 import br.com.fiap.postech.adjt.checkout.mapper.PaymentMethodMapper;
 import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
@@ -58,28 +59,10 @@ public class CheckoutService {
         return new CheckoutResponseDTO(order.getOrderId().toString(), checkout.getStatus());
     }
 
-    public OrderDTO searchPaymentByOrderId(String orderId) {
-        Order order = orderService.getOrderByOrderId(orderId);
-        return order.toDTO(order);
-    }
 
-    public List<OrderDTO> searchPaymentByConsumer(String consumerId) {
-        List<Order> orders = orderService.getOrderByConsumerId(consumerId);
-        List<OrderDTO> ordersDto = orders.stream()
-                .map(order -> new OrderDTO(
-                        order.getOrderId(),
-                        order.getConsumerId().toString(),
-                        order.getItems().stream()
-                                .map(item -> new ItemDTO(item.getItemId(), item.getQnt()))
-                                .collect(Collectors.toList()),
-                        order.getCurrency().toString(),
-                        order.getPaymentMethodType(),
-                        order.getValue(),
-                        order.getPaymentStatus()
-                ))
-                .collect(Collectors.toList());
-
-        return ordersDto;
+    public Checkout findByOrderId(UUID orderId) {
+        return checkoutRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Checkout not found for order: " + orderId));
     }
 
     private void validatePaymentMethod(CheckoutRequestDTO checkoutRequestDTO) {

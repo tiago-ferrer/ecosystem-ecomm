@@ -1,11 +1,14 @@
-package br.com.fiap.postech.adjt.checkout.service;
+package br.com.fiap.postech.adjt.checkout.kafka;
 
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutResponseDTO;
 import br.com.fiap.postech.adjt.checkout.dto.ExternalPaymentRequestDTO;
+import br.com.fiap.postech.adjt.checkout.dto.ExternalPaymentResponseDTO;
 import br.com.fiap.postech.adjt.checkout.model.Checkout;
 import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.PaymentMessage;
 import br.com.fiap.postech.adjt.checkout.model.PaymentStatus;
+import br.com.fiap.postech.adjt.checkout.service.CartService;
+import br.com.fiap.postech.adjt.checkout.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,12 +51,12 @@ public class PaymentConsumer {
 
         HttpEntity<ExternalPaymentRequestDTO> requestEntity = new HttpEntity<>(externalPayment, headers);
 
-        ResponseEntity<CheckoutResponseDTO> response = restTemplate.postForEntity(
+        ResponseEntity<ExternalPaymentResponseDTO> response = restTemplate.postForEntity(
                 paymentServiceUrl,
                 requestEntity,
-                CheckoutResponseDTO.class
+                ExternalPaymentResponseDTO.class
         );
-        if (response.getBody() != null && response.getBody().status().equals(PaymentStatus.approved)) {
+        if (response.getBody() != null && response.getBody().status().equals(PaymentStatus.approved.toString())) {
             order.setPaymentStatus(PaymentStatus.approved);
             cartService.clearCart(checkout.getConsumerId());
         } else {

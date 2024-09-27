@@ -1,4 +1,4 @@
-package br.com.fiap.postech.adjt.checkout.service;
+package br.com.fiap.postech.adjt.checkout.kafka;
 
 import br.com.fiap.postech.adjt.checkout.model.Checkout;
 import br.com.fiap.postech.adjt.checkout.model.Order;
