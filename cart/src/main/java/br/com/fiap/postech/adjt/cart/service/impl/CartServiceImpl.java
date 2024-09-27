@@ -37,9 +37,10 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart add(AddCartItemRequest request) {
         UUID consumerID = getValidConsumerIdFromTextualUUID(request.consumerId());
+
         validateRequest(request);
 
-        CartItem cartItem = new CartItem(request.itemId(), request.quantity());
+        CartItem cartItem = new CartItem(request.itemId(), Integer.valueOf(request.quantity()));
 
         Cart cart = getCartByCustomerId(consumerID);
         cart.addItem(cartItem);
@@ -55,9 +56,9 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = getCartByCustomerIdIfExist(consumerID);
 
-        try{
+        try {
             cart.removeItem(request.itemId());
-        }catch (InvalidConsumerIdFormatException e){
+        } catch (InvalidConsumerIdFormatException e) {
             logger.error("Invalid itemId, there is no itemId %s in the cart".formatted(request.itemId()));
             throw e;
         }
