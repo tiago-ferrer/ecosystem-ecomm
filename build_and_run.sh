@@ -4,7 +4,7 @@
 build_images() {
 
   echo "Gen targets"
-  mvn clean install -DskipTests -U -T 4
+  mvn clean install -U
 
   echo "Building Docker images..."
 

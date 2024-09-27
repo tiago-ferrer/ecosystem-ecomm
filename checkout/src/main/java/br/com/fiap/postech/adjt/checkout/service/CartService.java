@@ -22,28 +22,18 @@ import java.util.UUID;
 @Service
 public class CartService {
 
-    @Value("${cart.service.url}")
-    private String cartServiceUrl;
     private final WebClient webClient;
 
     public CartService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("http://cart:8081").build();
     }
 
-    @Cacheable(value = "cartCache", key = "#consumerId")
-    public Cart getCart(UUID consumerId) {
-        ConsumerIdRequest request = new ConsumerIdRequest(consumerId.toString());
-
-        return webClient
-                .method(HttpMethod.GET)
-                .uri("/")
-                .bodyValue(request)  // Adiciona o corpo na requisição GET
-                .retrieve()
-                .bodyToMono(Cart.class)
-                .block();  // Converte a resposta para Mono<Cart>
+//    @Cacheable(value = "cartCache", key = "#consumerId")
+    public Mono<Cart> getCart(UUID consumerId) {
+        return fetchCartFromWebClient(consumerId);
     }
 
-    @CacheEvict(value = "cartCache", key = "#consumerId")
+//    @CacheEvict(value = "cartCache", key = "#consumerId")
     public Void clearCart(UUID consumerId) {
         ConsumerIdRequest request = new ConsumerIdRequest(consumerId.toString());
 
@@ -53,5 +43,16 @@ public class CartService {
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(Void.class).block();
+    }
+
+    private Mono<Cart> fetchCartFromWebClient(UUID consumerId) {
+        ConsumerIdRequest request = new ConsumerIdRequest(consumerId.toString());
+
+        return webClient
+                .method(HttpMethod.GET)
+                .uri("/")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(Cart.class);
     }
 }

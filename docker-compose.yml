@@ -63,7 +63,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - PAYMENT_SERVICE_URL=https://payment-api-latest.onrender.com/create-payment
       - CART_SERVICE_URL=http://cart:8081
-      - PAYMENT_APIKEY_VALUE=0998721033dc0d0c65a5417b9287c5e27c0925895dda7fae3baf0c417d56cc45
+      - PAYMENT_APIKEY_VALUE={API_KEY}
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - checkout-db
