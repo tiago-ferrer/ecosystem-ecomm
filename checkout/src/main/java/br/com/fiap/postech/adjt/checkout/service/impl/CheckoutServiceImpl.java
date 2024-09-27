@@ -33,8 +33,8 @@ public class CheckoutServiceImpl implements CheckoutService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Value("${api.client.payment.key}")
-	private String apiKey;
+    @Value("${api.client.payment.key}")
+    private String API_KEY;
 
 	private final OrderRepository orderRepository;
 	private final PaymentClient paymentClient;
@@ -88,6 +88,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 			orderRepository.save(order);
 		}
 	}
+            CheckoutResponse paymentResponse = paymentClient.processPayment(API_KEY, paymentRequest);
 
 	private void clearCart(UUID consumerId) {
 		try {

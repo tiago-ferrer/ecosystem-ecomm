@@ -3,6 +3,7 @@ package br.com.fiap.postech.adjt.checkout.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class DataInitializer {
+
+    @Value("${api.client.payment.key}")
+    private String API_KEY;
 
     private final OrderRepository orderRepository;
     private final PaymentClient paymentClient;
@@ -62,7 +66,7 @@ public class DataInitializer {
             }
 
             try {
-                CheckoutResponse paymentResponse = paymentClient.processPayment("9f6ce8f2761d1a9a42b722045cc712785f444455e726582d947c14aa313c2fa3", paymentRequest);
+                CheckoutResponse paymentResponse = paymentClient.processPayment(API_KEY, paymentRequest);
                 System.out.println("Payment response: " + paymentResponse.getStatus());
                 order.setPaymentStatus(paymentResponse.getStatus());
                 orderRepository.save(order);
