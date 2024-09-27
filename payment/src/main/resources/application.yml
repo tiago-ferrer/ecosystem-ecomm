@@ -32,7 +32,7 @@ spring:
 
   api:
     security:
-      token: b647323e4680065537924fb9876da1f0fd71f6558640e847dd8ea39c72a8ee46
+      token: {payment.token}
       group: Grupo10
       members:
         - Rafael Amaral

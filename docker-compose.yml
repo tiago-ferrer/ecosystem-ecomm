@@ -12,9 +12,9 @@ services:
       context: gateway/
     ports:
       - "8080:8080"
-    # depends_on:
-    #   - cart
-    #   - checkout
+    depends_on:
+      - cart
+      - checkout
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -22,59 +22,66 @@ services:
       retries: 3
       start_period: 30s
 
-  # cart:
-  #   image: cart:latest
-  #   build:
-  #     context: cart/
-  #   expose:
-  #     - "8081"
-  #   healthcheck:
-  #     test: ["CMD", "curl", "--fail", "http://localhost:8081/actuator/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   environment:
-  #     WAIT_HOSTS: postgres-cart:5432
-  #     DB_USER_AUTH: ${DB_USER_AUTH}
-  #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
-  #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+  cart:
+    image: cart:latest
+    build:
+      context: cart/
+    expose:
+      - "8081"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      WAIT_HOSTS: postgres-cart:5432
+      DB_USER_AUTH: ${DB_USER_AUTH}
+      DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+      DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
 
-  # checkout:
-  #   image: checkout:latest
-  #   build:
-  #     context: checkout/
-  #   expose:
-  #     - "8082"
-  #   healthcheck:
-  #     test: ["CMD", "curl", "--fail", "http://localhost:8082/actuator/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   environment:
-  #     WAIT_HOSTS: postgres-checkout:5433
-  #     DB_USER_AUTH: ${DB_USER_AUTH}
-  #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
-  #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+  checkout:
+    image: checkout:latest
+    build:
+      context: checkout/
+    expose:
+      - "8082"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      WAIT_HOSTS: postgres-checkout:5433
+      DB_USER_AUTH: ${DB_USER_AUTH}
+      DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+      DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
 
-  # payment:
-  #   image: payment:latest
-  #   build:
-  #     context: payment/
-  #   expose:
-  #     - "8083"
-  #   healthcheck:
-  #     test: ["CMD", "curl", "--fail", "http://localhost:8083/actuator/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   environment:
-  #     WAIT_HOSTS: postgres-checkout:5433
-  #     DB_USER_AUTH: ${DB_USER_AUTH}
-  #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
-  #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+  payment:
+    image: payment:latest
+    build:
+      context: payment/
+    expose:
+      - "8083"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      WAIT_HOSTS: postgres-checkout:5433
+      DB_USER_AUTH: ${DB_USER_AUTH}
+      DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+      DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+      PAYMENT_TOKEN: ${PAYMENT_TOKEN}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
 
   postgres-checkout:
     container_name: postgres-checkout
