@@ -43,6 +43,8 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         Order order = createPendingOrder(consumerId, amount, paymentMethod);
 
+        clearCart(consumerId);
+
         PaymentRequest paymentRequest = new PaymentRequest(order.getOrderId().toString(), amount, currency,
                 paymentMethod);
 
@@ -99,6 +101,15 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .orElseThrow(() -> new NotFoundException("Order not found for orderId: " + orderId));
 
         return toResponse(order);
+    }
+
+    private void clearCart(UUID consumerId) {
+        try {
+            cartClient.clear(new ClearCartRequest(consumerId.toString()));
+            logger.info("Cart from client {} cleared", consumerId);
+        } catch (Exception e) {
+            throw new NotFoundException("Empty cart: " + consumerId);
+        }
     }
 
     private OrderCheckoutsResponse toResponse(Order order) {
