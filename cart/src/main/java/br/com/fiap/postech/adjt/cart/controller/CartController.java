@@ -10,7 +10,7 @@ public interface CartController {
 
     ResponseEntity<MessageResponse> remove(RemoveCartItemRequest request);
 
-    ResponseEntity<Cart> increment(IncrementCartItemRequest request);
+    ResponseEntity<MessageResponse> increment(IncrementCartItemRequest request);
 
     ResponseEntity<Cart> findByCustomerId(FindCartByCustomerIdRequest request);
 

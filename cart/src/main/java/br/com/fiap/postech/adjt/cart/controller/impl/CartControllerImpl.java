@@ -35,10 +35,10 @@ public class CartControllerImpl implements CartController {
 
     @Override
     @PutMapping("/item")
-    public ResponseEntity<Cart> increment(@RequestBody IncrementCartItemRequest request) {
-        Cart cart = cartService.increment(request);
+    public ResponseEntity<MessageResponse> increment(@RequestBody IncrementCartItemRequest request) {
+        cartService.increment(request);
 
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(new MessageResponse("Item removed from cart successfully"));
     }
 
     @Override
