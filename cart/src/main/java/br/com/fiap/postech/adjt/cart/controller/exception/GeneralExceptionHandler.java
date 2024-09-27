@@ -28,7 +28,7 @@ public class GeneralExceptionHandler {
             InvalidConsumerIdFormatException.class,
             NotFoundException.class
     })
-    public ResponseEntity<ErrorResponse> handleBadRequestException(IllegalArgumentException e) {
+    public ResponseEntity<ErrorResponse> handleBadRequestException(RuntimeException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
         return ResponseEntity.badRequest().body(errorResponse);
     }
