@@ -16,6 +16,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      - ecosystem-ecomm-network
 
   cart:
     build:
@@ -31,7 +33,9 @@ services:
       retries: 3
       start_period: 30s
     environment:
-      - 'SPRING_DATA_MONGODB_URI=mongodb://root:123@mongo:27017/cart_db?authsource=admin'
+      - SPRING_DATA_MONGODB_URI
+    networks:
+      - ecosystem-ecomm-network
 
   checkout:
     build:
@@ -47,23 +51,27 @@ services:
       retries: 3
       start_period: 30s
     environment:
-      - 'DB_USERNAME=admin'
-      - 'DB_PASSWORD=admin'
-      - 'DB_URL=jdbc:postgresql://database:5432/checkout'
-      - 'CART_BASE_URL=http://cart:8081'
-      - 'PAYMENT_BASE_URL=https://payment-api-latest.onrender.com'
-      - 'API_KEY='
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_URL
+      - CART_BASE_URL
+      - PAYMENT_BASE_URL
+      - API_KEY
+    networks:
+      - ecosystem-ecomm-network
 
   database:
     image: 'postgres:latest'
     ports:
       - '15432:5432'
     environment:
-      - 'POSTGRES_USER=admin'
-      - 'POSTGRES_DB=checkout'
-      - 'POSTGRES_PASSWORD=admin'
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - POSTGRES_PASSWORD
     volumes:
       - ./init:/docker-entrypoint-initdb.d
+    networks:
+      - ecosystem-ecomm-network
 
   mongo:
     image: mongo:latest
@@ -71,10 +79,17 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 123
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
     volumes:
       - mongo-data:/data/db
+    networks:
+      - ecosystem-ecomm-network
+
 
 volumes:
   mongo-data:
+
+networks:
+  ecosystem-ecomm-network:
+    driver: bridge
