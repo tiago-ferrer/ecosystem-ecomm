@@ -23,7 +23,7 @@ public class ControllerExceptionHandler {
   @ExceptionHandler(ControllerNotFoundException.class)
   public ResponseEntity<StandardError> entityNotFound(
           ControllerNotFoundException e, HttpServletRequest request) {
-    System.out.println("Mais um");
+
     HttpStatus status = HttpStatus.NOT_FOUND;
     StandardError err = StandardError.builder()
             .timestamp(Instant.now())
