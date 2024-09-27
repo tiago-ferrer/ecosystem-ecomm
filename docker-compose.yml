@@ -58,6 +58,24 @@ services:
   #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
   #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
 
+  # payment:
+  #   image: payment:latest
+  #   build:
+  #     context: payment/
+  #   expose:
+  #     - "8083"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "--fail", "http://localhost:8083/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   environment:
+  #     WAIT_HOSTS: postgres-checkout:5433
+  #     DB_USER_AUTH: ${DB_USER_AUTH}
+  #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+  #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+
   postgres-checkout:
     container_name: postgres-checkout
     image: postgres:16.3-alpine3.20
