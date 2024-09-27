@@ -18,7 +18,7 @@ public class ErrorMessagesTest {
 
     @Test
     void testInvalidItemId() {
-        assertEquals("Invalid itemId does not exist", ErrorMessages.INVALID_ITEM_ID);
+        assertEquals("Invalid itemId", ErrorMessages.INVALID_ITEM_ID);
     }
 
     @Test
