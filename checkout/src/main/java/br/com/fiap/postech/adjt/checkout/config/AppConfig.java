@@ -14,10 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class AppConfig {
+
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
     @Bean
     public WebClient webClient() {
         HttpClient httpClient = HttpClient.create()
@@ -28,10 +30,5 @@ public class AppConfig {
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
-    }
-
-    @Bean
-    public String checkoutUrl() {
-        return System.getenv("CHECKOUT_URL");
     }
 }

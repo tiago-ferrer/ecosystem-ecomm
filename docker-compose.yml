@@ -42,12 +42,12 @@ services:
     depends_on:
       - cart-db
       - products
-#    healthcheck:
-#      test: [ "CMD", "curl", "--fail", "http://cart/actuator/health" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://cart/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     expose:
       - "8081"
     networks:
@@ -68,12 +68,12 @@ services:
     depends_on:
       - checkout-db
       - kafka
-#    healthcheck:
-#      test: [ "CMD", "curl", "--fail", "http://checkout/actuator/health" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://checkout/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     expose:
       - "8082"
     networks:
@@ -85,12 +85,12 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     image: catalog:latest
-#    healthcheck:
-#      test: [ "CMD", "curl", "--fail", "http://products/actuator/health" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://products/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     expose:
       - "8083"
     networks:
@@ -144,7 +144,3 @@ services:
 
 networks:
   my_network:
-#
-#volumes:
-#  cart-db-data:
-#  checkout-db-data:

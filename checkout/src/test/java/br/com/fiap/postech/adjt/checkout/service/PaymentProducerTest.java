@@ -1,8 +1,10 @@
 package br.com.fiap.postech.adjt.checkout.service;
 
+import br.com.fiap.postech.adjt.checkout.kafka.PaymentProducer;
 import br.com.fiap.postech.adjt.checkout.model.Checkout;
 import br.com.fiap.postech.adjt.checkout.model.Order;
 import br.com.fiap.postech.adjt.checkout.model.PaymentMessage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,6 +26,8 @@ class PaymentProducerTest {
     @InjectMocks
     private PaymentProducer paymentProducer;
 
+    AutoCloseable openMocks;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -33,7 +37,7 @@ class PaymentProducerTest {
     void sendPaymentRequest_shouldSendPaymentMessageToKafka() {
 
         Order order = new Order();
-        order.setTotalValue(100.0);
+        order.setValue(100);
 
         Checkout checkout = new Checkout();
         checkout.setConsumerId(UUID.randomUUID());

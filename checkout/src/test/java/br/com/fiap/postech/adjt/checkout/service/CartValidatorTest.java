@@ -6,6 +6,7 @@ import br.com.fiap.postech.adjt.checkout.model.Cart;
 import br.com.fiap.postech.adjt.checkout.model.Item;
 import br.com.fiap.postech.adjt.checkout.validation.UUIDValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ class CartValidatorTest {
     void validateCartItemListShouldThrowEmptyCartExceptionWhenItemListIsEmpty() {
 
         Cart emptyCart = Cart.builder().build();
-        emptyCart.setItemList(Collections.emptyList());
+        emptyCart.setItems(Collections.emptyList());
 
         assertThrows(InvocationTargetException.class, () -> {
             invokeValidateCartItemList(emptyCart);
@@ -50,7 +51,7 @@ class CartValidatorTest {
     void validateCartItemListShouldThrowEmptyCartExceptionWhenItemListIsNull() {
 
         Cart nullCart = Cart.builder().build();
-        nullCart.setItemList(null);
+        nullCart.setItems(null);
 
         assertThrows(InvocationTargetException.class, () -> {
             invokeValidateCartItemList(nullCart);
@@ -61,7 +62,7 @@ class CartValidatorTest {
     void validateCartItemListShouldNotThrowExceptionWhenItemListIsNotEmpty() {
 
         Cart validCart = Cart.builder().build();
-        validCart.setItemList(Arrays.asList(Item.builder().build()));
+        validCart.setItems(Arrays.asList(Item.builder().build()));
 
         assertDoesNotThrow(() -> {
             invokeValidateCartItemList(validCart);

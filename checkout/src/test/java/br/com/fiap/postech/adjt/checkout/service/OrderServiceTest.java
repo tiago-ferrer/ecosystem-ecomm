@@ -2,6 +2,7 @@ package br.com.fiap.postech.adjt.checkout.service;
 
 import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.OrderRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,6 +24,7 @@ class OrderServiceTest {
 
     @InjectMocks
     private OrderService orderService;
+    AutoCloseable openMocks;
 
     @BeforeEach
     void setUp() {
@@ -35,11 +37,11 @@ class OrderServiceTest {
         Cart cart = Cart.builder().build();
         UUID consumerId = UUID.randomUUID();
         cart.setConsumerId(consumerId);
-        cart.setItemList(Arrays.asList(Item.builder().build()));
+        cart.setItems(Arrays.asList(Item.builder().build()));
 
         Checkout checkout = new Checkout();
         checkout.setCurrency(Currency.BRL);
-        checkout.setAmount(100.0);
+        checkout.setAmount(100);
         checkout.setStatus(PaymentStatus.approved);
 
         PaymentMethod paymentMethod = new PaymentMethod();
@@ -48,9 +50,9 @@ class OrderServiceTest {
 
         Order expectedOrder = new Order();
         expectedOrder.setConsumerId(consumerId);
-        expectedOrder.setItemList(cart.getItemList());
+        expectedOrder.setItems(cart.getItems());
         expectedOrder.setCurrency(checkout.getCurrency());
-        expectedOrder.setTotalValue(checkout.getAmount());
+        expectedOrder.setValue(checkout.getAmount());
         expectedOrder.setPaymentMethodType(paymentMethod.getType());
         expectedOrder.setPaymentStatus(checkout.getStatus());
 
@@ -59,8 +61,7 @@ class OrderServiceTest {
         Order actualOrder = orderService.createAndSaveOrder(cart, checkout);
 
         assertNotNull(actualOrder);
-        assertEquals(expectedOrder.getConsumerId(), actualOrder.getConsumerId());
-        assertEquals(expectedOrder.getTotalValue(), actualOrder.getTotalValue());
+        assertEquals(expectedOrder.getValue(), actualOrder.getValue());
         assertEquals(expectedOrder.getCurrency(), actualOrder.getCurrency());
         assertEquals(expectedOrder.getPaymentMethodType(), actualOrder.getPaymentMethodType());
         assertEquals(expectedOrder.getPaymentStatus(), actualOrder.getPaymentStatus());

@@ -29,10 +29,10 @@ public class KafkaProducerConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 300);
-        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 10);
-        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        configProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+//        configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 300);
+//        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 10);
+//        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+//        configProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 

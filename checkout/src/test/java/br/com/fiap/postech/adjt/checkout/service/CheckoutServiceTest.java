@@ -3,6 +3,7 @@ package br.com.fiap.postech.adjt.checkout.service;
 import br.com.fiap.postech.adjt.checkout.dto.CheckoutRequestDTO;
 import br.com.fiap.postech.adjt.checkout.dto.PaymentMethodFieldsRequestDTO;
 import br.com.fiap.postech.adjt.checkout.dto.PaymentMethodRequestDTO;
+import br.com.fiap.postech.adjt.checkout.kafka.PaymentProducer;
 import br.com.fiap.postech.adjt.checkout.mapper.PaymentMethodMapper;
 import br.com.fiap.postech.adjt.checkout.model.*;
 import br.com.fiap.postech.adjt.checkout.repository.CheckoutRepository;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -70,17 +72,16 @@ public class CheckoutServiceTest {
                 .fields(paymentMethodFieldsRequestDTO).build();
         checkoutRequestDTO = CheckoutRequestDTO.builder()
                 .consumerId(consumerId.toString())
-                .amount(100.0)
+                .amount(100)
                 .currency(Currency.BRL.toString())
                 .paymentMethod(paymentMethodRequestDTO).build();
         item = Item.builder()
                 .itemId(1L)
-                .quantity(1)
-                .price(100.0).build();
+                .qnt(1).build();
         itemList.add(item);
         cart = Cart.builder()
                 .consumerId(consumerId)
-                .itemList(itemList).build();
+                .items(itemList).build();
         paymentMethodFields = PaymentMethodFields.builder()
                 .number("123")
                 .expiration_month(LocalDate.now().getMonth().toString())
@@ -93,17 +94,17 @@ public class CheckoutServiceTest {
         checkout = Checkout.builder()
                 .consumerId(consumerId)
                 .orderId(orderId)
-                .amount(100.0)
+                .amount(100)
                 .currency(Currency.BRL)
                 .paymentMethod(paymentMethod)
                 .status(PaymentStatus.pending).build();
         order = Order.builder()
                 .orderId(orderId)
                 .consumerId(consumerId)
-                .itemList(itemList)
+                .items(itemList)
                 .currency(Currency.BRL)
                 .paymentMethodType(PaymentMethodType.br_credit_card)
-                .totalValue(100.0)
+                .value(100)
                 .paymentStatus(PaymentStatus.pending).build();
         orderList.add(order);
     }
@@ -116,7 +117,7 @@ public class CheckoutServiceTest {
     @Test
     void deveProcessarPagamentoComSucesso() {
 
-        when(cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()))).thenReturn(cart);
+        when(cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()))).thenReturn(Mono.just(cart));
         when(orderService.createAndSaveOrder(any(Cart.class), any(Checkout.class))).thenReturn(order);
 
         var response = checkoutService.processPayment(checkoutRequestDTO);
@@ -131,7 +132,7 @@ public class CheckoutServiceTest {
     @Test
     void deveProcessarPagamentoRetornandoException() {
 
-        when(cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()))).thenReturn(cart);
+        when(cartService.getCart(UUID.fromString(checkoutRequestDTO.consumerId()))).thenReturn(Mono.just(cart));
         when(orderService.createAndSaveOrder(any(Cart.class), any(Checkout.class))).thenThrow(IllegalArgumentException.class);
 
         Assertions.assertThrows(RuntimeException.class, () -> checkoutService.processPayment(checkoutRequestDTO));
@@ -143,9 +144,9 @@ public class CheckoutServiceTest {
 
         when(orderService.getOrderByOrderId(orderId.toString())).thenReturn(order);
 
-        var response = checkoutService.searchPaymentByOrderId(orderId.toString());
+        var response = orderService.findByOrderId(orderId.toString());
 
-        verify(orderService, times(1)).getOrderByOrderId(orderId.toString());
+        verify(orderService, times(1)).findByOrderId(orderId.toString());
 
     }
 
@@ -154,9 +155,9 @@ public class CheckoutServiceTest {
 
         when(orderService.getOrderByConsumerId(consumerId.toString())).thenReturn(orderList);
 
-        var response = checkoutService.searchPaymentByConsumer(consumerId.toString());
+        var response = orderService.findPaymentByConsumer(consumerId.toString());
 
-        verify(orderService, times(1)).getOrderByConsumerId(consumerId.toString());
+        verify(orderService, times(1)).findPaymentByConsumer(consumerId.toString());
 
     }
 

@@ -17,7 +17,7 @@ class PaymentMessageTest {
         Order order = new Order();
         Checkout checkout = new Checkout();
 
-        order.setTotalValue(100.0);
+        order.setValue(100);
         checkout.setConsumerId(UUID.randomUUID());
 
         PaymentMessage paymentMessage = new PaymentMessage();
