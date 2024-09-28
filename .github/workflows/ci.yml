@@ -393,7 +393,7 @@ jobs:
                   }
                 }' \
             --fail
-      - name: Test GET /by-order-id/{orderId} endpoint
+      - name: Test GET /by-cart-id/{orderId} endpoint
         continue-on-error: true
         run: |
           curl -X POST http://localhost:8080/by-order-id/98b251ab-e4f1-487e-a26b-fa8fdbe356ac \
