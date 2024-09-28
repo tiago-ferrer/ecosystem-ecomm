@@ -52,6 +52,7 @@ public class CheckoutServiceTest {
     private Order order;
     @Mock
     private List<Order> orderList;
+    private String cardNumber = "1234567890123456";
 
     AutoCloseable openMocks;
 
@@ -62,9 +63,9 @@ public class CheckoutServiceTest {
         consumerId = UUID.randomUUID();
         orderId = UUID.randomUUID();
         paymentMethodFieldsRequestDTO = PaymentMethodFieldsRequestDTO.builder()
-                .number("123")
-                .expiration_month(LocalDate.now().getMonth().toString())
-                .expiration_year(LocalDate.now().plusYears(1).toString())
+                .number(cardNumber)
+                .expiration_month(String.valueOf(LocalDate.now().getMonthValue()))
+                .expiration_year(String.valueOf(LocalDate.now().getYear()))
                 .cvv("456")
                 .name("nome cliente").build();
         paymentMethodRequestDTO = PaymentMethodRequestDTO.builder()
@@ -83,9 +84,9 @@ public class CheckoutServiceTest {
                 .consumerId(consumerId)
                 .items(itemList).build();
         paymentMethodFields = PaymentMethodFields.builder()
-                .number("123")
-                .expiration_month(LocalDate.now().getMonth().toString())
-                .expiration_year(LocalDate.now().plusYears(1).toString())
+                .number(cardNumber)
+                .expiration_month(String.valueOf(LocalDate.now().getMonthValue()))
+                .expiration_year(String.valueOf(LocalDate.now().getYear()))
                 .cvv("456")
                 .name("nome cliente").build();
         paymentMethod = PaymentMethod.builder()

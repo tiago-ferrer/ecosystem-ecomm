@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -71,40 +72,56 @@ public class CheckoutService {
 
     private void validatePaymentMethod(CheckoutRequestDTO checkoutRequestDTO) {
         PaymentMethod paymentMethod = PaymentMethodMapper.toEntity(checkoutRequestDTO.paymentMethod());
-        if (paymentMethod == null || !areFieldsValid(paymentMethod)) {
+        if (isPaymentMethodNotValid(paymentMethod)
+        ) {
             throw new InvalidPaymentMethodException();
         }
     }
 
-    private boolean areFieldsValid(PaymentMethod paymentMethod) {
-        System.out.println(paymentMethod.getType().toString());
+    private boolean isPaymentMethodNotValid(PaymentMethod paymentMethod) {
+        return paymentMethod == null ||
+                !isPaymentMethodTypeValid(paymentMethod) ||
+                !isExpirationMonthValid(paymentMethod) ||
+                !isExpirationYearValid(paymentMethod) ||
+                !isCardNumberValid(paymentMethod);
+    }
+
+    private boolean isPaymentMethodTypeValid(PaymentMethod paymentMethod) {
         if (paymentMethod.getType().equals(PaymentMethodType.br_credit_card) ||
                 paymentMethod.getType().equals(PaymentMethodType.br_debit_card)) {
             return true;
         }
+        return false;
+    }
 
+    private boolean isExpirationYearValid(PaymentMethod paymentMethod) {
         PaymentMethodFields fields = paymentMethod.getFields();
 
         String expirationYear = fields.getExpiration_year();
-        System.out.println(expirationYear);
         if (expirationYear != null && !expirationYear.isEmpty()) {
             int year = Integer.parseInt(expirationYear);
-            if (year >= 2024) {
+            if (year >= (LocalDateTime.now().getYear()-2000)) {
                 return true;
             }
         }
+        return false;
+    }
 
+    private boolean isExpirationMonthValid(PaymentMethod paymentMethod) {
+        PaymentMethodFields fields = paymentMethod.getFields();
         String expirationMonth = fields.getExpiration_month();
-        System.out.println(expirationMonth);
         if (expirationMonth != null && !expirationMonth.isEmpty()) {
             int month = Integer.parseInt(expirationMonth);
             if (month > 0 && month <= 12) {
                 return true;
             }
         }
+        return false;
+    }
 
+    private boolean isCardNumberValid(PaymentMethod paymentMethod) {
+        PaymentMethodFields fields = paymentMethod.getFields();
         String cardNumber = fields.getNumber();
-        System.out.println(cardNumber);
         if (cardNumber != null && !cardNumber.isEmpty()) {
             int numberLength = cardNumber.length();
             if (numberLength >= 13 && numberLength <= 16) {

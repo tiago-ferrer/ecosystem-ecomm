@@ -58,11 +58,10 @@ public class PaymentConsumer {
         );
         if (response.getBody() != null && response.getBody().status().equals(PaymentStatus.approved.toString())) {
             order.setPaymentStatus(PaymentStatus.approved);
-            cartService.clearCart(checkout.getConsumerId());
         } else {
             order.setPaymentStatus(PaymentStatus.declined);
         }
-
+        cartService.clearCart(checkout.getConsumerId());
         orderService.updateOrder(order);
     }
 
