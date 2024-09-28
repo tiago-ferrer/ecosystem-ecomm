@@ -4,9 +4,9 @@ spring:
   application:
     name: checkout
   datasource:
-    url: ${db.uri.auth.checkout}
-    username: ${db.username.auth}
-    password: ${db.password.auth}
+    url: jdbc:postgresql://postgres-checkout:5433/checkout_db
+    username: user
+    password: 12345
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,9 +16,9 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   rabbitmq:
-    username: {rabbitmq.username}
-    password: {rabbitmq.password}
-    host: {rabbitmq.host}
+    username: guest
+    password: guest
+    host: rabbitmq
     port: 5672
 
   cloud:
@@ -32,8 +32,8 @@ spring:
 
   api:
     security:
-      token: {payment.token}
-      group: Grupo10
+      token: b647323e4680065537924fb9876da1f0fd71f6558640e847dd8ea39c72a8ee46
+      group: Grupo20
       members:
         - Rafael Amaral
         - André S Ferreira

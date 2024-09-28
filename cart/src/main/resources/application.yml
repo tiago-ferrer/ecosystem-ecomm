@@ -5,9 +5,9 @@ spring:
   application:
     name: cart
   datasource:
-    url:      ${db.uri.cart}
-    username: ${db.username.cart}
-    password: ${db.password.cart}
+    url: jdbc:postgresql://postgres-cart:5432/cart_db
+    username: user
+    password: 12345
 
   jpa:
     hibernate:
