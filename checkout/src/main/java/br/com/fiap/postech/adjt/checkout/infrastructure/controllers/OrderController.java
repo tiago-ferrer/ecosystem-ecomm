@@ -30,8 +30,6 @@ import lombok.AllArgsConstructor;
 @RequestMapping("carts")
 @AllArgsConstructor
 public class OrderController {
-    Pattern UUID_REGEX = Pattern
-            .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     private final OrderGateway orderGateway;
     private final CheckoutWithStreamBridge checkoutWithStreamBridge;
@@ -39,6 +37,8 @@ public class OrderController {
 
     @PostMapping()
     public ResponseEntity checkout(@RequestBody() @Valid CheckoutRequest checkoutRequest, BindingResult bindingResult) {
+        Pattern UUID_REGEX = Pattern
+                .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         new ValidationTrigger(bindingResult).verify();
         if (!UUID_REGEX.matcher(checkoutRequest.consumerId().toString()).matches()) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid orderId format"));
@@ -55,6 +55,8 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity findByConsumerId(@PathVariable UUID id) {
+        Pattern UUID_REGEX = Pattern
+                .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         if (!UUID_REGEX.matcher(id.toString()).matches()) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid consumerId format"));
         }
@@ -63,6 +65,8 @@ public class OrderController {
 
     @GetMapping("/by-order-id/{id}")
     public ResponseEntity findByOrderId(@PathVariable UUID id) {
+        Pattern UUID_REGEX = Pattern
+                .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         if (!UUID_REGEX.matcher(id.toString()).matches()) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid consumerId format"));
         }
