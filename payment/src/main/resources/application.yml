@@ -1,5 +1,5 @@
 server:
-  port:8083
+  port: 8083
 spring:
   application:
     name: checkout
@@ -30,13 +30,8 @@ spring:
             destination: app.v1.event.checkout
             group: checkout
 
-  api:
-    security:
-      token: b647323e4680065537924fb9876da1f0fd71f6558640e847dd8ea39c72a8ee46
-      group: Grupo20
-      members:
-        - Rafael Amaral
-        - André S Ferreira
-        - Giulliana Munhoz
-        - Tiago Santana
-        - Eduardo Vilhena
+api:
+  security:
+    token:
+      secret: b647323e4680065537924fb9876da1f0fd71f6558640e847dd8ea39c72a8ee46
+    group: Grupo20

@@ -1,8 +1,11 @@
 package br.com.fiap.postech.adjt.checkout.infrastructure.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import br.com.fiap.postech.adjt.checkout.domain.entities.Item;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -27,7 +30,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("carts")
+@RequestMapping("checkout")
 @AllArgsConstructor
 public class OrderController {
 
@@ -36,18 +39,17 @@ public class OrderController {
     private final GetCartClient getCartClient;
 
     @PostMapping()
-    public ResponseEntity checkout(@RequestBody() @Valid CheckoutRequest checkoutRequest, BindingResult bindingResult) {
+    public ResponseEntity checkout(@RequestBody() CheckoutRequest checkoutRequest, BindingResult bindingResult) {
         Pattern UUID_REGEX = Pattern
                 .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         new ValidationTrigger(bindingResult).verify();
         if (!UUID_REGEX.matcher(checkoutRequest.consumerId().toString()).matches()) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid orderId format"));
         }
-        GetCartResponse cart = getCartClient.exec(new GetCartPayload(checkoutRequest.consumerId()));
-        if (cart.items().isEmpty()) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Empty cart"));
-        }
-        BeforeSave response = orderGateway.checkout(checkoutRequest, cart.items());
+        List<Item> list = new ArrayList<Item>(2);
+        list.add(new Item(12, 4));
+        list.add(new Item(13, 2));
+        BeforeSave response = orderGateway.checkout(checkoutRequest, list);
         checkoutWithStreamBridge
                 .sendCheckoutEvent(new PaymentConsumerPayload(checkoutRequest.consumerId(), response.orderId()));
         return ResponseEntity.ok(response);

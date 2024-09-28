@@ -17,6 +17,7 @@ public class CheckoutEventListener implements Consumer<PaymentConsumerPayload> {
     @Override
     public void accept(PaymentConsumerPayload dto) {
         try {
+            log.info("Mensagem recebida");
             processPaymentUseCase.exec(dto);
         } catch (BadRequestException e) {
             throw new RuntimeException(e);

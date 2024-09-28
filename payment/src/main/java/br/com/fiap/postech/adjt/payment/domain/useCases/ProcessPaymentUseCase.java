@@ -18,8 +18,11 @@ public class ProcessPaymentUseCase {
     private final OrderGateway orderGateway;
 
     public void exec(PaymentConsumerPayload dto) throws BadRequestException {
+        log.info("Aqui passou");
         PaymentRequest paymentRequest = orderGateway.findById(dto.orderId());
+        log.info("Encontrou a ordem");
         PaymentResponse paymentResponse = paymentRequestUseCase.exec(paymentRequest);
+        log.info("Fez a requisição");
         orderGateway.updateOrderStatus(dto.orderId(), paymentResponse.status());
         log.info("O pagamento foi processado!!!! " + paymentResponse.status());
     }
