@@ -16,14 +16,14 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   rabbitmq:
-    username: guest
-    password: guest
-    host: rabbitmq
-    port: 5672
+     username: guest
+     password: guest
+     host: rabbitmq
+     port: 5672
 
   cloud:
-    stream:
-      bindings:
-        checkoutSupplier-out-0:
-          destination: app.v1.event.checkout
+     stream:
+       bindings:
+         checkoutSupplier-out-0:
+           destination: app.v1.event.checkout
 
