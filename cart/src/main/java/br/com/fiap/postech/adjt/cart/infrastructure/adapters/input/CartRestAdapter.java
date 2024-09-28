@@ -32,66 +32,67 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Validated
 public class CartRestAdapter {
-    
+
     private final SaveItemCartUseCase createItemCartUseCase;
 
     private final RemoveItemCartUseCase removeItemCartUseCase;
-    
+
     private final UpdateItemCartUseCase updateItemCartUseCase;
 
     private final GetItemsCartByCustomerIdUseCase getItemsCartByCustomerIdUseCase;
-    
+
     private final ClearCartUseCase clearCartUseCase;
 
-    
     private final ModelMapper mapper;
 
     @PostMapping("/items")
     public ResponseEntity<ItemCartResponse> addItemCart(@RequestBody @Validated ItemCartRequest itemCartRequest) {
         // Request to domain
-    	
-    	Cart cart = ItemCartResponseMapper.map(itemCartRequest);
-    	
+
+        Cart cart = ItemCartResponseMapper.map(itemCartRequest);
+
         createItemCartUseCase.createItemCart(cart);
         // Domain to response
         return new ResponseEntity<>(new ItemCartResponse("Item added to cart successfully"), HttpStatus.OK);
     }
 
     @DeleteMapping("/items")
-    public ResponseEntity<ItemCartResponse> removeItemsCart(@RequestBody @Validated RemoveItemCartUseCaseRequest removeItemCartUseCaseRequest) {
-    	
-    	Cart cart = ItemCartResponseMapper.mapRemoveItemCartUseCaseRequest(removeItemCartUseCaseRequest);
-    	
-    	removeItemCartUseCase.removeItemCart(cart);
-    	
+    public ResponseEntity<ItemCartResponse> removeItemsCart(
+            @RequestBody @Validated RemoveItemCartUseCaseRequest removeItemCartUseCaseRequest) {
+
+        Cart cart = ItemCartResponseMapper.mapRemoveItemCartUseCaseRequest(removeItemCartUseCaseRequest);
+
+        removeItemCartUseCase.removeItemCart(cart);
+
         return new ResponseEntity<>(new ItemCartResponse("Item removed from cart successfully"), HttpStatus.OK);
     }
-
 
     @PutMapping("/items")
-    public ResponseEntity<ItemCartResponse> updateItemsCart(@RequestBody @Validated UpdateItemCartUseCaseRequest updateItemCartUseCaseRequest) {
-    	
-    	Cart cart = ItemCartResponseMapper.mapUpdateItemCartUseCaseRequest(updateItemCartUseCaseRequest);
-    	
-    	updateItemCartUseCase.updateItemCartUseCase(cart);
-    	
-    	// msg errada na especificacao 
+    public ResponseEntity<ItemCartResponse> updateItemsCart(
+            @RequestBody @Validated UpdateItemCartUseCaseRequest updateItemCartUseCaseRequest) {
+
+        Cart cart = ItemCartResponseMapper.mapUpdateItemCartUseCaseRequest(updateItemCartUseCaseRequest);
+
+        updateItemCartUseCase.updateItemCartUseCase(cart);
+
+        // msg errada na especificacao
         return new ResponseEntity<>(new ItemCartResponse("Item removed from cart successfully"), HttpStatus.OK);
     }
 
-    @GetMapping()
-    public ResponseEntity<CartResponse> getItemsCartByCustomerId(@RequestBody @Validated ConsumerItemsCartRequest consumerItemsCartRequest) {
-        Cart cart =  getItemsCartByCustomerIdUseCase.getItemsCartByCustomerId(consumerItemsCartRequest.getConsumerId());
+    @GetMapping("/item")
+    public ResponseEntity<CartResponse> getItemsCartByCustomerId(
+            @RequestBody @Validated ConsumerItemsCartRequest consumerItemsCartRequest) {
+        Cart cart = getItemsCartByCustomerIdUseCase.getItemsCartByCustomerId(consumerItemsCartRequest.getConsumerId());
         return new ResponseEntity<>(mapper.map(cart, CartResponse.class), HttpStatus.OK);
     }
-    
-    @DeleteMapping()
-    public ResponseEntity<ItemCartResponse> clearCartByCustomerId(@RequestBody @Validated ConsumerItemsCartRequest consumerItemsCartRequest) {
-    	
-    	clearCartUseCase.clearCartByCustomerId(consumerItemsCartRequest.getConsumerId());
-    	
+
+    @DeleteMapping("/item")
+    public ResponseEntity<ItemCartResponse> clearCartByCustomerId(
+            @RequestBody @Validated ConsumerItemsCartRequest consumerItemsCartRequest) {
+
+        clearCartUseCase.clearCartByCustomerId(consumerItemsCartRequest.getConsumerId());
+
         return new ResponseEntity<>(new ItemCartResponse("Items removed from cart successfully"), HttpStatus.OK);
     }
-    
-    
+
 }

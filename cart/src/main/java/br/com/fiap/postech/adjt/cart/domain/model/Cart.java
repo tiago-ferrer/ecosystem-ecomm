@@ -1,7 +1,6 @@
 package br.com.fiap.postech.adjt.cart.domain.model;
 
 import java.util.List;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
