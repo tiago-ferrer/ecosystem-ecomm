@@ -1,7 +1,6 @@
 package br.com.fiap.postech.adjt.cart.infrastructure.adapters.input.rest.data.request;
 
-import java.util.UUID;
-
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,10 +12,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConsumerRequest {
+public class ConsumerItemsCartRequest {
     
-    @org.hibernate.validator.constraints.UUID(message = "\"error\": \"Invalid consumerId format\"")
-    private UUID consumerId;
+	@Pattern(message = "Invalid consumerId format", regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    private String consumerId;
    
 }
 

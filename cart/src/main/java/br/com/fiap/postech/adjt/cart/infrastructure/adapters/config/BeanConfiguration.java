@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import br.com.fiap.postech.adjt.cart.domain.service.CartService;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.CartPersistenceAdapter;
+import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.gateway.ProdutoServiceClient;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.mapper.CartMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.mapper.ItemCartMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.repository.CartRepository;
@@ -33,8 +34,8 @@ public class BeanConfiguration {
 	
 	@Bean
 	public CartPersistenceAdapter cartPersistenceAdapter(CartRepository cartRepository,
-			CartMapper cartMapper, ItemCartMapper itemCartMapper) {
-		return new CartPersistenceAdapter(cartRepository, cartMapper, itemCartMapper);
+			CartMapper cartMapper, ItemCartMapper itemCartMapper, ProdutoServiceClient produtoServiceClient ) {
+		return new CartPersistenceAdapter(cartRepository, cartMapper, itemCartMapper, produtoServiceClient);
 	}
 
 	@Bean
