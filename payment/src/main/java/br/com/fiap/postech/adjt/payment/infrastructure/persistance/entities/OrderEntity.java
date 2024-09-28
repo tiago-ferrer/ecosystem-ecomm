@@ -1,5 +1,6 @@
 package br.com.fiap.postech.adjt.payment.infrastructure.persistance.entities;
 
+
 import br.com.fiap.postech.adjt.payment.domain.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,7 +21,9 @@ public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @OneToMany(mappedBy = "itemId")
+    @Column(name = "consumer_id")
+    private UUID consumerId;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ItemEntity> items;
     Integer value;
     @Column(name = "payment_type")

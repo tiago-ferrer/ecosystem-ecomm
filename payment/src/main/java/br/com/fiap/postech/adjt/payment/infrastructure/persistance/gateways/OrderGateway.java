@@ -40,7 +40,7 @@ public class OrderGateway {
 
         OrderEntity order = orderEntity.get();
         List<ItemEntity> itemsEntities = items.stream()
-                .map(item -> new ItemEntity(item.itemId().toString(), item.qnt()))
+                .map(item -> new ItemEntity(item.itemId(), item.qnt(), order))
                 .toList();
         order.setItems(itemsEntities);
         orderRepository.save(order);
