@@ -1,9 +1,9 @@
 package br.com.fiap.postech.adjt.checkout.domain.entities.enums;
 
 public enum OrderStatus {
-    PENDING("pending"),
-    APPROVED("approved"),
-    ECLINED("declined");
+    pending("pending"),
+    approved("approved"),
+    declined("declined");
 
     private final String status;
 

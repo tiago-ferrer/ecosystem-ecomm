@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.repositories.ItemRepository;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.domain.entities.Item;
@@ -22,20 +23,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class OrderGateway {
         private final OrderRepository orderRepository;
+        private final ItemRepository itemRepository;
 
         public BeforeSave checkout(CheckoutRequest checkoutRequest, List<Item> items) {
-                List<ItemEntity> itemsEntities = items.stream()
-                                .map(item -> ItemEntity.builder()
-                                                .qnt(item.qnt())
-                                                .itemId(item.itemId())
-                                                .build())
-                                .toList();
                 OrderEntity newOrder = OrderEntity.builder()
                                 .consumerId(checkoutRequest.consumerId())
                                 .value(checkoutRequest.amount())
                                 .paymentType(checkoutRequest.payment_method().type())
-                                .paymentStatus(OrderStatus.PENDING)
-                                .items(itemsEntities)
+                                .paymentStatus(OrderStatus.pending)
                                 .currency(checkoutRequest.currency())
                                 .fieldsNumber(checkoutRequest.payment_method().fields().number())
                                 .fieldsExpirationMonth(checkoutRequest.payment_method().fields().expiration_month())
@@ -44,6 +39,14 @@ public class OrderGateway {
                                 .fieldsName(checkoutRequest.payment_method().fields().name())
                                 .build();
                 OrderEntity savedOrder = orderRepository.save(newOrder);
+                List<ItemEntity> itemsEntities = items.stream()
+                                .map(item -> ItemEntity.builder()
+                                                .qnt(item.qnt())
+                                                .itemId(item.itemId())
+                                                .order(savedOrder)
+                                                .build())
+                                .toList();
+                itemRepository.saveAll(itemsEntities);
                 return new BeforeSave(savedOrder.getId(), savedOrder.getPaymentStatus());
         }
 
