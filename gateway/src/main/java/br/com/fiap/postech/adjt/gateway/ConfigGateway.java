@@ -5,6 +5,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -22,9 +23,20 @@ public class ConfigGateway {
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("cart", r -> r.path("/cart/**").uri(CART_URL))
-                .route("checkout", r -> r.path("/checkout/**").uri(CHECKOUT_URL))
-                .route("product", r -> r.path("/products/**").uri(PRODUCTS_URL))
+                .route("cart", r -> r.path("/cart/item/**")
+                        .uri(CART_URL))
+                .route("cart", r -> r.path("/cart/**")
+                        .and()
+                        .not(p -> p.method(HttpMethod.DELETE))
+                        .uri(CART_URL))
+                .route("checkout", r -> r.path("/checkout/**")
+                        .and()
+                        .not(p -> p.method(HttpMethod.DELETE))
+                        .uri(CHECKOUT_URL))
+                .route("product", r -> r.path("/products/**")
+                        .and()
+                        .not(p -> p.method(HttpMethod.DELETE))
+                        .uri(PRODUCTS_URL))
                 .build();
     }
 
