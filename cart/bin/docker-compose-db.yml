@@ -1,0 +1,32 @@
+version: '3.8'
+
+volumes:
+  postgres1_data:
+
+services:
+
+  cart-db:
+    container_name: cart-db
+    image: postgres:16.3-alpine3.20
+
+    environment:
+      POSTGRES_DB: cart-db
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "3Mu9o82cGm0CoejxSEE0INVZhHmWibCS"
+      PGDATA: "/data/postgres"
+      PGPORT: 5434
+
+    volumes:
+       - postgres1_data:/var/lib/postgresql/data
+
+    ports:
+      - "5434:5434"
+    restart: unless-stopped
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+

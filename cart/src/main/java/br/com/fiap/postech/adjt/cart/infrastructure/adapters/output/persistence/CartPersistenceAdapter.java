@@ -1,65 +1,81 @@
 package br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import br.com.fiap.postech.adjt.cart.application.ports.output.CartOutputPort;
+import br.com.fiap.postech.adjt.cart.domain.exception.CartNotFoundException;
 import br.com.fiap.postech.adjt.cart.domain.model.Cart;
-import br.com.fiap.postech.adjt.cart.domain.model.ItemCart;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.entity.CartEntity;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.entity.ItemCartEntity;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.mapper.CartMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.mapper.ItemCartMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.repository.CartRepository;
-import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.repository.ItemCartRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CartPersistenceAdapter implements CartOutputPort {
 
-    private final CartRepository cartRepository;
+	private final CartRepository cartRepository;
 
-    private final ItemCartRepository itemCartRepository;
+	private final CartMapper cartMapper;
 
-    private final CartMapper cartMapper;
+	private final ItemCartMapper itemCartMapper;
 
-    private final ItemCartMapper itemCartMapper;
-    
-    @Override
-    public ItemCart saveProduct(ItemCart itemCart) {
-    	
-    	CartEntity cartEntity = null;
-    	
-    	Optional<CartEntity> optionalCartSaved = cartRepository.findByConsumerId(itemCart.getConsumerId());
+	@Override
+	public Cart addItemCart(Cart cart) {
 
-    	ItemCartEntity itemCartEntity = itemCartMapper.toEntity(itemCart);
-    	
-    	if (optionalCartSaved.isPresent()) {
-    		cartEntity = optionalCartSaved.get();
-    	} else {
-    		
-    		Cart cart = new Cart(itemCart.getConsumerId(), Arrays.asList(itemCart));
-    		
-    		CartEntity entity = cartMapper.toEntity(cart);
-    		cartEntity = cartRepository.save(entity);
-    	}
-    	
-        itemCartRepository.save(itemCartEntity);
-        
-        return itemCartMapper.toItemCart(itemCartEntity) ;
-    }
+		if (!isUUIDValid(cart.getConsumerId())) {
+			throw new CartNotFoundException("Invalid consumerId format");
+		}
 
-    @Override
-    public Optional<ItemCart> getProductById(UUID id) {
-        Optional<ItemCartEntity> productEntity = itemCartRepository.findById(id);
+		UUID consumerId = UUID.fromString(cart.getConsumerId());
+		
+		CartEntity cartEntity = cartRepository.findByConsumerId(consumerId)
+				.orElse(new CartEntity(null, consumerId, new ArrayList<>()));
 
-        if(productEntity.isEmpty()) {
-            return Optional.empty();
-        }
+		Optional<ItemCartEntity> existingCartItem = cartEntity.getItemsCart().stream()
+				.filter(item -> item.getItemId().equals(cart.getItemsCart().get(0).getItemId())).findFirst();
 
-        ItemCart product = itemCartMapper.toItemCart(productEntity.get());
-        return Optional.of(product);
-    }
-    
+		if (existingCartItem.isPresent()) {
+			return cartMapper.toCart(cartEntity);
+		} else {
+
+			List<ItemCartEntity> itemsCartEntity = cart.getItemsCart().stream().map(itemCartMapper::toEntity)
+					.collect(Collectors.toList());
+
+			cartEntity.getItemsCart().addAll(itemsCartEntity);
+
+			CartEntity cartEntitySaved = cartRepository.save(cartEntity);
+
+			return cartMapper.toCart(cartEntitySaved);
+		}
+	}
+
+	@Override
+	public Optional<Cart> getCartByConsumerId(UUID consumerId) {
+
+		Optional<CartEntity> existingCart = cartRepository.findByConsumerId(consumerId);
+
+		if (existingCart.isPresent()) {
+			Cart cart = cartMapper.toCart(existingCart.get());
+			return Optional.of(cart);
+		}
+
+		return Optional.empty();
+
+	}
+
+	private boolean isUUIDValid(String uuid) {
+		Pattern pattern = Pattern
+				.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+		
+		return pattern.matcher(uuid).matches();
+	}
+
 }

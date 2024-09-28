@@ -2,10 +2,10 @@ package br.com.fiap.postech.adjt.cart.application.ports.input;
 
 import java.util.UUID;
 
-import br.com.fiap.postech.adjt.cart.domain.model.ItemCart;
+import br.com.fiap.postech.adjt.cart.domain.model.Cart;
 
 public interface GetItemsCartUseCase {
    
-    ItemCart getItemCartByItemId(UUID itemId);
+    Cart getItemCartByItemId(UUID itemId);
     
 }

@@ -9,7 +9,6 @@ import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.mapper.CartMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.mapper.ItemCartMapper;
 import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.repository.CartRepository;
-import br.com.fiap.postech.adjt.cart.infrastructure.adapters.output.persistence.repository.ItemCartRepository;
 
 /**
  * Configuracion BEANS
@@ -34,8 +33,8 @@ public class BeanConfiguration {
 	
 	@Bean
 	public CartPersistenceAdapter cartPersistenceAdapter(CartRepository cartRepository,
-			ItemCartRepository itemCartRepository, CartMapper cartMapper, ItemCartMapper itemCartMapper) {
-		return new CartPersistenceAdapter(cartRepository, itemCartRepository, cartMapper, itemCartMapper);
+			CartMapper cartMapper, ItemCartMapper itemCartMapper) {
+		return new CartPersistenceAdapter(cartRepository, cartMapper, itemCartMapper);
 	}
 
 	@Bean
