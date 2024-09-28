@@ -1,7 +1,6 @@
 package br.com.fiap.postech.adjt.checkout.service;
 
-import br.com.fiap.postech.adjt.checkout.exception.EmptyCartException;
-import br.com.fiap.postech.adjt.checkout.exception.InvalidConsumerIdFormatException;
+import br.com.fiap.postech.adjt.checkout.exception.*;
 import br.com.fiap.postech.adjt.checkout.model.Cart;
 import br.com.fiap.postech.adjt.checkout.model.Item;
 import br.com.fiap.postech.adjt.checkout.validation.UUIDValidator;
@@ -88,5 +87,40 @@ class CartValidatorTest {
             uuidValidator.isValid(invalidUUID, context);
         });
     }
+
+    @Test
+    void testInvalidOrderUuidFormatException() {
+        InvalidOrderUuidFormatException exception = assertThrows(
+                InvalidOrderUuidFormatException.class,
+                () -> {
+                    throw new InvalidOrderUuidFormatException();
+                }
+        );
+        assertEquals("Invalid orderId format", exception.getMessage());
+    }
+
+    @Test
+    void testInvalidPaymentMethodException() {
+
+        InvalidPaymentMethodException exception = assertThrows(
+                InvalidPaymentMethodException.class,
+                () -> {
+                    throw new InvalidPaymentMethodException();
+                }
+        );
+        assertEquals("Invalid payment information", exception.getMessage());
+    }
+    @Test
+    void testPaymentProcessingException() {
+
+        PaymentProcessingException exception = assertThrows(
+                PaymentProcessingException.class,
+                () -> {
+                    throw new PaymentProcessingException();
+                }
+        );
+        assertEquals("Payment processing failed", exception.getMessage());
+    }
+
 }
 

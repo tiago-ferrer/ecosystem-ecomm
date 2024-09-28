@@ -1,12 +1,12 @@
 //package br.com.fiap.postech.adjt.checkout.service;
 //
+//import br.com.fiap.postech.adjt.checkout.dto.ConsumerIdRequest;
 //import br.com.fiap.postech.adjt.checkout.model.Cart;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.mockito.InjectMocks;
 //import org.mockito.Mock;
 //import org.mockito.MockitoAnnotations;
-//import org.springframework.boot.test.mock.mockito.MockBean;
 //import org.springframework.http.HttpMethod;
 //import org.springframework.web.reactive.function.client.WebClient;
 //import reactor.core.publisher.Mono;
@@ -21,13 +21,7 @@
 //class CartServiceTest {
 //
 //    @Mock
-//    private WebClient.Builder webClientBuilder;
-//
-//    @MockBean
 //    private WebClient webClient;
-//
-//    @Mock
-//    private WebClient.RequestHeadersSpec requestHeadersSpec;
 //
 //    @Mock
 //    private WebClient.RequestBodyUriSpec requestBodyUriSpec;
@@ -39,33 +33,26 @@
 //    private WebClient.ResponseSpec responseSpec;
 //
 //    @InjectMocks
-//    private CartService cartService = new CartService(webClientBuilder);
-//
-//    private String baseUrl = "http://localhost:8080";
+//    private CartService cartService;
 //
 //    private UUID consumerId;
 //
 //    @BeforeEach
 //    void setUp() {
 //        MockitoAnnotations.openMocks(this);
-//
-//        // Mockando a construção do WebClient
-//        when(webClientBuilder.baseUrl(baseUrl)).thenReturn(webClientBuilder);
-//        when(webClientBuilder.build()).thenReturn(webClient);
-//        this.cartService = new CartService(webClientBuilder);  // Injeção manual se necessário
-//
 //        consumerId = UUID.randomUUID();
+//
+//        // Mocking WebClient behavior
+//        when(webClient.method(eq(HttpMethod.GET))).thenReturn(requestBodyUriSpec);
+//        when(webClient.method(eq(HttpMethod.DELETE))).thenReturn(requestBodyUriSpec);
+//        when(requestBodyUriSpec.uri(eq("/"))).thenReturn(requestBodySpec);
+//        when(requestBodySpec.bodyValue(any())).thenReturn(requestBodySpec);
 //    }
 //
 //    @Test
 //    void getCart_ShouldReturnCart() {
-//        Cart mockCart = new Cart(consumerId, null);
-//
-//        // Mocking WebClient behavior
-//        when(webClient.method(eq(HttpMethod.GET))).thenReturn(requestBodyUriSpec);
-//        when(requestBodyUriSpec.uri(eq("/"))).thenReturn(requestBodySpec);
-//        when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
-//        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+//        Cart mockCart = new Cart(/* parâmetros do Cart */);
+//        when(requestBodySpec.retrieve()).thenReturn(responseSpec);
 //        when(responseSpec.bodyToMono(Cart.class)).thenReturn(Mono.just(mockCart));
 //
 //        // Act
@@ -73,34 +60,26 @@
 //
 //        // Assert
 //        StepVerifier.create(result)
-//                .expectNextMatches(cart -> cart.getConsumerId().equals(consumerId))
+//                .expectNext(mockCart)
 //                .verifyComplete();
 //
 //        // Verify interactions
-//        verify(webClient).method(eq(HttpMethod.GET));
-//        verify(requestBodyUriSpec).uri(eq("/"));
-//        verify(requestBodySpec).bodyValue(any());
-//        verify(requestHeadersSpec).retrieve();
-//        verify(responseSpec).bodyToMono(Cart.class);
+//        verify(webClient).method(HttpMethod.GET);
+//        verify(requestBodySpec).bodyValue(any(ConsumerIdRequest.class));
+//        verify(requestBodySpec).retrieve();
 //    }
 //
 //    @Test
 //    void clearCart_ShouldClearCart() {
-//        // Mocking WebClient behavior for DELETE request
-//        when(webClient.method(eq(HttpMethod.DELETE))).thenReturn(requestBodyUriSpec);
-//        when(requestBodyUriSpec.uri(eq("/"))).thenReturn(requestBodySpec);
-//        when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
-//        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+//        when(requestBodySpec.retrieve()).thenReturn(responseSpec);
 //        when(responseSpec.bodyToMono(Void.class)).thenReturn(Mono.empty());
 //
 //        // Act
 //        cartService.clearCart(consumerId);
 //
 //        // Verify interactions
-//        verify(webClient).method(eq(HttpMethod.DELETE));
-//        verify(requestBodyUriSpec).uri(eq("/"));
-//        verify(requestBodySpec).bodyValue(any());
-//        verify(requestHeadersSpec).retrieve();
-//        verify(responseSpec).bodyToMono(Void.class);
+//        verify(webClient).method(HttpMethod.DELETE);
+//        verify(requestBodySpec).bodyValue(any(ConsumerIdRequest.class));
+//        verify(requestBodySpec).retrieve();
 //    }
 //}
