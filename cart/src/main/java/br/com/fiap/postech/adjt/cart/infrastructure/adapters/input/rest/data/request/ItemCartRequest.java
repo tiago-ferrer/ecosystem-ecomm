@@ -1,8 +1,7 @@
 package br.com.fiap.postech.adjt.cart.infrastructure.adapters.input.rest.data.request;
 
-import java.util.UUID;
-
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +16,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ItemCartRequest {
     
-    @org.hibernate.validator.constraints.UUID(message = "\"error\": \"Invalid consumerId format\"")
-    private UUID consumerId;
+	@Pattern(message = "Invalid consumerId format", regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    private String consumerId;
 
     @NotEmpty(message = "itemId may not be empty")
     private String itemId;

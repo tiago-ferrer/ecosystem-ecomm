@@ -1,9 +1,9 @@
 package br.com.fiap.postech.adjt.cart.application.ports.input;
 
-import br.com.fiap.postech.adjt.cart.domain.model.ItemCart;
+import br.com.fiap.postech.adjt.cart.domain.model.Cart;
 
 public interface SaveItemCartUseCase {
    
-    ItemCart createItemCart(ItemCart itemCart);
+    Cart createItemCart(Cart cart);
     
 }
