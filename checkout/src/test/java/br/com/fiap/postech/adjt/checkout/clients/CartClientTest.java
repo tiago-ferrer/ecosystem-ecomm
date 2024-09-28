@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -18,16 +17,18 @@ import br.com.fiap.postech.adjt.checkout.model.dto.response.MessageResponse;
 @ExtendWith(MockitoExtension.class)
 public class CartClientTest {
 
-    @InjectMocks
-    private CartClient cartClient;
+    @Mock
+    private CartClient cartClient;  
 
     @Mock
     private FindCartByCustomerIdRequest findCartByCustomerIdRequest;
+
     @Mock
     private ClearCartRequest clearCartRequest;
 
     @Mock
     private CartResponse cartResponse;
+
     @Mock
     private MessageResponse messageResponse;
 
@@ -41,7 +42,7 @@ public class CartClientTest {
 
         // Assert
         assertNotNull(response);
-        verify(cartClient).consult(findCartByCustomerIdRequest); // Verify the method was called with the correct request
+        verify(cartClient).consult(findCartByCustomerIdRequest);  // Verify the method was called with the correct request
     }
 
     @Test
@@ -54,6 +55,6 @@ public class CartClientTest {
 
         // Assert
         assertNotNull(response);
-        verify(cartClient).clear(clearCartRequest); // Verify the method was called with the correct request
+        verify(cartClient).clear(clearCartRequest);  // Verify the method was called with the correct request
     }
 }
