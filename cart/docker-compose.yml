@@ -1,4 +1,8 @@
-version: "3.9"
+version: '3.0'
+
+volumes:
+  mongo-db:
+
 services:
   mongodb:
     container_name: mongo-product-db
@@ -18,3 +22,23 @@ services:
       - ./mongodb-data:/data/db
       - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     env_file: .env 
+
+    networks:
+      - app-network
+
+  product-ms:
+    image: product-ms
+    ports:
+      - "8002:8002"
+    networks:
+      - app-network
+    environment:
+      WAIT_HOSTS: db-mongo:27017
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@db-mongo:27017/${MONGO_INITDB_DATABASE}?retryWrites=true&w=majority&authSource=admin
+
+    command: sh -c "/wait && java -jar /app/product-ms.jar"
+
+
+networks:
+  app-network:
+    driver: bridge
