@@ -51,7 +51,7 @@ services:
       retries: 3
       start_period: 30s
     environment:
-      WAIT_HOSTS: postgres-checkout:5433
+      WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
       DB_USER_AUTH: ${DB_USER_AUTH}
       DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
       DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
@@ -72,7 +72,7 @@ services:
   #     retries: 3
   #     start_period: 30s
   #   environment:
-  #     WAIT_HOSTS: postgres-checkout:5433
+  #     WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
   #     DB_USER_AUTH: ${DB_USER_AUTH}
   #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
   #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
@@ -86,6 +86,7 @@ services:
     image: postgres:16.3-alpine3.20
 
     environment:
+      WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
       POSTGRES_DB: checkout_db
       POSTGRES_USER: ${DB_USER_AUTH}
       POSTGRES_PASSWORD: ${DB_PASSWORD_AUTH}
