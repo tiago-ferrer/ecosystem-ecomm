@@ -12,8 +12,8 @@ class ClearCartRequestTest {
     @Test
     void clearCartRequestTest_validData_ShouldSetSuccessfully() {
         UUID uuid = UUID.randomUUID();
-        ClearCartRequest clearCartRequest = new ClearCartRequest(uuid);
+        ClearCartRequest clearCartRequest = new ClearCartRequest(uuid.toString());
 
-        assertEquals(uuid, clearCartRequest.consumerId());
+        assertEquals(uuid.toString(), clearCartRequest.consumerId());
     }
 }

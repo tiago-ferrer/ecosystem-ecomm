@@ -12,9 +12,9 @@ public class IncrementCartItemRequestTest {
     @Test
     public void incrementCartItemRequestTest_validData_ShouldSetSuccessfully() {
         UUID uuid = UUID.randomUUID();
-        IncrementCartItemRequest incrementCartItemRequest = new IncrementCartItemRequest(uuid,1L);
+        IncrementCartItemRequest incrementCartItemRequest = new IncrementCartItemRequest(uuid.toString(),1L);
 
-        assertEquals(uuid, incrementCartItemRequest.consumerId());
+        assertEquals(uuid.toString(), incrementCartItemRequest.consumerId());
         assertEquals(1L, incrementCartItemRequest.itemId());
     }
 }

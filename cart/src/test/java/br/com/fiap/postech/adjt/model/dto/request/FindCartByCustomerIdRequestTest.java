@@ -12,9 +12,9 @@ class FindCartByCustomerIdRequestTest {
     @Test
     void findCartByCustomerIdRequestTest_validData_ShouldSetSuccessfully() {
         UUID uuid = UUID.randomUUID();
-        FindCartByCustomerIdRequest findCartByCustomerIdRequestTest = new FindCartByCustomerIdRequest(uuid);
+        FindCartByCustomerIdRequest findCartByCustomerIdRequestTest = new FindCartByCustomerIdRequest(uuid.toString());
 
-        assertEquals(uuid, findCartByCustomerIdRequestTest.consumerId());
+        assertEquals(uuid.toString(), findCartByCustomerIdRequestTest.consumerId());
     }
 
 }
