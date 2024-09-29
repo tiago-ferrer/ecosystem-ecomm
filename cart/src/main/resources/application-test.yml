@@ -1,0 +1,16 @@
+server.port: 8081
+
+
+spring.datasource.username: cartuser
+spring.datasource.password: cartpass
+spring.datasource.url: jdbc:h2:mem:/cart
+spring.datasource.driver-class-name: org.h2.Driver
+
+spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto: create-drop
+spring.jpa.hibernate.show-sql: true
+spring.jpa.database: h2
+spring.jpa.defer-datasource-initialization: true
+spring.sql.init.mode: always
+
+URL_PRODUCT: http://host.docker.internal:8080

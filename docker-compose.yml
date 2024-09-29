@@ -1,38 +1,190 @@
 version: '3.8'
 
 services:
+
   gateway:
     image: gateway:latest
+    container_name: gateway
     ports:
       - "8080:8080"
     depends_on:
       - cart
       - checkout
+      - product
+    environment:
+       URL_CART: http://cart:8080
+       URL_CHECKOUT: http://checkout:8080
+       URL_PRODUCT: http://host.docker.internal:8083
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      - network_ecosystem_ecomm
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   cart:
     image: cart:latest
+    container_name: cart
     expose:
       - "8081"
+#    ports:
+#      - "8081:8081"
+    depends_on:
+      db_cart:
+        condition: service_healthy
+    environment:
+      - URL_PRODUCT=http://product:8080
+      - spring.datasource.username=cartuser
+      - spring.datasource.password=cartpass
+      - spring.datasource.url=jdbc:postgresql://host.docker.internal:5434/cart
+      - spring.datasource.driver-class-name=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+      - spring.jpa.hibernate.ddl-auto=update
+      - spring.jpa.hibernate.show-sql=true
+      - spring.jpa.database=postgresql
+      - spring.jpa.defer-datasource-initialization=true
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      - network_ecosystem_ecomm
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   checkout:
     image: checkout:latest
+    container_name: checkout
     expose:
       - "8082"
+    depends_on:
+      db_checkout:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db_checkout:5432/checkout
+      - spring.datasource.username=postgres
+      - spring.datasource.password=postgres
+      - spring.rabbitmq.host=host.docker.internal
+      - spring.rabbitmq.port=5672
+      - spring.rabbitmq.username=rabbitmq
+      - spring.rabbitmq.password=rabbitmq
+      - spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.host=host.docker.internal
+      - spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.port=5672
+      - spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.username=rabbitmq
+      - spring.cloud.stream.binders.rabbit.environment.spring.rabbitmq.password=rabbitmq
+      - URL_CART=http://cart:8080/cart
+      - URL_PAYMENT=https://payment-api-latest.onrender.com/create-payment
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      - network_ecosystem_ecomm
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  product:
+    image: product:latest
+    container_name: product
+    build: ./
+    expose:
+      - "8083"
+    ports:
+      - "8083:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8083/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - network_ecosystem_ecomm
+
+  db_cart:
+    image: 'postgres:latest'
+    container_name: db_cart
+    ports:
+      - "5434:5432"
+#    env_file: ./env/.env
+    environment:
+      - POSTGRES_USER=cartuser
+      - POSTGRES_PASSWORD=cartpass
+      - POSTGRES_DB=cart
+      - PGUSER=postgre
+    volumes:
+      - db_cart_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -h db_cart"
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    networks:
+      - network_ecosystem_ecomm
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db_checkout:
+    image: postgres:latest
+    container_name: db_checkout
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=checkout
+      - PGUSER=postgre
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postrgresql/data
+    healthcheck:
+      test: "pg_isready -h db_checkout"
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    networks:
+      - network_ecosystem_ecomm
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  rabbitmq:
+    image: rabbitmq:3.7.8-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - dados:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    networks:
+      - network_ecosystem_ecomm
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+
+networks:
+  network_ecosystem_ecomm:
+    name: network_ecosystem_ecomm
+    driver: bridge
+
+volumes:
+  db_cart_volume:
+  postgres_data:
+  dados:
