@@ -2,12 +2,18 @@ version: '3.8'
 
 services:
   gateway:
-    image: gateway:latest
+    build:
+<<<<<<< HEAD
+      context: ./path/to/gateway
+=======
+      context: ./path/to/gateway  # Altere para o caminho correto do seu Dockerfile
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
     ports:
       - "8080:8080"
     depends_on:
       - cart
       - checkout
+      - kafka
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8080/actuator/health" ]
       interval: 30s
@@ -16,9 +22,20 @@ services:
       start_period: 30s
 
   cart:
-    image: cart:latest
-    expose:
-      - "8081"
+    build:
+<<<<<<< HEAD
+      context: ./path/to/cart
+=======
+      context: ./path/to/cart  # Altere para o caminho correto do seu Dockerfile
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydatabase
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: r00t
+    depends_on:
+      - mysql
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
@@ -27,12 +44,45 @@ services:
       start_period: 30s
 
   checkout:
-    image: checkout:latest
-    expose:
-      - "8082"
+    build:
+<<<<<<< HEAD
+      context: ./path/to/checkout
+=======
+      context: ./path/to/checkout  # Altere para o caminho correto do seu Dockerfile
+>>>>>>> 79b1335a998168ed3b4359d3ce24c4ea73b61784
+    ports:
+      - "8082:8082"
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: mydatabase
+      MYSQL_ROOT_PASSWORD: r00t
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pr00t" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
