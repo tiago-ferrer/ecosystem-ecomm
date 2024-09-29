@@ -35,6 +35,7 @@
         <module>gateway</module>
         <module>cart</module>
         <module>checkout</module>
+        <module>products</module>
     </modules>
     <dependencies>
         <dependency>
@@ -51,6 +52,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
