@@ -25,6 +25,35 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+      - cartsdb
+    env_file:
+      - ./cart/.env
+    restart: always
+
+  cartsdb:
+    container_name: cartsdb
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: "cartsdb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123123"
+    ports:
+      - "0.0.0.0:5432:5432" # Bind to all interfaces on the host
+
+  pgadmin:
+    image: dpage/pgadmin4:8.5
+    container_name: pgadmin4-cart
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@db.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_LISTEN_PORT: "80"
+    ports:
+      - "0.0.0.0:16545:80"
+    depends_on:
+      - cartsdb
 
   checkout:
     image: checkout:latest
@@ -36,3 +65,18 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+      - checkoutdb
+    env_file:
+      - ./checkout/.env
+
+  checkoutdb:
+    container_name: checkoutdb
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: "checkoutdb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123123"
+    ports:
+      - "0.0.0.0:5433:5432" # Bind to all interfaces on the host
