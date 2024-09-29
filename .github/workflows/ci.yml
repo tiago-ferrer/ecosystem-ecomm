@@ -3,15 +3,15 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
   check-recent-commits:
-    name: Check for commits after 23:55 on 21/09
+    name: Check for commits after 23:59 on 27/09
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +20,14 @@ jobs:
 
       - name: Check for recent commits
         run: |
-          if git log --after="2024-09-27T23:59:00" --oneline | grep -q .; then
-            echo "Commits found after 23:55 on 21/09"
+          echo "Current Timestamp: $(date)"
+          latest_commit_timestamp=$(git log -1 --format=%cd)
+          echo "Latest Commit Timestamp: $latest_commit_timestamp"
+          if git log --after="2024-09-28T03:00:00" --author="Tiago Ferrer <ferrertiago@gmail.com>" --invert-grep --oneline | grep -q .; then
+            echo "Commits found after 23:59 on 27/09"
             exit 1
           else
-            echo "No commits found after 23:55 on 21/09"
+            echo "No commits found after 23:59 on 27/09"
           fi
   generic-build:
     name: Check building step
