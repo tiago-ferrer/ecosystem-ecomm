@@ -1,0 +1,241 @@
+{
+	"info": {
+		"_postman_id": "73be1457-b41f-42e4-a603-93a945e985fb",
+		"name": "Hackathon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12452125",
+		"_collection_link": "https://grupozeroquatrofiap.postman.co/workspace/Team-Workspace~e28d3d9e-b3a3-468b-8fd1-12f845939d95/collection/12452125-73be1457-b41f-42e4-a603-93a945e985fb?action=share&source=collection_link&creator=12452125"
+	},
+	"item": [
+		{
+			"name": "api-gateway",
+			"item": [
+				{
+					"name": "0- Get Product By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Encoding",
+								"value": "*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/products/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1- Add Item to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "APPVER=4-54-1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"consumerId\": \"ec6f3e6b-cf54-49fb-915b-8079f651b161\",\n    \"itemId\": \"1\",\n    \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/cart/items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"cart",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2- Get Cart By Consumer Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "APPVER=4-54-1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"consumerId\": \"153e23c8-322e-4fec-b9c4-72b8f74ad002\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/cart",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.3- Update Cart",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "APPVER=4-54-1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"consumerId\": \"153e23c8-322e-4fec-b9c4-72b8f74ad002\",\n  \"itemId\": \"1\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/cart/item",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"cart",
+								"item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2- Do Checkout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"consumerId\": \"ec6f3e6b-cf54-49fb-915b-8079f651b161\",\n    \"amount\": 1050,\n    \"currency\": \"BRL\",\n    \"payment_method\": {\n        \"type\": \"br_credit_card\",\n        \"fields\": {\n            \"number\": \"4111111111111111\",\n            \"expiration_month\": \"12\",\n            \"expiration_year\": \"25\",\n            \"cvv\": \"789\",\n            \"name\": \"John Doe\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/checkout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"checkout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.1- Get Checkout By Order Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/checkout/by-order-id/c9d35985-e835-4752-8a15-effa4383e40e",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"checkout",
+								"by-order-id",
+								"c9d35985-e835-4752-8a15-effa4383e40e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2- Get Checkout By Consumer Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/checkout/ec6f3e6b-cf54-49fb-915b-8079f651b161",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"checkout",
+								"ec6f3e6b-cf54-49fb-915b-8079f651b161"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "APPVER=4-54-1"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/actuator/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

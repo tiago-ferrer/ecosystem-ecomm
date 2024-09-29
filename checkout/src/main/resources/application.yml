@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: checkout
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+      show-sql: true
+  datasource:
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+    url: ${DB_URL:jdbc:postgresql://database:5432/checkout}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+  threads:
+    virtual:
+      enabled: true
+server:
+  compression:
+    enabled: 'true'
+  port: 8082
+  forward-headers-strategy: native
+logging:
+  level:
+    org.springframework.security: trace
+app:
+  cart-base-url: ${CART_BASE_URL:http://cart:8081}
+  payment-base-url: ${PAYMENT_BASE_URL:https://payment-api-latest.onrender.com}
+  payment-key: ${API_KEY}

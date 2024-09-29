@@ -1,8 +1,10 @@
 version: '3.8'
 
+
 services:
   gateway:
-    image: gateway:latest
+    build:
+      context: ./gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -14,25 +16,80 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      - ecosystem-ecomm-network
 
   cart:
-    image: cart:latest
+    build:
+      context: ./cart
     expose:
       - "8081"
+    depends_on:
+      - mongo
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      - SPRING_DATA_MONGODB_URI
+    networks:
+      - ecosystem-ecomm-network
 
   checkout:
-    image: checkout:latest
+    build:
+      context: ./checkout
     expose:
       - "8082"
+    depends_on:
+      - database
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_URL
+      - CART_BASE_URL
+      - PAYMENT_BASE_URL
+      - API_KEY
+    networks:
+      - ecosystem-ecomm-network
+
+  database:
+    image: 'postgres:latest'
+    ports:
+      - '15432:5432'
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - POSTGRES_PASSWORD
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    networks:
+      - ecosystem-ecomm-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - ecosystem-ecomm-network
+
+
+volumes:
+  mongo-data:
+
+networks:
+  ecosystem-ecomm-network:
+    driver: bridge

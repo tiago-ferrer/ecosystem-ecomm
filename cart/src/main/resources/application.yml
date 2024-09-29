@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: cart
+  data:
+    mongo:
+      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/cart_db?authsource=admin
+server:
+  port: 8081

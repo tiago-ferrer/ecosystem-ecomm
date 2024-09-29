@@ -5,10 +5,12 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Copy the project files
-COPY target/cart-0.0.1-SNAPSHOT.jar cart.jar
+COPY target/cart-0.0.1-SNAPSHOT.jar /app/cart.jar
 
 # Expose the port the application runs on
 EXPOSE 8081
+
+RUN apt update && apt install -y curl
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \

@@ -10,6 +10,8 @@ COPY target/checkout-0.0.1-SNAPSHOT.jar checkout.jar
 # Expose the port the application runs on
 EXPOSE 8082
 
+RUN apt update && apt install -y curl
+
 # Add health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl --fail http://localhost:8082/actuator/health || exit 1
