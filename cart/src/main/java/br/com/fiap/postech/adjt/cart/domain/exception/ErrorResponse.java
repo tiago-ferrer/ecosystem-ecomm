@@ -1,0 +1,11 @@
+package br.com.fiap.postech.adjt.cart.domain.exception;
+
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public class ErrorResponse {
+    private final String error;
+}

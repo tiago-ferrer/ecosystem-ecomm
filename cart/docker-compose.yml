@@ -1,0 +1,49 @@
+version: "3.9"
+
+volumes:
+  mongo-cart-db:
+
+services:
+  mongo-cart-db:
+    container_name: mongo-cart-db
+    image: mongo:6-jammy
+    restart: always
+    command:
+      - --storageEngine
+      - wiredTiger
+      - --auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb-data:/data/mongo-cart-db
+      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    env_file: .env 
+
+    networks:
+      - app-network
+
+  cart-ms:
+    image: 'cart-ms:0.0.1'
+    build:
+      context: .
+    container_name: cart_ms
+
+    ports:
+      - "8081:8081"
+
+    networks:
+      - app-network
+
+    environment:
+      WAIT_HOSTS: db-mongo:27017
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo-cart-db:27017/${MONGO_INITDB_DATABASE}?retryWrites=true&w=majority&authSource=admin
+
+    command: sh -c "/wait && java -jar cart.jar"
+
+networks:
+  app-network:
+    driver: bridge

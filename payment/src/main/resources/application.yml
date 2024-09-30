@@ -1,0 +1,37 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: checkout
+  datasource:
+    url: ${db.uri.auth}
+    username: ${db.user.auth}
+    password: ${db.password.auth}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    username: ${rabbitmq_username}
+    password: ${rabbitmq_password}
+    host: ${rabbitmq_host}
+    port: 5672
+
+  cloud:
+    stream:
+      function:
+        definition: checkoutEventListener
+        bindings:
+          checkoutEventListener-in-0:
+            destination: app.v1.event.checkout
+            group: checkout
+
+api:
+  security:
+    token:
+      secret: b647323e4680065537924fb9876da1f0fd71f6558640e847dd8ea39c72a8ee46
+    group: Grupo20

@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  mongodb:
+    container_name: mongo-cart-db
+    image: mongo:6-jammy
+    restart: always
+    command:
+      - --storageEngine
+      - wiredTiger
+      - --auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb-data:/data/mongo-cart-db
+      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    env_file: .env 
+
+volumes:
+  mongo-cart-db:

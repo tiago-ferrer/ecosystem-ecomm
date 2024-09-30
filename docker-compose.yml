@@ -1,38 +1,174 @@
-version: '3.8'
+volumes:
+  postgres2_data:
+  #  postgres1_data:
+  rabbitmq_data:
+  mongo-cart-db:
 
 services:
   gateway:
     image: gateway:latest
+    build:
+      context: gateway/
     ports:
       - "8080:8080"
     depends_on:
       - cart
       - checkout
     healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8080/actuator/health" ]
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
 
-  cart:
-    image: cart:latest
-    expose:
-      - "8081"
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8081/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+    networks:
+      - app-network
+
+
+  mongo-cart-db:
+    container_name: mongo-cart-db
+    image: mongo:6-jammy
+    restart: always
+    command:
+      - --storageEngine
+      - wiredTiger
+      - --auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb-data:/data/mongo-cart-db
+      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    env_file: ./cart/env 
+
+    networks:
+      - app-network
+
+  cart-ms:
+    image: 'cart-ms:latest'
+    build:
+      context: .cart/
+    container_name: cart_ms
+
+    ports:
+      - "8081:8081"
+
+    networks:
+      - app-network
+
+    environment:
+      WAIT_HOSTS: db-mongo:27017
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo-cart-db:27017/${MONGO_INITDB_DATABASE}?retryWrites=true&w=majority&authSource=admin
+
+    command: sh -c "/wait && java -jar cart.jar"
 
   checkout:
     image: checkout:latest
+    build:
+      context: checkout/
     expose:
       - "8082"
     healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:8082/actuator/health" ]
+      test: ["CMD", "curl", "--fail", "http://localhost:8082/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+    environment:
+      WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
+      DB_USER_AUTH: ${DB_USER_AUTH}
+      DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+      DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+
+    networks:
+      - app-network
+
+
+
+  # payment:
+  #   image: payment:latest
+  #   build:
+  #     context: payment/
+  #   expose:
+  #     - "8083"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "--fail", "http://localhost:8083/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   environment:
+  #     WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
+  #     DB_USER_AUTH: ${DB_USER_AUTH}
+  #     DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+  #     DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+  #     PAYMENT_TOKEN: ${PAYMENT_TOKEN}
+  #     RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+  #     RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+  #     RABBITMQ_HOST: ${RABBITMQ_HOST}
+  #  
+  #  networks:
+  #    - app-network
+
+
+  #  mongodb:
+  #    container_name: mongo-product-db
+  #    image: mongo:6-jammy
+  #    restart: always
+  #    command:
+  #      - --storageEngine
+  #      - wiredTiger
+  #      - --auth
+  #    environment:
+  #      - MONGO_INITDB_ROOT_USERNAME=user
+  #      - MONGO_INITDB_ROOT_PASSWORD=12345
+  #      - MONGO_INITDB_DATABASE=cart_db
+  #    ports:
+  #      - "27017:27017"
+  #    volumes:
+  #      - ./mongodb-data:/data/db
+  #      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+  #  
+  #  networks:
+  #    - app-network
+
+  postgres-checkout:
+    container_name: postgres-checkout
+    image: postgres:16.3-alpine3.20
+
+    environment:
+      POSTGRES_DB: checkout_db
+      POSTGRES_USER: ${DB_USER_AUTH}
+      POSTGRES_PASSWORD: ${DB_PASSWORD_AUTH}
+      PGDATA: "/data/postgres"
+      PGPORT: 5433
+
+    volumes:
+      - postgres2_data:/var/lib/postgresql/data
+
+    ports:
+      - "5433:5433"
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge
