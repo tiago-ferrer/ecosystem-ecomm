@@ -1,61 +1,61 @@
 volumes:
   postgres2_data:
-#  postgres1_data:
+  #  postgres1_data:
   rabbitmq_data:
 
 services:
-#  gateway:
-#    image: gateway:latest
-#    build:
-#      context: gateway/
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - cart
-#      - checkout
-#    healthcheck:
-#      test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
-#
-#  cart:
-#    image: cart:latest
-#    build:
-#      context: cart/
-#    expose:
-#      - "8081"
-#    healthcheck:
-#      test: ["CMD", "curl", "--fail", "http://localhost:8081/actuator/health"]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
-#    environment:
-#      WAIT_HOSTS: postgres-cart:5432, db-mongo:27017
-#      MONGODB_URI: mongodb://user:12345@db-mongo:27017/cart_db?retryWrites=true&w=majority&authSource=admin
+  gateway:
+    image: gateway:latest
+    build:
+      context: gateway/
+    ports:
+      - "8080:8080"
+    depends_on:
+      # - cart
+      - checkout
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
-#  checkout:
-#    image: checkout:latest
-#    build:
-#      context: checkout/
-#    expose:
-#      - "8082"
-#    healthcheck:
-#      test: ["CMD", "curl", "--fail", "http://localhost:8082/actuator/health"]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 30s
-#    environment:
-#      WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
-#      DB_USER_AUTH: ${DB_USER_AUTH}
-#      DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
-#      DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
-#      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-#      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-#      RABBITMQ_HOST: ${RABBITMQ_HOST}
+  #  cart:
+  #    image: cart:latest
+  #    build:
+  #      context: cart/
+  #    expose:
+  #      - "8081"
+  #    healthcheck:
+  #      test: ["CMD", "curl", "--fail", "http://localhost:8081/actuator/health"]
+  #      interval: 30s
+  #      timeout: 10s
+  #      retries: 3
+  #      start_period: 30s
+  #    environment:
+  #      WAIT_HOSTS: postgres-cart:5432, db-mongo:27017
+  #      MONGODB_URI: mongodb://user:12345@db-mongo:27017/cart_db?retryWrites=true&w=majority&authSource=admin
+
+  checkout:
+    image: checkout:latest
+    build:
+      context: checkout/
+    expose:
+      - "8082"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
+      DB_USER_AUTH: ${DB_USER_AUTH}
+      DB_PASSWORD_AUTH: ${DB_PASSWORD_AUTH}
+      DB_URI_AUTH: ${DB_URI_AUTH_CHECKOUT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
 
   # payment:
   #   image: payment:latest
@@ -79,30 +79,29 @@ services:
   #     RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
   #     RABBITMQ_HOST: ${RABBITMQ_HOST}
 
-  mongodb:
-    container_name: mongo-product-db
-    image: mongo:6-jammy
-    restart: always
-    command:
-      - --storageEngine
-      - wiredTiger
-      - --auth
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=user
-      - MONGO_INITDB_ROOT_PASSWORD=12345
-      - MONGO_INITDB_DATABASE=cart_db
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./mongodb-data:/data/db
-      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+  #  mongodb:
+  #    container_name: mongo-product-db
+  #    image: mongo:6-jammy
+  #    restart: always
+  #    command:
+  #      - --storageEngine
+  #      - wiredTiger
+  #      - --auth
+  #    environment:
+  #      - MONGO_INITDB_ROOT_USERNAME=user
+  #      - MONGO_INITDB_ROOT_PASSWORD=12345
+  #      - MONGO_INITDB_DATABASE=cart_db
+  #    ports:
+  #      - "27017:27017"
+  #    volumes:
+  #      - ./mongodb-data:/data/db
+  #      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 
   postgres-checkout:
     container_name: postgres-checkout
     image: postgres:16.3-alpine3.20
 
     environment:
-      WAIT_HOSTS: postgres-checkout:5433, rabbitmq:5672
       POSTGRES_DB: checkout_db
       POSTGRES_USER: ${DB_USER_AUTH}
       POSTGRES_PASSWORD: ${DB_PASSWORD_AUTH}
@@ -116,23 +115,23 @@ services:
       - "5433:5433"
     restart: unless-stopped
 
-#  postgres-cart:
-#    container_name: postgres-cart
-#    image: postgres:16.3-alpine3.20
-#
-#    environment:
-#      POSTGRES_DB: cart_db
-#      POSTGRES_USER: ${DB_USER_AUTH}
-#      POSTGRES_PASSWORD: ${DB_PASSWORD_AUTH}
-#      PGDATA: "/data/postgres"
-#      PGPORT: 5432
-#
-#    volumes:
-#      - postgres1_data:/var/lib/postgresql/data
-#
-#    ports:
-#      - "5432:5432"
-#    restart: unless-stopped
+  #  postgres-cart:
+  #    container_name: postgres-cart
+  #    image: postgres:16.3-alpine3.20
+  #
+  #    environment:
+  #      POSTGRES_DB: cart_db
+  #      POSTGRES_USER: ${DB_USER_AUTH}
+  #      POSTGRES_PASSWORD: ${DB_PASSWORD_AUTH}
+  #      PGDATA: "/data/postgres"
+  #      PGPORT: 5432
+  #
+  #    volumes:
+  #      - postgres1_data:/var/lib/postgresql/data
+  #
+  #    ports:
+  #      - "5432:5432"
+  #    restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:3-management

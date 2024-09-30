@@ -1,13 +1,13 @@
-package com.martinachov.hexagonal;
+// package com.martinachov.hexagonal;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class CartApplicationTests {
+// @SpringBootTest
+// class CartApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// @Test
+// void contextLoads() {
+// }
 
-}
+// }

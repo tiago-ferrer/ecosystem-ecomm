@@ -5,7 +5,7 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Copy the project files
-COPY target/checkout-0.0.1-SNAPSHOT.jar checkout.jar
+COPY target/payment-0.0.1-SNAPSHOT.jar payment.jar
 
 # Expose the port the application runs on
 EXPOSE 8082
@@ -15,4 +15,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl --fail http://localhost:8082/actuator/health || exit 1
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "checkout.jar"]
+ENTRYPOINT ["java", "-jar", "payment.jar"]

@@ -4,16 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.*;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.repositories.ItemRepository;
 import org.springframework.stereotype.Service;
 
 import br.com.fiap.postech.adjt.checkout.domain.entities.Item;
 import br.com.fiap.postech.adjt.checkout.domain.entities.enums.OrderStatus;
 import br.com.fiap.postech.adjt.checkout.infrastructure.controllers.exceptions.BadRequestException;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.BeforeSave;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.CheckoutRequest;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.OrderInfo;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.OrderInfoList;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.entities.ItemEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.entities.OrderEntity;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.repositories.OrderRepository;
@@ -83,5 +80,48 @@ public class OrderGateway {
                                 order.getPaymentType(),
                                 order.getValue(),
                                 order.getPaymentStatus());
+        }
+
+        public void updateOrderStatus(UUID orderId, OrderStatus status) throws BadRequestException {
+
+                Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
+                if (orderEntity.isEmpty()) {
+                        throw new BadRequestException("A ordem escolhida não existe");
+                }
+                OrderEntity order = orderEntity.get();
+                order.setPaymentStatus(status);
+                orderRepository.save(order);
+        }
+
+        public void updateOrderList(UUID orderId, List<Item> items) throws BadRequestException {
+                Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
+                if (orderEntity.isEmpty()) {
+                        throw new BadRequestException("A ordem escolhida não existe");
+                }
+
+                OrderEntity order = orderEntity.get();
+                List<ItemEntity> itemsEntities = items.stream()
+                        .map(item -> new ItemEntity(item.itemId(), item.qnt(), order))
+                        .toList();
+                order.setItems(itemsEntities);
+                orderRepository.save(order);
+        }
+
+        public PaymentRequest findById(UUID orderId) throws BadRequestException {
+                Optional<OrderEntity> order = orderRepository.findById(orderId);
+                if (order.isEmpty()) throw new BadRequestException("Ordem não encontrada");
+                OrderEntity orderEntity = order.get();
+                return new PaymentRequest(
+                        orderId,
+                        orderEntity.getValue(),
+                        orderEntity.getCurrency(),
+                        new PaymentMethod(orderEntity.getPaymentType(), new Fields(
+                                orderEntity.getFieldsNumber(),
+                                orderEntity.getFieldsExpirationMonth(),
+                                orderEntity.getFieldsExpirationYear(),
+                                orderEntity.getCvv(),
+                                orderEntity.getFieldsName()
+                        )
+                        ));
         }
 }

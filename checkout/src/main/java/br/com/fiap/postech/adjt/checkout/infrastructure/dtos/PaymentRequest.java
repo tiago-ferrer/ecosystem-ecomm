@@ -1,4 +1,11 @@
 package br.com.fiap.postech.adjt.checkout.infrastructure.dtos;
 
-public class PaymentRequest {
+import java.util.UUID;
+
+public record PaymentRequest(
+        UUID orderId,
+        Integer amount,
+        String currency,
+        PaymentMethod payment_method
+) {
 }

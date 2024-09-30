@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import br.com.fiap.postech.adjt.checkout.domain.entities.Item;
+import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,17 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.postech.adjt.checkout.domain.entities.Item;
 import br.com.fiap.postech.adjt.checkout.infrastructure.brokers.CheckoutWithStreamBridge;
 import br.com.fiap.postech.adjt.checkout.infrastructure.client.GetCartClient;
 import br.com.fiap.postech.adjt.checkout.infrastructure.controllers.exceptions.ValidationTrigger;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.BeforeSave;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.CheckoutRequest;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.ErrorResponse;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.GetCartPayload;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.GetCartResponse;
-import br.com.fiap.postech.adjt.checkout.infrastructure.dtos.PaymentConsumerPayload;
 import br.com.fiap.postech.adjt.checkout.infrastructure.persistance.gateways.OrderGateway;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -46,10 +40,9 @@ public class OrderController {
         if (!UUID_REGEX.matcher(checkoutRequest.consumerId().toString()).matches()) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid orderId format"));
         }
-        List<Item> list = new ArrayList<Item>(2);
-        list.add(new Item(12, 4));
-        list.add(new Item(13, 2));
-        BeforeSave response = orderGateway.checkout(checkoutRequest, list);
+        GetCartResponse cartResponse = getCartClient.exec(new GetCartPayload(checkoutRequest.consumerId()));
+
+        BeforeSave response = orderGateway.checkout(checkoutRequest, cartResponse.items());
         checkoutWithStreamBridge
                 .sendCheckoutEvent(new PaymentConsumerPayload(checkoutRequest.consumerId(), response.orderId()));
         return ResponseEntity.ok(response);
