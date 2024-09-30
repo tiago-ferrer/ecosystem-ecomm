@@ -3,4 +3,5 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${MONGO_INITDB_DATABASE}?retryWrites=true&w=majority&authSource=admin
+      uri: ${MONGODB_URI}
+

@@ -56,7 +56,7 @@ public class CartRestAdapter {
         return new ResponseEntity<>(new ItemCartResponse("Item added to cart successfully"), HttpStatus.OK);
     }
 
-    @DeleteMapping("/items")
+    @DeleteMapping("/item")
     public ResponseEntity<ItemCartResponse> removeItemsCart(
             @RequestBody @Validated RemoveItemCartUseCaseRequest removeItemCartUseCaseRequest) {
 
@@ -67,7 +67,7 @@ public class CartRestAdapter {
         return new ResponseEntity<>(new ItemCartResponse("Item removed from cart successfully"), HttpStatus.OK);
     }
 
-    @PutMapping("/items")
+    @PutMapping("/item")
     public ResponseEntity<ItemCartResponse> updateItemsCart(
             @RequestBody @Validated UpdateItemCartUseCaseRequest updateItemCartUseCaseRequest) {
 
@@ -79,14 +79,14 @@ public class CartRestAdapter {
         return new ResponseEntity<>(new ItemCartResponse("Item removed from cart successfully"), HttpStatus.OK);
     }
 
-    @GetMapping("/item")
+    @GetMapping()
     public ResponseEntity<CartResponse> getItemsCartByCustomerId(
             @RequestBody @Validated ConsumerItemsCartRequest consumerItemsCartRequest) {
         Cart cart = getItemsCartByCustomerIdUseCase.getItemsCartByCustomerId(consumerItemsCartRequest.getConsumerId());
         return new ResponseEntity<>(mapper.map(cart, CartResponse.class), HttpStatus.OK);
     }
 
-    @DeleteMapping("/item")
+    @DeleteMapping()
     public ResponseEntity<ItemCartResponse> clearCartByCustomerId(
             @RequestBody @Validated ConsumerItemsCartRequest consumerItemsCartRequest) {
 

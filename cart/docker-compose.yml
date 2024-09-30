@@ -1,11 +1,11 @@
-version: '3.0'
+version: "3.9"
 
 volumes:
-  mongo-db:
+  mongo-cart-db:
 
 services:
-  mongodb:
-    container_name: mongo-product-db
+  mongo-cart-db:
+    container_name: mongo-cart-db
     image: mongo:6-jammy
     restart: always
     command:
@@ -19,25 +19,30 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb-data:/data/db
+      - ./mongodb-data:/data/mongo-cart-db
       - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     env_file: .env 
 
     networks:
       - app-network
 
-  product-ms:
-    image: product-ms
+  cart-ms:
+    image: 'cart-ms:0.0.1'
+    build:
+      context: .
+    container_name: cart_ms
+
     ports:
-      - "8002:8002"
+      - "8081:8081"
+
     networks:
       - app-network
+
     environment:
       WAIT_HOSTS: db-mongo:27017
-      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@db-mongo:27017/${MONGO_INITDB_DATABASE}?retryWrites=true&w=majority&authSource=admin
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo-cart-db:27017/${MONGO_INITDB_DATABASE}?retryWrites=true&w=majority&authSource=admin
 
-    command: sh -c "/wait && java -jar /app/product-ms.jar"
-
+    command: sh -c "/wait && java -jar cart.jar"
 
 networks:
   app-network:

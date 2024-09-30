@@ -1,7 +1,8 @@
 version: "3.9"
+
 services:
   mongodb:
-    container_name: mongo-product-db
+    container_name: mongo-cart-db
     image: mongo:6-jammy
     restart: always
     command:
@@ -15,6 +16,9 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb-data:/data/db
+      - ./mongodb-data:/data/mongo-cart-db
       - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     env_file: .env 
+
+volumes:
+  mongo-cart-db:
